@@ -88,7 +88,7 @@ const Main = () => {
     const [vital_sign, setVitalSign] = useState("");
     const [physical_examination, setPhysicalExamination] = useState("");
     const [reason_for_referal, setReferalReason] = useState("");
-
+    const [RX, setRX] = useState("");
   useEffect(() => {
     getLicense(application_number);
     fetchuserid();
@@ -428,13 +428,20 @@ const handleRefer = async () => {
 };
 
   const handlePriscribe = async () => {
-    try {
-      await axios.post('/Prescribe', { diagnosisCode: diagnosis_Code });
+   
+  try {
+    const payload = {
+      diagnosisCode: diagnosis_Code,
+      UserId: userid,
+      RX: RX
+    };
+    const res = await axios.post("/Prescribe", payload);
       setMessage("Prescription saved successfully.");
       // setIsCompleted(true);
-      openCommonPopup("REVIEW", "Task Status", "✅ Prescription saved successfully.");
+      openCommonPopup("MESSAGE", "Task Status", "✅ Prescription saved successfully.");
+          return true;
     } catch (error) {
-      console.error("Failed to save prescription:", error);
+      console.error("❌ Failed to save prescription:", error);
       // setMessage("Failed to save prescription.");
       openCommonPopup("MESSAGE", "Error", "❌ Failed to save prescription.");
     }
@@ -469,7 +476,15 @@ const openReferalPopup = () => {
     data: null
   });
 };
-
+const openPrescriptionPopup = () => {
+  setRX("");
+  setPopupState({
+    open: true,
+    type: "PRESCRIPTION_INPUT",
+    title: "Prescription",
+    data: null
+  });
+};
   const handleRequiredActionClick = async (event) => {
     setAnchorEl(event.currentTarget);
     setLoadingActions(true);
@@ -675,7 +690,7 @@ const openReferalPopup = () => {
                       "&:hover": { backgroundColor: "#218c01" },
                     }}
                     startIcon={<AssignmentTurnedInIcon />}
-                    onClick={handlePriscribe}
+                    onClick={openPrescriptionPopup}
                     disabled={!isCompleted}
                   >
                     Prescribe
@@ -1013,7 +1028,7 @@ const openReferalPopup = () => {
     </Button>
     </Box>
       )}
-         {/* Case 5: INPUT (Referal) */}
+         {/* Case 6: INPUT (Referal) */}
   {popupState.type === "REFERAL_INPUT" && (
   <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
          <TextField
@@ -1052,6 +1067,35 @@ const openReferalPopup = () => {
       disabled={!vitalsign.trim() || !physicalexamination || !referalreason}
     >
     💾 Save
+    </Button>
+    </Box>
+      )}
+  {/* Case 7: INPUT (Prescription) */}
+  {popupState.type === "PRESCRIPTION_INPUT" && (
+  <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      <TextField
+      label="RX"
+      fullWidth
+      value={RX}
+      onChange={(e) => setRX(e.target.value)}
+    />
+    <Button
+      className="actionBtn saveBtn"
+      variant="contained"
+       color="primary"
+       sx={{
+    fontSize: "0.8rem",      
+    padding: "4px 12px",     
+    minWidth: "80px",       
+    alignSelf: "flex-start", 
+  }}
+      onClick={() => {
+        handlePriscribe(RX);
+        handleClosePopup();
+      }}
+      disabled={!RX}
+    >
+    Submit
     </Button>
     </Box>
       )}
