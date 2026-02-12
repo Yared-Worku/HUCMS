@@ -49,7 +49,7 @@ const Diagnosis = ({ application_number, onSave, Diagnosis, diagnosisCode }) => 
             .filter(Boolean)
             .join(" ")
         );
-
+    
         setDepartment(d.depname || "");
         setStudentId(d.iD_NO || "");
         setAge(d.age || "");
