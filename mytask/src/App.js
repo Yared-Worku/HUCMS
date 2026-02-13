@@ -11,7 +11,7 @@ import axios from 'axios';
 import Loading from './loding/Loading';
 import Diagnosis from './Doctor/diagnosis';
 import LabTest from './Laboratory/lab_test';
-
+import Dispanse from './Pharmacy/dispanse';
 function App() {
    const [loading, setLoading] = useState(true);
 
@@ -44,6 +44,7 @@ function App() {
           <Route path="/mytask" element={<Mytask />} />
               <Route path="/diagnosis" element={<Diagnosis />} />
                   <Route path="/lab_test" element={<LabTest />} />
+                    <Route path="/dispanse" element={<Dispanse />} />
            <Route path="/myTask/:application_number/:service_code/:task_code/:organization_code/:todocode/:application_detail_id/:meta_data_forms_form_code" element={<Main />}/>
        <Route path="/survey" element={<Survey />} />
       </Routes>

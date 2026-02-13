@@ -32,6 +32,7 @@ import "survey-core/survey-core.min.css";
 import Survey from "./Survey/survey";
 import Diagnosis from "./Doctor/diagnosis"; 
 import LabTest from "./Laboratory/lab_test";
+import Dispanse from "./Pharmacy/dispanse";
 
 const Main = () => {
   const {
@@ -608,7 +609,10 @@ const handleAccordionChange = (panel) => (event, isExpanded) => {
             onSave={handleSavediagnosis} />;
           } else if(code === "5FF766C5-E596-4BF0-AF8F-BD015C03C103"){
             return <LabTest application_number={application_number} todocode={todocode} diagnosisCode={diagnosis_Code}/>
-          }else{
+          }else if(code === "5DABA599-80ED-42EA-B559-40443C02486A"){
+            return <Dispanse application_number={application_number} todocode={todocode} />
+          }
+          else{
             return (
               <Survey
                 formCode={meta_data_forms_form_code}
@@ -721,7 +725,7 @@ const handleAccordionChange = (panel) => (event, isExpanded) => {
                   </Button>
                 </>
               );
-            } else if(code === "5FF766C5-E596-4BF0-AF8F-BD015C03C103"){
+            } else if(code === "5FF766C5-E596-4BF0-AF8F-BD015C03C103" || code === "5DABA599-80ED-42EA-B559-40443C02486A"){
              return (
                 <>
                   <Button
