@@ -27,8 +27,10 @@ const Dispanse = ({ application_number, todocode }) => {
   const [userid, setUserid] = useState(null);
   const navigate = useNavigate();
    const [remark, setRemark] = useState("");
-    const [quantity, setQuantity] = useState();
-    
+    const [quantity, setQuantity] = useState("");
+    const [detailCode, setDetailcode] = useState("");
+    const [errors, setErrors] = useState({quantity: false, remark: false,});
+
    const Username = "dani123";
     // const Username = window.__DNN_USER__?.username ?? "Guest";
 
@@ -78,6 +80,7 @@ const fetchuserid = async () => {
   };
    const getRequestedDrug = async () => {
     try {
+        // debugger
       const res = await axios.get(`/GetRX/${todocode}`);
       if (Array.isArray(res.data) && res.data.length > 0) {
         const d = res.data[0];
@@ -90,15 +93,24 @@ const fetchuserid = async () => {
             .filter(Boolean)
             .join(" ")
         );
-      setRX(d.RX);
+      setRX(d.rX);
+      setDetailcode(d.detail_code);
       }
     } catch (err) {
       console.error("Failed to fetch RX:", err);
     }
   };
 
-  const handleSave = async () => {
-try {
+ const handleSave = async () => {
+  const newErrors = {
+    quantity: !quantity.trim(),
+    remark: !remark.trim(),
+  };
+  setErrors(newErrors);
+  if (newErrors.quantity || newErrors.remark) {
+    return;
+  }
+  try {
     setSaving(true);
     setMessage("");
 
@@ -106,23 +118,24 @@ try {
       todocode: todocode,
       remark: remark,
       UserId: userid,
-      quantity: quantity
+      quantity: parseInt(quantity, 10),
+      UserId: userid,
+      application_number: application_number,
+      detail_code: detailCode
     };
-
-    const res = await axios.post("/Dispense", payload);
-    setMessage( "🎉 The task completed successfully!");
-     navigate("/mytask");
-    return true;
+    await axios.post("/Dispense", payload);
+    setMessage("🎉 The task completed successfully!");
+    navigate("/mytask");
   } catch (error) {
     console.error("❌ Failed to save task data:", error);
     setMessage("Failed to save data.");
-    return false;
   } finally {
     setSaving(false);
   }
 };
 
   return (
+    
     <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
       <Paper
         elevation={3}
@@ -133,6 +146,7 @@ try {
           borderRadius: 3
         }}
       >
+         {message && <div className="alert alert-info">{message}</div>}
         {/* Patient Info */}
         <Grid container spacing={8}>
           <Grid item xs={12} sm={4}>
@@ -191,27 +205,57 @@ try {
             Quantity
           </Typography>
         <TextField
-        type="number"
-          fullWidth
-          multiline
-          minRows={1}
-          placeholder="Enter quantity ."
-          value={quantity}
-          onChange={(e) => setRemark(e.target.value)}
-          required
-        />
+  type="number"
+  fullWidth
+  placeholder="Enter quantity."
+  value={quantity}
+  onChange={(e) => {
+    const value = e.target.value;
+    setQuantity(value);
+
+    setErrors((prev) => ({
+      ...prev,
+      quantity: !value.trim(),
+    }));
+  }}
+  onBlur={() => {
+    setErrors((prev) => ({
+      ...prev,
+      quantity: !quantity.trim(),
+    }));
+  }}
+  error={errors.quantity}
+  helperText={errors.quantity ? "Quantity is required" : ""}
+/>
+
           <Typography variant="header" sx={{ color: "#0b5c8e", fontWeight: 600 }}>
             Remark
           </Typography>
-        <TextField
-          fullWidth
-          multiline
-          minRows={1}
-          placeholder="Please Provide Remark here."
-          value={remark}
-          onChange={(e) => setRemark(e.target.value)}
-          required
-        />
+       <TextField
+  fullWidth
+  multiline
+  minRows={1}
+  placeholder="Please Provide Remark here."
+  value={remark}
+  onChange={(e) => {
+    const value = e.target.value;
+    setRemark(value);
+
+    setErrors((prev) => ({
+      ...prev,
+      remark: !value.trim(),
+    }));
+  }}
+  onBlur={() => {
+    setErrors((prev) => ({
+      ...prev,
+      remark: !remark.trim(),
+    }));
+  }}
+  error={errors.remark}
+  helperText={errors.remark ? "Remark is required" : ""}
+/>
+
         <Typography
           variant="caption"
           color="text.secondary"
