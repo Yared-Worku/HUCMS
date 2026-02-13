@@ -66,10 +66,9 @@ const Mytask = () => {
 
   const filteredTasks = useMemo(() => {
     const term = searchTerm.toLowerCase();
-    return sortedTasks.filter((a) =>
-      (a.description_en ?? "").toLowerCase().includes(term)
-    );
-  }, [searchTerm, sortedTasks]);
+    return sortedTasks.filter((b) => 
+    (b.application_number ?? "").toLowerCase().includes(term))
+  }, [searchTerm, sortedTasks]) 
 
   const totalPages = Math.ceil(filteredTasks.length / itemsPerPage);
 
@@ -101,7 +100,7 @@ const Mytask = () => {
         <div className="searchContainer">
           <input
             type="text"
-            placeholder="Search by Task Name..."
+            placeholder="Search by Application Number..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="searchInput"

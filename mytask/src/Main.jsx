@@ -16,8 +16,12 @@ import {
   DialogActions,
   IconButton,
   Grid, 
-  TextField
+  TextField,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails
 } from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import PendingActionsIcon from "@mui/icons-material/PendingActions";
 import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
@@ -60,7 +64,7 @@ const Main = () => {
    const [physicalexamination, setPhysicalexamination] = useState("");
    const [referalreason, setReferalreason] = useState("");
   const [PopupInput, setPopupInput] = useState("");
-  // const [diagnosisCode, setDiagnosisCode] = useState("");
+const [expanded, setExpanded] = useState(false);
   const [diagnosis, setDiagnosis] = useState("");
   // Unified Popup State ---
   const [popupState, setPopupState] = useState({
@@ -292,7 +296,7 @@ const handleSavediagnosis = async (data) => {
       params: { customerID: cust_ID }
        });
      setReviewData(res.data);
-      openCommonPopup("patientHistory", "Review Patient History (The Recent Appeirs At The Top)");
+      openCommonPopup("patientHistory", "Patient History");
     } catch (error) {
       console.error("❌ Failed to fetch patient history:", error);
      openCommonPopup("MESSAGE", "Error", "Failed to fetch patient history.");
@@ -427,23 +431,49 @@ const handleRefer = async () => {
   }
 };
 
-  const handlePriscribe = async () => {
-   
+  const handlePriscribe = async () => { 
   try {
     const payload = {
       diagnosisCode: diagnosis_Code,
       UserId: userid,
-      RX: RX
+      RX: RX,
+      application_number: applicationNumber,
+      todocode: todocode,
+      organization_code: organization_code,
+      userId: userid,
+      ProcessDetailCode: ProcessDetailCode,
+      tasks_task_code: task_code
     };
     const res = await axios.post("/Prescribe", payload);
-      setMessage("Prescription saved successfully.");
-      // setIsCompleted(true);
-      openCommonPopup("MESSAGE", "Task Status", "✅ Prescription saved successfully.");
+      setMessage("🎉 The task completed successfully!");
+      // openCommonPopup("MESSAGE", "Task Status", "🎉 The task completed successfully!");
+          navigate("/mytask");
           return true;
     } catch (error) {
       console.error("❌ Failed to save prescription:", error);
       // setMessage("Failed to save prescription.");
       openCommonPopup("MESSAGE", "Error", "❌ Failed to save prescription.");
+    }
+  };
+  const handleActionSelect = async (action) => {
+    setSelectedAction(action);
+    setSelectedActionCode(action.task_rules_code);
+    setAnchorEl(null);
+
+    try {
+      const res = await axios.post("/ToDoTask", {
+        application_number: applicationNumber,
+        todocode: todocode,
+        organization_code: organization_code,
+        userId: userid,
+        ProcessDetailCode: ProcessDetailCode,
+        task_rules_code: action.task_rules_code,
+      });
+      setMessage("🎉 The task completed successfully!");
+      navigate("/mytask");
+    } catch (error) {
+      console.error("❌ Failed to create ToDo:", error);
+      setMessage("Could not create ToDo.");
     }
   };
 const openLabTestPopup = () => {
@@ -505,31 +535,11 @@ const openPrescriptionPopup = () => {
     }
   };
 
-  const handleActionSelect = async (action) => {
-    setSelectedAction(action);
-    setSelectedActionCode(action.task_rules_code);
-    setAnchorEl(null);
-
-    try {
-      const res = await axios.post("/ToDoTask", {
-        application_number: applicationNumber,
-        todocode: todocode,
-        organization_code: organization_code,
-        userId: userid,
-        ProcessDetailCode: ProcessDetailCode,
-        task_rules_code: action.task_rules_code,
-      });
-      setMessage("🎉 The task completed successfully!");
-      navigate("/mytask");
-    } catch (error) {
-      console.error("❌ Failed to create ToDo:", error);
-      setMessage("Could not create ToDo.");
-    }
-  };
-
   const handleClose = () => setAnchorEl(null);
   const handlePendClose = () => navigate("/mytask");
-
+const handleAccordionChange = (panel) => (event, isExpanded) => {
+ setExpanded(isExpanded ? panel : false);
+};
   const renderJson = (jsonString) => {
     try {
       const surveyJson = typeof jsonString === 'string' ? JSON.parse(jsonString) : jsonString;
@@ -847,108 +857,117 @@ const openPrescriptionPopup = () => {
               {popupState.data}
             </Typography>
           )}
-          {/* Case 3: When not json */}
-    {popupState.type === "patientHistory" && (
-       reviewData && reviewData.length > 0 ? (
-      <Stack spacing={1}>
-      {reviewData.map((item, index) => (
-        <Paper
-          key={index}
-          elevation={3}
-          sx={{
-            mb: 2,
-            p: 2,
-            borderRadius: 2,
-            backgroundColor: "#ffffff",
-          }}
-        >
-          <Grid container spacing={3}>
-            <Grid item xs={12}>
-              <Typography variant="subtitle1" fontWeight="bold">
-                Diagnosis
-              </Typography>
-              <Typography>{item.detail_diagnosis || "—"}</Typography>
-            </Grid>
+     {popupState.type === "patientHistory" && (
+     reviewData && reviewData.length > 0 ? (
+    <Stack spacing={2}>
+      {reviewData.map((item, index) => {
+        const panelId = `panel-${index}`;
 
-            <Grid item xs={6}>
-              <Typography variant="caption" color="text.secondary">
-                Doctor
-              </Typography>
-              <Typography>
-                {item.doctor_FirstName} {item.doctor_LastName}
-              </Typography>
-            </Grid>
-
-            <Grid item xs={6}>
-              <Typography variant="caption" color="text.secondary">
-                Date
-              </Typography>
-              <Typography>
-                {item.created_date}
-              </Typography>
-            </Grid>
-
-            <Grid item xs={6}>
-              <Typography variant="caption" color="text.secondary">
-                Lab Technician
-              </Typography>
-              <Typography>
-                {item.labTechnician_FirstName
-                  ? `${item.labTechnician_FirstName} ${item.labTechnician_LastName}`
-                  : "Not assigned"}
-              </Typography>
-            </Grid>
-
-            <Grid item xs={6}>
-              <Typography variant="caption" color="text.secondary">
-                Lab Test
-              </Typography>
-              <Typography>
-                {item.lab_test || "—"}
-              </Typography>
-            </Grid>
-
-            <Grid item xs={6}>
-              <Typography variant="caption" color="text.secondary">
-                Lab Result
-              </Typography>
-              <Typography>
-                {item.lab_result || "—"}
-              </Typography>
-            </Grid>
-
-            <Grid item xs={6}>
-              <Typography variant="caption" color="text.secondary">
-                Treatment given
-              </Typography>
-              <Typography>
-                {item.rx || "—"}
-              </Typography>
-            </Grid>
-
-            <Grid item xs={6}>
-              <Typography variant="caption" color="text.secondary">
-                Appointment
-              </Typography>
-              <Typography>
-                {item.appointment_reason || "—"}
-                {item.appointment_date
-                  ? ` (${item.appointment_date})`
+        return (
+          <Accordion
+            key={index}
+            expanded={expanded === panelId}
+            onChange={handleAccordionChange(panelId)}
+            sx={{ borderRadius: 2 }}
+          >
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Typography fontWeight="bold">
+                Diagnosis {reviewData.length - index} –{" "}
+                {item.created_date
+                  ? new Date(item.created_date).toLocaleDateString("en-US", {
+                      weekday: "long",
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    })
                   : ""}
               </Typography>
-            </Grid>
+            </AccordionSummary>
 
-            <Grid item xs={12}>
-              <Typography variant="caption" color="text.secondary">
-               Reason For Referral
-              </Typography>
-              <Typography>
-                {item.reason_for_referal || "—"}
-              </Typography>
-            </Grid>
-          </Grid>
-        </Paper>
-      ))}
+            <AccordionDetails>
+              <Grid container spacing={3}>
+                <Grid item xs={12}>
+                  <Typography variant="subtitle2" fontWeight="bold">
+                    Diagnosis
+                  </Typography>
+                  <Typography>{item.detail_diagnosis || "—"}</Typography>
+                </Grid>
+
+                <Grid item xs={6}>
+                  <Typography variant="caption" color="text.secondary">
+                    Doctor
+                  </Typography>
+                  <Typography>
+                    {item.doctor_FirstName} {item.doctor_LastName}
+                  </Typography>
+                </Grid>
+
+                <Grid item xs={6}>
+                  <Typography variant="caption" color="text.secondary">
+                   Diagnosis Date
+                  </Typography>
+                  <Typography>
+                    {item.created_date}
+                  </Typography>
+                </Grid>
+
+                <Grid item xs={6}>
+                  <Typography variant="caption" color="text.secondary">
+                    Lab Technician
+                  </Typography>
+                  <Typography>
+                    {item.labTechnician_FirstName
+                      ? `${item.labTechnician_FirstName} ${item.labTechnician_LastName}`
+                      : "Not assigned"}
+                  </Typography>
+                </Grid>
+
+                <Grid item xs={6}>
+                  <Typography variant="caption" color="text.secondary">
+                    Lab Test
+                  </Typography>
+                  <Typography>{item.lab_test || "—"}</Typography>
+                </Grid>
+
+                <Grid item xs={6}>
+                  <Typography variant="caption" color="text.secondary">
+                    Lab Result
+                  </Typography>
+                  <Typography>{item.lab_result || "—"}</Typography>
+                </Grid>
+
+                <Grid item xs={6}>
+                  <Typography variant="caption" color="text.secondary">
+                    Treatment Given
+                  </Typography>
+                  <Typography>{item.rx || "—"}</Typography>
+                </Grid>
+
+                <Grid item xs={6}>
+                  <Typography variant="caption" color="text.secondary">
+                    Appointment
+                  </Typography>
+                  <Typography>
+                    {item.appointment_reason || "—"}
+                    {item.appointment_date
+                      ? ` (${item.appointment_date})`
+                      : ""}
+                  </Typography>
+                </Grid>
+
+                <Grid item xs={12}>
+                  <Typography variant="caption" color="text.secondary">
+                    Reason For Referral
+                  </Typography>
+                  <Typography>
+                    {item.reason_for_referal || "—"}
+                  </Typography>
+                </Grid>
+              </Grid>
+            </AccordionDetails>
+          </Accordion>
+        );
+      })}
     </Stack>
   ) : (
     <Typography>No patient history found.</Typography>
