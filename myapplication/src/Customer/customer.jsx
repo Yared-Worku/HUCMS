@@ -32,8 +32,8 @@ const Customer = ({ onsave2 }) => {
   const [editing, setEditing] = useState(false);
   const [userid, setUserid] = useState(null);
 
-  // const Username = "dani123";
-  const Username = window.__DNN_USER__?.username ?? "Guest";
+  const Username = "amani";
+  // const Username = window.__DNN_USER__?.username ?? "Guest";
 
   // 🔹 fetch userid
   const fetchuserid = async () => {

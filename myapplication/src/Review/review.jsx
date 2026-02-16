@@ -31,10 +31,14 @@ const Review = ({ formCode, processDetailCode, userId }) => {
   const [customerData, setCustomerData] = useState(initialCustomerState);
   const [surveyOpen, setSurveyOpen] = useState(false);
   const [customerOpen, setCustomerOpen] = useState(false);
-
-  // 🔹 Fetch survey JSON for this application
   useEffect(() => {
-    if (!processDetailCode) return;
+    if (!userId) return;
+    fetchCustomer();
+        fetchSurvey();
+        fetchCertificatedatareview()
+  }, [userId]);
+  // 🔹 Fetch survey JSON for this application
+  
 
     const fetchSurvey = async () => {
       try {
@@ -71,13 +75,6 @@ const Review = ({ formCode, processDetailCode, userId }) => {
       }
     };
 
-    fetchSurvey();
-  }, [processDetailCode]);
-
-  // 🔹 Fetch customer data using passed userId
-  useEffect(() => {
-    if (!userId) return;
-
     const fetchCustomer = async () => {
       try {
         const res = await axios.get(`/Customer/${userId}`);
@@ -85,7 +82,6 @@ const Review = ({ formCode, processDetailCode, userId }) => {
           // debugger
           const cust = res.data[0];
           setCustomerData({
-            Customer_ID: cust.customer_ID,
             Applicant_First_Name_AM: cust.applicant_First_Name_AM,
             Applicant_First_Name_EN: cust.applicant_First_Name_EN,
             Applicant_Middle_Name_AM: cust.applicant_Middle_Name_AM,
@@ -110,11 +106,38 @@ const Review = ({ formCode, processDetailCode, userId }) => {
         console.error("Failed to fetch customer data:", err);
       }
     };
-
-    fetchCustomer();
-  }, [userId]);
+    const fetchCertificatedatareview = async () => {
+      try {
+        const res = await axios.get(`/CertificateReview/${processDetailCode}`);
+        if (Array.isArray(res.data) && res.data.length > 0) {
+          // debugger
+          const data = res.data[0];
+          setCustomerData({
+            Applicant_First_Name_AM: data.applicant_First_Name_AM,
+            Applicant_First_Name_EN: cust.applicant_First_Name_EN,
+            Applicant_Middle_Name_AM: cust.applicant_Middle_Name_AM,
+            Applicant_Middle_Name_En: cust.applicant_Middle_Name_En,
+            Applicant_Last_Name_AM: cust.applicant_Last_Name_AM,
+            Applicant_Last_Name_EN: cust.applicant_Last_Name_EN,
+            TIN: cust.tin,
+            Gender: cust.gender,
+            Email: cust.email,
+            Age: cust.age,
+            Mobile_No: cust.mobile_No,
+            Photo: cust.photo,
+            depname: cust.depname,
+            ID_NO: cust.iD_NO,
+            Signiture: cust.signiture
+          });
+        } else {
+          // debugger
+          setCustomerData(initialCustomerState);
+        }
+      } catch (err) {
+        console.error("Failed to fetch customer data:", err);
+      }
+    };
 const customerFieldOrder = [
-  "Customer_ID",
   "Applicant_First_Name_AM",
   "Applicant_First_Name_EN",
   "Applicant_Middle_Name_AM",
@@ -175,7 +198,7 @@ const customerFieldOrder = [
           {customerData ? (
             <div className="row mt-2">
              {customerFieldOrder.map((key) => {
-  const value = customerData[key];
+            const value = customerData[key];
 
                 if (key === "Photo" || key === "Signiture") {
                   return (
@@ -221,11 +244,6 @@ const customerFieldOrder = [
           )}
         </Collapse>
       </Paper>
-
-      {/* Form Code Info
-      <Typography variant="caption" color="textSecondary">
-        Form Code: {formCode}
-      </Typography> */}
     </Box>
   );
 };

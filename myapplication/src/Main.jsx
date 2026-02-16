@@ -15,11 +15,12 @@ import {
 import Survey from "./Survey/survey";
 import Customer from "./Customer/customer";
 import Review from "./Review/review";
+import Medical_Certificate from "./Medical_certificate/medical_certificate_application";
 
 const Main = () => {
   const {application_number, service_code, task_code, organization_code, application_detail_id, meta_data_forms_form_code } = useParams();
-  const Username = window.__DNN_USER__?.username ?? "Guest";
-  // const Username = 'dani123'
+  // const Username = window.__DNN_USER__?.username ?? "Guest";
+  const Username = 'amani'
 
   const navigate = useNavigate();
   const [message, setMessage] = useState("");
@@ -100,46 +101,60 @@ const fetchuserid = async () => {
 };
   // Handle Save
   const handleSave = async (data) => {
-      setMessage("");
-    try {
-      const res = await axios.post("/Application", {
-        application_number: applicationNumber,
-        services_service_code: service_code,
-        organization_code: organization_code,
-        tasks_task_code: task_code,
-        value: JSON.stringify(data),
-        UserId: userid,
+  setMessage("");
 
-      });
-  
-      console.log("✅ Application created:", res.data);
+  try {
 
-      if (res.data) {
-        setApplicationNumber(res.data.applicationNumber);
-        setprocessDetailCode(res.data.processDetailCode);
-        settodocode(res.data.toDoCode);
-      }
-   
- setMessage("Thank you for completing the form!");
-      completed(true); // Mark step as completed after save
-  getLicense(res.data.applicationNumber);
-    } catch (error) {
-      console.error("❌ Failed to create application:", error);
-      alert("Could not create application.");
+    const payload = {
+      application_number: applicationNumber,
+      services_service_code: service_code,
+      organization_code: organization_code,
+      tasks_task_code: task_code,
+      UserId: userid,
+    };
+
+    // 🔹 Check if data is Guid (string Guid format)
+    const isGuid =
+      typeof data === "string" &&
+      /^[0-9a-fA-F-]{36}$/.test(data);
+
+    if (isGuid) {
+      payload.diagnosis_code = data;
+    } else {
+      payload.value = JSON.stringify(data);
     }
-  };
 
+    const res = await axios.post("/Application", payload);
+
+    console.log("✅ Application created:", res.data);
+
+    if (res.data) {
+      setApplicationNumber(res.data.applicationNumber);
+      setprocessDetailCode(res.data.processDetailCode);
+      settodocode(res.data.toDoCode);
+    }
+
+    setMessage("Thank you for completing the form!");
+    completed(true);
+    getLicense(res.data.applicationNumber);
+
+  } catch (error) {
+    console.error("❌ Failed to create application:", error);
+    alert("Could not create application.");
+  }
+};
+
+  const code = meta_data_forms_form_code.toUpperCase();
   // Step content renderer
   const getStepContent = (step) => {
     switch (step) {
       case 0: {
-        //  if(meta_data_forms_form_code &&
-        // meta_data_forms_form_code.trim().toLowerCase() ==="F178E9EA-D0DF-41B7-A24A-836ECD79505C"){ 
-        //    return <Review formCode={meta_data_forms_form_code} processDetailCode={processDetailCode} userId={userid}  />
-        //  }
-        //   else{
+         if(code === "E0D68EE8-56E6-4262-A407-8999F92FCCDE"){ 
+           return <Medical_Certificate processDetailCode={processDetailCode} onsave={handleSave}/>
+         }
+          else{
        return <Survey formCode={meta_data_forms_form_code} onsave1={handleSave} detailId={application_detail_id} />
-              
+          }    
         }
       case 1:
         return <Customer  onsave2={completed} />;
