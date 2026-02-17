@@ -148,6 +148,12 @@ const fetchuserid = async () => {
       >
          {message && <div className="alert alert-info">{message}</div>}
         {/* Patient Info */}
+          <Box sx={{ mt: 2, mb: 2 }}>
+          <Typography variant="h6" sx={{ color: "#0b5c8e", fontWeight: 700 }}>
+            Despense Medicine
+          </Typography>
+          <Box sx={{ height: 1, backgroundColor: "#e0e0e0", mt: 1 }} />
+        </Box>
         <Grid container spacing={8}>
           <Grid item xs={12} sm={4}>
             <Typography variant="body2" color="text.secondary">
@@ -195,12 +201,7 @@ const fetchuserid = async () => {
           </Grid>
            <Divider sx={{ my: 1 }} />
         {/* Divider */}
-        <Box sx={{ mt: 2, mb: 2 }}>
-          <Typography variant="h6" sx={{ color: "#0b5c8e", fontWeight: 700 }}>
-            Despense Medicine
-          </Typography>
-          <Box sx={{ height: 1, backgroundColor: "#e0e0e0", mt: 1 }} />
-        </Box>
+      
          <Typography variant="header" sx={{ color: "#0b5c8e", fontWeight: 600 }}>
             Quantity
           </Typography>

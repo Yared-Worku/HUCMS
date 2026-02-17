@@ -8,7 +8,8 @@ import {
   Typography,
   Grid,
   TextField,
-  Button
+  Button,
+   Divider
 } from "@mui/material";
 import Mytask from "../mytask";
 const LabTest = ({ application_number, todocode, diagnosisCode }) => {
@@ -144,6 +145,12 @@ const handleSave = async () => {
       >
          {message && <div className="alert alert-info">{message}</div>}
         {/* Patient Info */}
+          <Box sx={{ mt: 2, mb: 2 }}>
+          <Typography variant="h6" sx={{ color: "#0b5c8e", fontWeight: 700 }}>
+           Laboratory Test 
+          </Typography>
+          <Box sx={{ height: 1, backgroundColor: "#e0e0e0", mt: 1 }} />
+        </Box>
         <Grid container spacing={4}>
           <Grid item xs={12} sm={4}>
             <Typography variant="body2" color="text.secondary">
@@ -176,6 +183,7 @@ const handleSave = async () => {
             <Typography fontWeight={600}>{studentId || "—"}</Typography>
           </Grid>                    
         </Grid>
+         <Divider sx={{ my: 1 }} />
                <Box sx={{ mt: 4, mb: 2 }}>
              <Grid item xs={12} sm={4}>
             <Typography variant="body2" color="text.secondary">
@@ -184,13 +192,8 @@ const handleSave = async () => {
             <Typography fontWeight={600}>{RequestedPersonel || "—"}</Typography>
           </Grid>
           </Box>
-                  {/* Divider */}
-        <Box sx={{ mt: 2, mb: 2 }}>
-          <Typography variant="h6" sx={{ color: "#0b5c8e", fontWeight: 700 }}>
-          List Of Requested Laboratory Tests 
-          </Typography>
-          <Box sx={{ height: 1, backgroundColor: "#e0e0e0", mt: 1 }} />
-        </Box>
+          <Divider sx={{ my: 1 }} />
+
   {labTests.map((test, index) => (
   <Box key={index} sx={{ mt: 3 }}>
     <Typography
