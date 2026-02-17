@@ -46,8 +46,8 @@ const Main = () => {
     meta_data_forms_form_code,
   } = useParams();
 
-  const Username = "dani123";
-// const Username = window.__DNN_USER__?.username ?? "Guest";
+  // const Username = "dani123";
+const Username = window.__DNN_USER__?.username ?? "Guest";
 
   const navigate = useNavigate();
   const code = meta_data_forms_form_code.toUpperCase();
@@ -728,7 +728,9 @@ const handleAccordionChange = (panel) => (event, isExpanded) => {
                   </Button>
                 </>
               );
-            } else if(code === "5FF766C5-E596-4BF0-AF8F-BD015C03C103" || code === "5DABA599-80ED-42EA-B559-40443C02486A" || code === "97045723-453F-471D-8190-B59A636855C8"){
+            } else if(code === "5FF766C5-E596-4BF0-AF8F-BD015C03C103" 
+              || code === "5DABA599-80ED-42EA-B559-40443C02486A" 
+              || code === "97045723-453F-471D-8190-B59A636855C8"){
              return (
                 <>
                   <Button

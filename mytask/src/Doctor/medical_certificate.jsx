@@ -30,8 +30,8 @@ const Medical_Certificate = ({userId, application_number,todocode }) => {
          const [detail_code, setDetailcode] = useState("");
     const [errors, setErrors] = useState({patient_condition: false, health_profetional_recomendation: false,});
 
-   const Username = "amani";
-    // const Username = window.__DNN_USER__?.username ?? "Guest";
+  //  const Username = "amani";
+    const Username = window.__DNN_USER__?.username ?? "Guest";
   useEffect(() => {
     if (application_number) {
       getLicense(application_number);

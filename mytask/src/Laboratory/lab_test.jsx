@@ -30,8 +30,8 @@ const LabTest = ({ application_number, todocode, diagnosisCode }) => {
    const [labTests, setLabTests] = useState([]);
   const [labResultsByTest, setLabResultsByTest] = useState({});
 
-   const Username = "dani123";
-   // const Username = window.__DNN_USER__?.username ?? "Guest";
+  //  const Username = "dani123";
+   const Username = window.__DNN_USER__?.username ?? "Guest";
 
  useEffect(() => {
     if (application_number) {

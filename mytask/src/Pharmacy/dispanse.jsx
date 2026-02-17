@@ -31,8 +31,8 @@ const Dispanse = ({ application_number, todocode }) => {
     const [detailCode, setDetailcode] = useState("");
     const [errors, setErrors] = useState({quantity: false, remark: false,});
 
-   const Username = "dani123";
-    // const Username = window.__DNN_USER__?.username ?? "Guest";
+  //  const Username = "dani123";
+    const Username = window.__DNN_USER__?.username ?? "Guest";
 
   useEffect(() => {
     if (application_number) {
