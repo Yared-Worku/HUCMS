@@ -150,7 +150,7 @@ const fetchuserid = async () => {
     switch (step) {
       case 0: {
          if(code === "E0D68EE8-56E6-4262-A407-8999F92FCCDE"){ 
-           return <Medical_Certificate processDetailCode={processDetailCode} onsave={handleSave}/>
+           return <Medical_Certificate processDetailCode={application_detail_id} onsave={handleSave} />
          }
           else{
        return <Survey formCode={meta_data_forms_form_code} onsave1={handleSave} detailId={application_detail_id} />

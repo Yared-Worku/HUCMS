@@ -33,6 +33,7 @@ import Survey from "./Survey/survey";
 import Diagnosis from "./Doctor/diagnosis"; 
 import LabTest from "./Laboratory/lab_test";
 import Dispanse from "./Pharmacy/dispanse";
+import Medical_Certificate from "./Doctor/medical_certificate";
 
 const Main = () => {
   const {
@@ -611,6 +612,8 @@ const handleAccordionChange = (panel) => (event, isExpanded) => {
             return <LabTest application_number={application_number} todocode={todocode} diagnosisCode={diagnosis_Code}/>
           }else if(code === "5DABA599-80ED-42EA-B559-40443C02486A"){
             return <Dispanse application_number={application_number} todocode={todocode} />
+          } else if(code === "97045723-453F-471D-8190-B59A636855C8"){
+            return <Medical_Certificate userId={userid} application_number={application_number} todocode={todocode}/>
           }
           else{
             return (

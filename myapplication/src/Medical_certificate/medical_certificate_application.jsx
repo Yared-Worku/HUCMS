@@ -12,14 +12,16 @@ import {
 
 const Medical_Certificate_Application = ({ processDetailCode, onsave }) => {
 
-  const [applications, setApplications] = useState([]); // 🔹 store all records
+  const [applications, setApplications] = useState([]);
   const [application_number, setApplicationNumber] = useState("");
   const [diagnosis_code, setDiagnosiscode] = useState(null);
+  const [detail_code, setDetailcode] = useState(null);
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
   const [userid, setUserid] = useState(null);
-  // const Username = window.__DNN_USER__?.username ?? "Guest";
-   const Username = 'amani'
+
+  const Username = 'amani';
+
   useEffect(() => {
     fetchuserid();
   }, []);
@@ -30,7 +32,7 @@ const Medical_Certificate_Application = ({ processDetailCode, onsave }) => {
       console.log("GetUserID response:", res.data);
 
       if (Array.isArray(res.data) && res.data.length > 0) {
-        const id = res.data[0].userid; 
+        const id = res.data[0].userid;
         setUserid(id);
         getCertificate(id);
       } else {
@@ -45,7 +47,20 @@ const Medical_Certificate_Application = ({ processDetailCode, onsave }) => {
     try {
       const res = await axios.get(`/Getcertificate/${userid}`);
       if (Array.isArray(res.data) && res.data.length > 0) {
-        setApplications(res.data); // 🔹 store full list
+        setApplications(res.data);
+// debugger
+        //auto-select when processDetailCode exists
+        if (processDetailCode) {
+          const matchedItem = res.data.find(
+            (item) => item.detail_code === processDetailCode
+          );
+
+          if (matchedItem) {
+            setApplicationNumber(matchedItem.application_number);
+            setDiagnosiscode(matchedItem.diagnosis_code);
+            setDetailcode(matchedItem.detail_code);
+          }
+        }
       }
     } catch (err) {
       console.error("Failed to fetch certificate data:", err);
@@ -62,20 +77,20 @@ const Medical_Certificate_Application = ({ processDetailCode, onsave }) => {
 
     if (selectedItem) {
       setDiagnosiscode(selectedItem.diagnosis_code);
+      setDetailcode(selectedItem.detail_code);
     }
   };
 
-const handleSave = () => {
-  if (!diagnosis_code) {
-    setMessage("Please select an application.");
-    return;
-  }
+  const handleSave = () => {
+    if (!diagnosis_code) {
+      setMessage("Please select an application.");
+      return;
+    }
 
-  // 🔹 send selected diagnosis_code to parent
-  if (onsave) {
-    onsave(diagnosis_code);
-  }
-};
+    if (onsave) {
+      onsave(diagnosis_code);
+    }
+  };
 
   return (
     <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
@@ -104,7 +119,6 @@ const handleSave = () => {
           Select application:
         </Typography>
 
-        {/* 🔹 SELECTOR */}
         <TextField
           select
           fullWidth
@@ -121,18 +135,17 @@ const handleSave = () => {
         </TextField>
 
         <div style={{ marginTop: "20px" }}>
-          <button
-            type="button"
-            className="actionBtn saveBtn"
-            onClick={handleSave}
-          >
-            💾 Save
-          </button>
+     <button
+       type="button"
+          className="actionBtn saveBtn"
+       onClick={handleSave}
+         >
+       💾 {processDetailCode ? "Update" : "Save"}
+      </button>
         </div>
 
       </Paper>
     </Box>
   );
 };
-
 export default Medical_Certificate_Application;

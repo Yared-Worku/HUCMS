@@ -12,68 +12,109 @@ import {
   Divider
 } from "@mui/material";
 
-const Medical_Certificate = ({ processDetailCode, userId }) => {
+const Medical_Certificate = ({userId, application_number,todocode }) => {
 
-  const [RX, setRX] = useState("");
-  const [prescriber, setPrescriber] = useState("");
+  // 🔹 Patient info from API
+  const [patientName, setPatientName] = useState("");
+  const [department, setDepartment] = useState("");
+  const [studentId, setStudentId] = useState("");
+  const [age, setAge] = useState("");
+  const [gender, setGender] = useState(""); 
   const [message, setMessage] = useState("");
-//   const [userid, setUserid] = useState(null);
   const navigate = useNavigate();
    const [patient_condition, setPatientCondition] = useState("");
     const [health_profetional_recomendation, setHealthProfetionalRecomendation] = useState("");
-    const [diagnosis_code, setDiagnosiscode] = useState(null);
-    const [errors, setErrors] = useState({quantity: false, remark: false,});
+    const [diagnosis, setDiagnosis] = useState("");
+    const [treatment, setTreatment] = useState("");
+      const [atendedondate, setAttendedDte] = useState("");
+         const [detail_code, setDetailcode] = useState("");
+    const [errors, setErrors] = useState({patient_condition: false, health_profetional_recomendation: false,});
 
    const Username = "amani";
     // const Username = window.__DNN_USER__?.username ?? "Guest";
-
   useEffect(() => {
-    
-      getRequestedDrug();
+    if (application_number) {
+      getLicense(application_number);
+      getGetcertificateDetail();
+    }
+  }, [application_number]);
 
-  }, []);
+const getGetcertificateDetail = async () => {
+  try {
+    const res = await axios.get(
+      `/GetcertificateDetail`,
+      {
+        params: {
+          applicationNumber: application_number
+        }
+      }
+    );
 
-   const getRequestedDrug = async () => {
+    if (Array.isArray(res.data) && res.data.length > 0) {
+      const d = res.data[0];
+      setDiagnosis(d.diagnosis);
+      setTreatment(d.treatment);
+      setAttendedDte(d.attendedondate);
+       setDetailcode(d.detail_code);
+    } else {
+      console.log("No certificate data found.");
+    }
+
+  } catch (err) {
+    if (err.response && err.response.status === 404) {
+      console.log("No certificate records found.");
+    } else {
+      console.error("Failed to fetch certificate detail:", err);
+    }
+  }
+};
+
+  const getLicense = async (appNo = application_number) => {
     try {
-        // debugger
-      const res = await axios.get(`/Getcertificate/${userId}`);
+      const res = await axios.get(`/GetLicense/${appNo}`);
       if (Array.isArray(res.data) && res.data.length > 0) {
         const d = res.data[0];
 
-        setPrescriber(
+        setPatientName(
           [
-            d.firstName,
-            d.lastName,
+            d.applicant_First_Name_EN,
+            d.applicant_Last_Name_EN,
+            d.applicant_Middle_Name_En,
           ]
             .filter(Boolean)
             .join(" ")
         );
-      setRX(d.rX);
-      setDetailcode(d.detail_code);
+    
+        setDepartment(d.depname || "");
+        setStudentId(d.iD_NO || "");
+        setAge(d.age || "");
+        setGender(d.gender || "");
       }
     } catch (err) {
-      console.error("Failed to fetch RX:", err);
+      console.error("Failed to fetch license info:", err);
     }
   };
-
  const handleSave = async () => {
   const newErrors = {
-    quantity: !quantity.trim(),
-    remark: !remark.trim(),
+    patient_condition: !patient_condition.trim(),
+    health_profetional_recomendation: !health_profetional_recomendation.trim(),
   };
   setErrors(newErrors);
-  if (newErrors.quantity || newErrors.remark) {
+  if (newErrors.patient_condition || newErrors.health_profetional_recomendation) {
     return;
   }
   try {
     setMessage("");
 
     const payload = {
-      remark: remark,
+      health_profetional_recomendation: health_profetional_recomendation,
       UserId: userId,
-      processDetailCode: processDetailCode
+      processDetailCode: detail_code,
+      patient_condition: patient_condition,
+      todocode: todocode,
+      application_number: application_number
     };
-    await axios.post("/Dispense", payload);
+    await axios.post("/IssueCertificate", payload);
     setMessage("🎉 The task completed successfully!");
     navigate("/mytask");
   } catch (error) {
@@ -95,34 +136,72 @@ const Medical_Certificate = ({ processDetailCode, userId }) => {
         }}
       >
          {message && <div className="alert alert-info">{message}</div>}
-        {/* Patient Info */}
-
-        <Divider sx={{ my: 1 }} />
-         <Grid item xs={12} sm={4}>
-            <Typography variant="body2" color="text.secondary">
-              prescriber:
-            </Typography>
-            <Typography fontWeight={600}>{prescriber || "—"}</Typography>
-          {/* </Grid>
-          <Grid item xs={12} sm={4}> */}
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-             Patient Condition:
-            </Typography>
-            <Typography fontWeight={600}>{patient_condition || "—"}</Typography>
-          </Grid>
-        {/* Divider */}
-        <Box sx={{ mt: 2, mb: 2 }}>
+                 <Box sx={{ mt: 2, mb: 2 }}>
           <Typography variant="h6" sx={{ color: "#0b5c8e", fontWeight: 700 }}>
-            Despense Medicine
+            Medical Certificate
           </Typography>
           <Box sx={{ height: 1, backgroundColor: "#e0e0e0", mt: 1 }} />
         </Box>
+               {/* Patient Info */}
+               <Grid container spacing={8}>
+                 <Grid item xs={12} sm={4}>
+                   <Typography variant="body2" color="text.secondary">
+                     Patient Name:
+                   </Typography>
+                   <Typography fontWeight={600}>{patientName || "—"}</Typography>
+       
+                   <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+                     Gender:
+                   </Typography>
+                   <Typography fontWeight={600}>{gender || "—"}</Typography>
+                 </Grid>
+       
+                 <Grid item xs={12} sm={4}>
+                   <Typography variant="body2" color="text.secondary">
+                     Department:
+                   </Typography>
+                   <Typography fontWeight={600}>{department || "—"}</Typography>
+       
+                   <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+                     Age:
+                   </Typography>
+                   <Typography fontWeight={600}>{age || "—"}</Typography>
+                 </Grid>
+       
+                 <Grid item xs={12} sm={4}>
+                   <Typography variant="body2" color="text.secondary">
+                     Student ID:
+                   </Typography>
+                   <Typography fontWeight={600}>{studentId || "—"}</Typography>
+                 </Grid>
+               </Grid>
+               <Divider sx={{ my: 2 }} />
+                <Grid container spacing={8}>
+             <Grid item xs={12} sm={4}>
+                   <Typography variant="body2" color="text.secondary">
+                     Diagnosis Or Injury:
+                   </Typography>
+                   <Typography fontWeight={600}>{diagnosis || "—"}</Typography>
+                   <Typography variant="body2" color="text.secondary">
+                     Treatment Given:
+                   </Typography>
+                   <Typography fontWeight={600}>{treatment || "—"}</Typography>
+                 </Grid>
+                    <Grid item xs={12} sm={4}>
+                   <Typography variant="body2" color="text.secondary">
+                     Attended In Our Clinic On:
+                   </Typography>
+                   <Typography fontWeight={600}>{atendedondate || "—"}</Typography>
+                 </Grid>
+                 </Grid>
+        {/* Divider */}
+           <Divider sx={{ my: 2 }} />
          <Typography variant="header" sx={{ color: "#0b5c8e", fontWeight: 600 }}>
             Patient Condition:
           </Typography>
         <TextField
   fullWidth
-  placeholder="Enter quantity."
+  placeholder="Provide the patient condition here."
   value={patient_condition}
   onChange={(e) => {
     const value = e.target.value;
@@ -140,35 +219,35 @@ const Medical_Certificate = ({ processDetailCode, userId }) => {
     }));
   }}
   error={errors.patient_condition}
-  helperText={errors.patient_condition ? "Quantity is required" : ""}
+  helperText={errors.patient_condition ? "petient condition is required" : ""}
 />
 
           <Typography variant="header" sx={{ color: "#0b5c8e", fontWeight: 600 }}>
-            Remark
+          Recomendation of the health profesional:
           </Typography>
        <TextField
   fullWidth
   multiline
   minRows={1}
-  placeholder="Please Provide Remark here."
-  value={remark}
+  placeholder="Please Provide your recomendation here."
+  value={health_profetional_recomendation}
   onChange={(e) => {
     const value = e.target.value;
-    setRemark(value);
+    setHealthProfetionalRecomendation(value);
 
     setErrors((prev) => ({
       ...prev,
-      remark: !value.trim(),
+      health_profetional_recomendation: !value.trim(),
     }));
   }}
   onBlur={() => {
     setErrors((prev) => ({
       ...prev,
-      remark: !remark.trim(),
+      health_profetional_recomendation: !health_profetional_recomendation.trim(),
     }));
   }}
-  error={errors.remark}
-  helperText={errors.remark ? "Remark is required" : ""}
+  error={errors.health_profetional_recomendation}
+  helperText={errors.health_profetional_recomendation ? "recomendation is required" : ""}
 />
 
         <Typography

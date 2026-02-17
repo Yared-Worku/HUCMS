@@ -17,10 +17,11 @@ function Surveycomp({ formCode, onsave1, detailId }) {
   // Fetch data from DB if detailId is provided
   useEffect(() => {
     if (!detailId) {
-      // No detailId → set empty data to trigger new form load
       setData({});
+       fetchData();
       return;
     }
+  }, [detailId]);
 
     const fetchData = async () => {
       try {
@@ -39,10 +40,7 @@ function Surveycomp({ formCode, onsave1, detailId }) {
         console.error("Failed to fetch data: ", err);
         setData({});
       }
-    };
-
-    fetchData();
-  }, [detailId]);
+    }
 
   // Merge answers into JSON for saving
   const mergeAnswersIntoJson = (formStructure, answers) => {
@@ -132,7 +130,7 @@ function Surveycomp({ formCode, onsave1, detailId }) {
 
       <div style={{ marginTop: "20px" }}>
         <button type="button" className="btn btn-success" onClick={handlesaveform}>
-          💾 Save
+          💾 {detailId ? "Update" : "Save"}
         </button>
       </div>
     </div>
