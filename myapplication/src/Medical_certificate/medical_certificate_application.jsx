@@ -20,8 +20,8 @@ const Medical_Certificate_Application = ({ processDetailCode, onsave }) => {
   const navigate = useNavigate();
   const [userid, setUserid] = useState(null);
 
-  const Username = 'amani';
-
+  // const Username = 'amani';
+  const Username = window.__DNN_USER__?.username ?? "Guest";
   useEffect(() => {
     fetchuserid();
   }, []);

@@ -19,8 +19,8 @@ import Medical_Certificate from "./Medical_certificate/medical_certificate_appli
 
 const Main = () => {
   const {application_number, service_code, task_code, organization_code, application_detail_id, meta_data_forms_form_code } = useParams();
-  // const Username = window.__DNN_USER__?.username ?? "Guest";
-  const Username = 'amani'
+  const Username = window.__DNN_USER__?.username ?? "Guest";
+  // const Username = 'amani'
 
   const navigate = useNavigate();
   const [message, setMessage] = useState("");
