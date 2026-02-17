@@ -106,7 +106,7 @@ const Mytask = () => {
             className="searchInput"
           />
         </div>
-</div>
+     </div>
       {loading ? (
         <p>⏳ Loading tasks...</p>
       ) : (
@@ -181,11 +181,12 @@ const Mytask = () => {
       )}
 
       <div className="pagination">
-        <button onClick={() => setPage(1)} disabled={currentPage === 1} className="pageBtn">&laquo;</button>
-        <button onClick={() => setPage(currentPage - 1)} disabled={currentPage === 1} className="pageBtn">&lsaquo;</button>
+        <button  type="button" onClick={() => setPage(1)} disabled={currentPage === 1} className="pageBtn">&laquo;</button>
+        <button  type="button" onClick={() => setPage(currentPage - 1)} disabled={currentPage === 1} className="pageBtn">&lsaquo;</button>
 
         {[...Array(totalPages)].map((_, i) => (
           <button
+           type="button"
             key={i}
             onClick={() => setPage(i + 1)}
             className={`pageBtn ${currentPage === i + 1 ? "active" : ""}`}
@@ -194,8 +195,8 @@ const Mytask = () => {
           </button>
         ))}
 
-        <button onClick={() => setPage(currentPage + 1)} disabled={currentPage === totalPages} className="pageBtn">&rsaquo;</button>
-        <button onClick={() => setPage(totalPages)} disabled={currentPage === totalPages} className="pageBtn">&raquo;</button>
+        <button  type="button" onClick={() => setPage(currentPage + 1)} disabled={currentPage === totalPages} className="pageBtn">&rsaquo;</button>
+        <button  type="button" onClick={() => setPage(totalPages)} disabled={currentPage === totalPages} className="pageBtn">&raquo;</button>
       </div>
     </div>
   );
