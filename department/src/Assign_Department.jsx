@@ -8,16 +8,13 @@ const Assign_Department = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [depCode, setDepCode] = useState('');
 
-  /* ---------- Loading & Error ---------- */
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  /* ---------- Search & Pagination ---------- */
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setPage] = useState(1);
   const itemsPerPage = 5;
 
-  /* ---------- Fetch Data ---------- */
   const fetchUsers = async () => {
     try {
       const res = await axios.get('/Users');
@@ -46,12 +43,9 @@ const Assign_Department = () => {
     fetchDepartments();
   }, []);
 
-  /* ---------- Assign Department ---------- */
   const assignDepartment = async () => {
     try {
-      await axios.put(`/Users/${selectedUser.userID}/AssignDepartment`, {
-        depCode
-      });
+      await axios.put(`/Users/${selectedUser.userID}/AssignDepartment`, { depCode });
       setSelectedUser(null);
       fetchUsers();
     } catch (err) {
@@ -59,7 +53,6 @@ const Assign_Department = () => {
     }
   };
 
-  /* ---------- Search ---------- */
   const filteredUsers = useMemo(() => {
     const term = searchTerm.toLowerCase();
     return users.filter(u =>
@@ -71,7 +64,6 @@ const Assign_Department = () => {
     );
   }, [searchTerm, users, departments]);
 
-  /* ---------- Pagination ---------- */
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
 
   const paginatedUsers = useMemo(() => {
@@ -80,169 +72,144 @@ const Assign_Department = () => {
   }, [filteredUsers, currentPage]);
 
   return (
-    <div className="container">
-      <h6>Users Department Assignment</h6>
-
-      {/* ---------- Modal ---------- */}
-      {selectedUser && (
-        <div className="modal-overlay">
-          <div className="modal-scrollable-content">
-            <button
-              type="button"
-              className="modalCloseBtn"
-              onClick={() => setSelectedUser(null)}
-            >
-              ✕
-            </button>
-
-            <div className="service-registration-container">
-              <h6>
-                Assign Department to {selectedUser.firstName}{' '}
-                {selectedUser.lastName}
-              </h6>
-
-              <select
-                className="formSpacing largeSelect"
-                value={depCode}
-                onChange={e => setDepCode(e.target.value)}
-              >
-                <option value="">Select Department</option>
-                {departments.map(dep => (
-                  <option key={dep.depCode} value={dep.depCode}>
-                    {dep.depName}
-                  </option>
-                ))}
-              </select>
-
-              <button
-                type="button"
-                className="actionBtn saveBtn"
-                onClick={assignDepartment}
-              >
-                Assign
-              </button>
-            </div>
+    <div className="mytask-page">
+      <div className="mytask-wrapper">
+        <div
+          className="service-table-wrapper"
+          style={{
+            width: "100%",
+            maxWidth: "1300px",
+            margin: "0 auto"
+          }}
+        >
+          <h6 className="page-title">🏢 Users Department Assignment</h6>
+          <div className="searchContainer">
+            <input
+              type="text"
+              placeholder="Search by name, email or department..."
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              className="searchInput"
+            />
           </div>
-        </div>
-      )}
+          {/* ---------- Modal ---------- */}
+          {selectedUser && (
+            <div className="modal-overlay">
+              <div className="modal-scrollable-content">
+                <button
+                  type="button"
+                  className="modalCloseBtn"
+                  onClick={() => setSelectedUser(null)}
+                >
+                  ✕
+                </button>
 
-      {/* ---------- Search ---------- */}
-      <div className="searchContainer">
-        <input
-          type="text"
-          placeholder="Search by name, email or department..."
-          value={searchTerm}
-          onChange={e => setSearchTerm(e.target.value)}
-          className="searchInput"
-        />
-      </div>
+                <div className="service-registration-container">
+                  <h6>
+                    Assign Department to {selectedUser.firstName} {selectedUser.lastName}
+                  </h6>
 
-      {/* ---------- Table ---------- */}
-      <table className="table">
-        <thead>
-          <tr>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Email</th>
-            <th>Department</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
+                  <select
+                    className="formSpacing largeSelect"
+                    value={depCode}
+                    onChange={e => setDepCode(e.target.value)}
+                  >
+                    <option value="">Select Department</option>
+                    {departments.map(dep => (
+                      <option key={dep.depCode} value={dep.depCode}>
+                        {dep.depName}
+                      </option>
+                    ))}
+                  </select>
 
-        <tbody>
-          {loading ? (
-            <tr>
-              <td colSpan={5} style={{ textAlign: 'center' }}>
-                Loading...
-              </td>
-            </tr>
-          ) : error ? (
-            <tr>
-              <td colSpan={5} style={{ textAlign: 'center', color: 'red' }}>
-                {error}
-              </td>
-            </tr>
-          ) : paginatedUsers.length === 0 ? (
-            <tr>
-              <td colSpan={5} style={{ textAlign: 'center' }}>
-                No data found.
-              </td>
-            </tr>
-          ) : (
-            paginatedUsers.map((u, i) => (
-              <tr key={i}>
-                <td>{u.firstName}</td>
-                <td>{u.lastName}</td>
-                <td>{u.email}</td>
-                <td>
-                  {departments.find(d => d.depCode === u.depCode)?.depName || '-'}
-                </td>
-                <td>
                   <button
                     type="button"
                     className="actionBtn saveBtn"
-                    onClick={() => {
-                      setSelectedUser(u);
-                      setDepCode(u.depCode || '');
-                    }}
+                    onClick={assignDepartment}
                   >
-                    Assign Department
+                    Assign
                   </button>
-                </td>
-              </tr>
-            ))
+                </div>
+              </div>
+            </div>
           )}
-        </tbody>
-      </table>
 
-      {/* ---------- Pagination ---------- */}
-      <div className="pagination">
-        <button
-          type="button"
-          onClick={() => setPage(1)}
-          disabled={currentPage === 1}
-          className="pageBtn"
-        >
-          &laquo;
-        </button>
+          {/* ---------- Table ---------- */}
+          <table className="table" style={{ width: "100%" }}>
+            <thead className="table-header-green">
+              <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Department</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
 
-        <button
-          type="button"
-          onClick={() => setPage(currentPage - 1)}
-          disabled={currentPage === 1}
-          className="pageBtn"
-        >
-          &lsaquo;
-        </button>
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td colSpan={5} style={{ textAlign: 'center' }}>
+                    ⏳ Loading...
+                  </td>
+                </tr>
+              ) : error ? (
+                <tr>
+                  <td colSpan={5} style={{ textAlign: 'center', color: 'red' }}>
+                    {error}
+                  </td>
+                </tr>
+              ) : paginatedUsers.length === 0 ? (
+                <tr>
+                  <td colSpan={5} style={{ textAlign: 'center' }}>
+                    No data found.
+                  </td>
+                </tr>
+              ) : (
+                paginatedUsers.map((u, index) => (
+                  <tr key={index} className={index % 2 === 0 ? "rowEven" : "rowOdd"}>
+                    <td>{u.firstName}</td>
+                    <td>{u.lastName}</td>
+                    <td>{u.email}</td>
+                    <td>{departments.find(d => d.depCode === u.depCode)?.depName || '-'}</td>
+                    <td>
+                      <button
+                        type="button"
+                        className="actionBtn editBtn"
+                        onClick={() => {
+                          setSelectedUser(u);
+                          setDepCode(u.depCode || '');
+                        }}
+                      >
+                        Assign Department
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
 
-        {[...Array(totalPages)].map((_, i) => (
-          <button
-            type="button"
-            key={i}
-            onClick={() => setPage(i + 1)}
-            className={`pageBtn ${currentPage === i + 1 ? 'active' : ''}`}
-          >
-            {i + 1}
-          </button>
-        ))}
+          {/* ---------- Pagination ---------- */}
+          <div className="pagination">
+            <button type="button" onClick={() => setPage(1)} disabled={currentPage === 1} className="pageBtn">&laquo;</button>
+            <button type="button" onClick={() => setPage(currentPage - 1)} disabled={currentPage === 1} className="pageBtn">&lsaquo;</button>
 
-        <button
-          type="button"
-          onClick={() => setPage(currentPage + 1)}
-          disabled={currentPage === totalPages}
-          className="pageBtn"
-        >
-          &rsaquo;
-        </button>
+            {[...Array(totalPages)].map((_, i) => (
+              <button
+                type="button"
+                key={i}
+                onClick={() => setPage(i + 1)}
+                className={`pageBtn ${currentPage === i + 1 ? 'active' : ''}`}
+              >
+                {i + 1}
+              </button>
+            ))}
 
-        <button
-          type="button"
-          onClick={() => setPage(totalPages)}
-          disabled={currentPage === totalPages}
-          className="pageBtn"
-        >
-          &raquo;
-        </button>
+            <button type="button" onClick={() => setPage(currentPage + 1)} disabled={currentPage === totalPages} className="pageBtn">&rsaquo;</button>
+            <button type="button" onClick={() => setPage(totalPages)} disabled={currentPage === totalPages} className="pageBtn">&raquo;</button>
+          </div>
+        </div>
       </div>
     </div>
   );

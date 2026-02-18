@@ -589,6 +589,12 @@ h2 {
   gap: 10px;
 }
 
+.largeSelect {
+  width: 210px;
+  padding: 5px 12px;   /* increases height */
+  font-size: 15px;      /* makes text clearer */
+  border-radius: 6px;
+}
 /* Responsive behavior */
 @media (max-height: 700px) {
   .modal-scrollable-content {
@@ -596,16 +602,6 @@ h2 {
     padding: 15px;
   }
 }
-.formSpacing {
-  margin-right: 12px; /* adjust as you like */
-}
-.largeSelect {
-  width: 210px;
-  padding: 5px 12px;   /* increases height */
-  font-size: 15px;      /* makes text clearer */
-  border-radius: 6px;
-}
-
 
  /* Fullscreen overlay with blur + fade */
 .loading-overlay {
@@ -701,4 +697,153 @@ h2 {
     transform: scale(1) translateY(0);
     opacity: 1;
   }
+}
+
+/* Services.css */
+
+/* Table General Styling */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+  background-color: #fff;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1); /* Adds the glow effect seen in image */
+  border-radius: 8px; /* Rounded corners */
+  overflow: hidden;
+}
+
+/* The Green Header */
+.table-header-green {
+  background-color: #28a745; /* Matches the green in the image */
+  color: white;
+  text-align: left;
+}
+
+.table-header-green th {
+  padding: 15px;
+  font-weight: 600;
+  border: none;
+}
+
+/* Table Rows */
+.table tbody tr {
+  border-bottom: 1px solid #dee2e6;
+}
+
+.table tbody tr td {
+  padding: 12px 15px;
+  vertical-align: middle;
+  color: #333;
+}
+
+/* Row Hover & Stripes */
+.rowEven { background-color: #ffffff; }
+.rowOdd { background-color: #f8f9fa; }
+
+.table tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+/* Action Button (Pick) */
+.actionBtn.editBtn {
+  background-color: #17a2b8; /* Teal color from image */
+  color: white;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 20px; /* Pill shape */
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.actionBtn.editBtn:hover {
+  background-color: #138496;
+}
+
+/* Pagination Buttons */
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  gap: 5px;
+}
+
+.pageBtn {
+  border: 1px solid #dee2e6;
+  background-color: white;
+  padding: 6px 12px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.pageBtn.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.searchContainer {
+  margin-bottom: 15px;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ced4da;
+  border-radius: 5px;
+}
+
+/* Page container */
+.mytask-page {
+  width: 100%;
+}
+
+/* Shared width wrapper */
+.mytask-wrapper {
+  max-width: 1300px;   /* same visual width as table */
+  margin: 0 auto;
+}
+
+/* Title aligned with table */
+.page-title {
+  margin-bottom: 12px;
+  color: #000;
+  font-weight: 600;
+}
+
+/* Search bar now matches table width */
+.searchContainer {
+  margin-bottom: 16px;
+}
+
+.searchInput {
+  width: 100%;
+}
+
+.table {
+  width: 100%;
+  table-layout: auto;
+  border-collapse: collapse;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(5, 163, 55, 0.8); /* softer green shadow */
+  transition: box-shadow 0.3s ease;
+}
+
+.table th,
+.table td {
+  color: #000000 !important;          /* normal black text */
+  font-weight: normal;  /* remove bold */
+  text-align: left;
+  padding: 6px 8px;     /* keep your spacing */
+}
+.searchContainer {
+  margin-bottom: 1px; /* smaller gap than before */
+}
+.page-title {
+  margin-bottom: 0.5px; /* reduced from larger default */
+}
+.table tbody tr td {
+  padding: 6px 8px;      /* minimal vertical padding */
+  line-height: 2;      /* reduces extra space inside cells */
 }
