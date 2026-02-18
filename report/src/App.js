@@ -34,7 +34,7 @@ function App() {
  <Router>
       <Routes>
         <Route path="" element={<MedicalCertificateReport />} />
-          <Route path="/certificatereport" element={<MedicalCertificateReport />} />
+          <Route path="/Medical_Certificate" element={<MedicalCertificateReport />} />
       </Routes>
  </Router>
   );

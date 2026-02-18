@@ -410,7 +410,7 @@ const MedicalCertificateReport = () => {
               }}
             >
               <div id="printable-area" className="certificate-paper">
-                <h2 className="cert-title">MEDICAL CERTIFICATE</h2>
+                <h6 className="cert-title">MEDICAL CERTIFICATE</h6>
 
                 <div className="cert-body">
                   {/* Top Section */}
@@ -459,17 +459,17 @@ const MedicalCertificateReport = () => {
                       }}
                     >
                       <div style={{ flex: 1 }}>
-                        <h5>Clinical Diagnosis:</h5>
+                        <strong>Clinical Diagnosis:{" "}</strong>
                         <p>{selectedCert.detail_Diagnosis}</p>
 
-                        <h5>Treatment Given:</h5>
+                        <strong>Treatment Given:{" "}</strong>
                         <p>{selectedCert.rx}</p>
                       </div>
                       <div style={{ flex: 1 }}>
-                        <h5>Patient Condition:</h5>
+                        <strong>Patient Condition:{" "}</strong>
                         <p>{selectedCert.patient_Condition}</p>
 
-                        <h5>Recommendation of the health profesional:</h5>
+                        <strong>Recommendation of the health profesional:{" "}</strong>
                         <p>{selectedCert.health_Profetional_Recomendation}</p>
                       </div>
                     </div>
@@ -492,8 +492,8 @@ const MedicalCertificateReport = () => {
                     <br />
 
                     <p>
-                      <strong>Attending Doctor:</strong>
-                      <br />
+                      <strong>Attending Doctor:</strong>{"  "}
+                  
                       Dr. {selectedCert.fname_Doctor}{" "}
                       {selectedCert.lname_Doctor}
                     </p>
