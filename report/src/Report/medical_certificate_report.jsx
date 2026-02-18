@@ -342,6 +342,7 @@ const MedicalCertificateReport = () => {
             >
               <div style={{ display: "flex", gap: "10px" }}>
                 <button
+                type="button"
                   onClick={handlePrint}
                   style={{
                     padding: "8px 16px",
@@ -364,6 +365,7 @@ const MedicalCertificateReport = () => {
                   Print
                 </button>
                 <button
+                type="button"
                   onClick={exportPDF}
                   style={{
                     padding: "8px 16px",
@@ -488,8 +490,6 @@ const MedicalCertificateReport = () => {
                       <strong>Date of Issuance:</strong>{" "}
                       {selectedCert.date_Of_Issuance}
                     </p>
-
-                    <br />
 
                     <p>
                       <strong>Attending Doctor:</strong>{"  "}
