@@ -21,7 +21,7 @@ const initialCustomerState = {
   Updated_By: "",
   Created_Date: "",
   Updated_Date: "",
-  Signiture: "",
+  // Signiture: "",
 };
 
 const Customer = ({ onsave2 }) => {
@@ -85,7 +85,7 @@ const Customer = ({ onsave2 }) => {
           Updated_By: cust.updated_By,
           Created_Date: cust.created_Date,
           Updated_Date: cust.updated_Date,
-          Signiture: cust.signiture,
+          // Signiture: cust.signiture,
         });
         setEditing(true);
       }
@@ -322,7 +322,7 @@ const Customer = ({ onsave2 }) => {
               />
             )}
           </div>
-          <div className="col-md-6 mb-3">
+          {/* <div className="col-md-6 mb-3">
             <label className="form-label">Signature</label>
             <input
               type="file"
@@ -338,7 +338,7 @@ const Customer = ({ onsave2 }) => {
                 style={{ maxHeight: "100px" }}
               />
             )}
-          </div>
+          </div> */}
 
           {/* Submit */}
           <div className="col-12 mb-3">

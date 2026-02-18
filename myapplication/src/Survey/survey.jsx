@@ -18,9 +18,9 @@ function Surveycomp({ formCode, onsave1, detailId }) {
   useEffect(() => {
     if (!detailId) {
       setData({});
-       fetchData();
       return;
     }
+      fetchData(detailId);
   }, [detailId]);
 
     const fetchData = async () => {

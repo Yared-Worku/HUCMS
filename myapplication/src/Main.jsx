@@ -143,7 +143,6 @@ const fetchuserid = async () => {
     alert("Could not create application.");
   }
 };
-
   const code = meta_data_forms_form_code.toUpperCase();
   // Step content renderer
   const getStepContent = (step) => {
