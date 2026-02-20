@@ -255,7 +255,7 @@ const getGetcertificateDetail = async () => {
           color="text.secondary"
           sx={{ mt: 2, display: "block" }}
         >
-         It is required to provide a remark to identify whether the medicine dispensed or prescribed to outside the campus pharmacy.
+         It is required to provide your recomendation.
         </Typography>
 
         <div style={{ marginTop: "20px" }}>

@@ -20,8 +20,8 @@ const Medical_Certificate_Application = ({ processDetailCode, onsave }) => {
   const navigate = useNavigate();
   const [userid, setUserid] = useState(null);
 
-  // const Username = 'amani';
-  const Username = window.__DNN_USER__?.username ?? "Guest";
+  const Username = 'amani';
+  // const Username = window.__DNN_USER__?.username ?? "Guest";
   useEffect(() => {
     fetchuserid();
   }, []);
@@ -48,7 +48,6 @@ const Medical_Certificate_Application = ({ processDetailCode, onsave }) => {
       const res = await axios.get(`/Getcertificate/${userid}`);
       if (Array.isArray(res.data) && res.data.length > 0) {
         setApplications(res.data);
-// debugger
         //auto-select when processDetailCode exists
         if (processDetailCode) {
           const matchedItem = res.data.find(
@@ -110,13 +109,13 @@ const Medical_Certificate_Application = ({ processDetailCode, onsave }) => {
 
         <Box sx={{ mt: 2, mb: 2 }}>
           <Typography variant="h6" sx={{ color: "#0b5c8e", fontWeight: 700 }}>
-            For which application have you requesting the certificate?
+           Select Application
           </Typography>
           <Box sx={{ height: 1, backgroundColor: "#e0e0e0", mt: 1 }} />
         </Box>
 
         <Typography sx={{ color: "#0b5c8e", fontWeight: 600 }}>
-          Select application:
+          Choose an application from the list below to proceed.
         </Typography>
 
         <TextField
@@ -125,8 +124,9 @@ const Medical_Certificate_Application = ({ processDetailCode, onsave }) => {
           value={application_number}
           onChange={handleSelectChange}
           SelectProps={{ native: true }}
+          
         >
-          <option value="">-- Select Application --</option>
+          <option value="">-- Select --</option>
           {applications.map((app) => (
             <option key={app.application_number} value={app.application_number}>
               {app.application_number}

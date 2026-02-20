@@ -22,7 +22,7 @@ const initialCustomerState = {
   ID_NO: "",
   depname: "",
   Photo: "",
-  Signiture: ""
+  // Signiture: ""
 };
 
 const Review = ({ formCode, processDetailCode, userId }) => {
@@ -99,7 +99,7 @@ const Review = ({ formCode, processDetailCode, userId }) => {
             Photo: cust.photo,
             depname: cust.depname,
             ID_NO: cust.iD_NO,
-            Signiture: cust.signiture
+            // Signiture: cust.signiture
           });
         } else {
           // debugger
@@ -144,7 +144,7 @@ const customerFieldOrder = [
   "ID_NO",     
   "depname",
   "Photo",
-  "Signiture"
+  // "Signiture"
 ];
 const renderFormSection = () => {
   if (formcode === "E0D68EE8-56E6-4262-A407-8999F92FCCDE") {
