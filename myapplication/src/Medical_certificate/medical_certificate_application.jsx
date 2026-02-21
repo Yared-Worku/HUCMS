@@ -10,7 +10,7 @@ import {
   Divider
 } from "@mui/material";
 
-const Medical_Certificate_Application = ({ processDetailCode, onsave }) => {
+const Medical_Certificate_Application = ({ processDetailCode, onsave, onFileLoad }) => {
 
   const [applications, setApplications] = useState([]);
   const [application_number, setApplicationNumber] = useState("");
@@ -19,12 +19,19 @@ const Medical_Certificate_Application = ({ processDetailCode, onsave }) => {
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
   const [userid, setUserid] = useState(null);
+  const [uploadedfile, setfile] = useState("");
 
-  const Username = 'amani';
-  // const Username = window.__DNN_USER__?.username ?? "Guest";
-  useEffect(() => {
-    fetchuserid();
-  }, []);
+  // const Username = 'amani';
+  const Username = window.__DNN_USER__?.username ?? "Guest";
+ useEffect(() => {
+  fetchuserid();
+}, []);
+
+useEffect(() => {
+  if (uploadedfile && onFileLoad) {
+    onFileLoad(uploadedfile);
+  }
+}, [uploadedfile]);
 
   const fetchuserid = async () => {
     try {
@@ -34,7 +41,7 @@ const Medical_Certificate_Application = ({ processDetailCode, onsave }) => {
       if (Array.isArray(res.data) && res.data.length > 0) {
         const id = res.data[0].userid;
         setUserid(id);
-        getCertificate(id);
+        fetchAllData(id);
       } else {
         console.error("Unexpected API response:", res.data);
       }
@@ -43,29 +50,58 @@ const Medical_Certificate_Application = ({ processDetailCode, onsave }) => {
     }
   };
 
-  const getCertificate = async (userid) => {
-    try {
-      const res = await axios.get(`/Getcertificate/${userid}`);
-      if (Array.isArray(res.data) && res.data.length > 0) {
-        setApplications(res.data);
-        //auto-select when processDetailCode exists
-        if (processDetailCode) {
-          const matchedItem = res.data.find(
-            (item) => item.detail_code === processDetailCode
-          );
+const fetchAllData = async (userid) => {
+  try {
+    const [certRes, refundRes] = await Promise.all([
+      axios.get(`/Getcertificate/${userid}`),
+      axios.get(`/getExistingRefund/${userid}`)
+    ]);
+    const certificateData = Array.isArray(certRes.data) ? certRes.data : [];
+    const refundData = Array.isArray(refundRes.data) ? refundRes.data : [];
+    // Always set certificate list for dropdown
+    setApplications(certificateData);
+    let matchedItem = null;
 
-          if (matchedItem) {
-            setApplicationNumber(matchedItem.application_number);
-            setDiagnosiscode(matchedItem.diagnosis_code);
-            setDetailcode(matchedItem.detail_code);
-          }
-        }
-      }
-    } catch (err) {
-      console.error("Failed to fetch certificate data:", err);
+    //First try refund (priority)
+    if (processDetailCode) {
+      matchedItem = refundData.find(
+        (item) => item.detail_code === processDetailCode
+      );
     }
-  };
 
+    //If not found in refund, try certificate
+    if (!matchedItem && processDetailCode) {
+      matchedItem = certificateData.find(
+        (item) => item.detail_code === processDetailCode
+      );
+    }
+
+    // If matched, populate state
+    if (matchedItem) {
+      setApplicationNumber(matchedItem.application_number || "");
+      setDiagnosiscode(matchedItem.diagnosis_code || null);
+      setDetailcode(matchedItem.detail_code || null);
+      setfile(matchedItem.uploadedfile || "");
+    } 
+    else {
+      // Explicit reset to prevent stale data
+      setApplicationNumber("");
+      setDiagnosiscode(null);
+      setDetailcode(null);
+      setfile("");
+    }
+
+  } catch (err) {
+    console.error("❌ Failed loading certificate/refund data:", err);
+
+    // Reset everything on error
+    setApplicationNumber("");
+    setDiagnosiscode(null);
+    setDetailcode(null);
+    setfile("");
+    setApplications([]);
+  }
+};
   const handleSelectChange = (e) => {
     const selectedAppNumber = e.target.value;
     setApplicationNumber(selectedAppNumber);

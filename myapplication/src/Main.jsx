@@ -29,7 +29,9 @@ import Medical_Certificate from "./Medical_certificate/medical_certificate_appli
 
 const Main = () => {
   const { application_number, service_code, task_code, organization_code, application_detail_id, meta_data_forms_form_code } = useParams();
-  const Username = 'amani';
+  
+  const Username = window.__DNN_USER__?.username ?? "Guest";
+  // const Username = 'amani';
 
   const navigate = useNavigate();
   const [message, setMessage] = useState("");
@@ -165,7 +167,7 @@ const Main = () => {
     switch (step) {
       case 0:
         if (code === "E0D68EE8-56E6-4262-A407-8999F92FCCDE" || code === "8B4ADCF4-EC5F-4C66-979F-654889CEB0D0") {
-          return <Medical_Certificate processDetailCode={application_detail_id} onsave={handleSave} />;
+          return <Medical_Certificate  processDetailCode={application_detail_id}  onsave={handleSave} onFileLoad={(file) => setDocumentFile(file)} />;
         } else {
           return <Survey formCode={meta_data_forms_form_code} onsave1={handleSave} detailId={application_detail_id} />;
         }
@@ -235,7 +237,7 @@ const Main = () => {
               </Box>
               <Box>
                 <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                  {selectedFile ? "Document Attached" : "Upload Document"}
+                  {(selectedFile || documentFile) ? "Document Attached" : "Upload Document"}
                 </Typography>
                 <Typography variant="caption" sx={{
                   display: 'block',
@@ -244,7 +246,7 @@ const Main = () => {
                   overflow: 'hidden',
                   textOverflow: 'ellipsis'
                 }}>
-                  {selectedFile ? selectedFile.name : "Drag or browse"}
+                   {selectedFile ? selectedFile.name : documentFile ? "File Uploaded " : "Drag or browse"}
                 </Typography>
               </Box>
             </Box>

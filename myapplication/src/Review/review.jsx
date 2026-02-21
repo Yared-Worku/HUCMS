@@ -38,7 +38,8 @@ const Review = ({ formCode, processDetailCode, userId }) => {
     if (!userId) return;
     fetchCustomer();
         fetchSurvey();
-        fetchCertificatedatareview()
+        fetchAllData(userId)
+
   }, [userId]);
   // 🔹 Fetch survey JSON for this application
   
@@ -109,33 +110,48 @@ const Review = ({ formCode, processDetailCode, userId }) => {
         console.error("Failed to fetch customer data:", err);
       }
     };
-    const fetchCertificatedatareview = async () => {
-      try {
-                const res = await axios.get(`/Getcertificate/${userId}`);
-                if (Array.isArray(res.data) && res.data.length > 0) {
-                  //auto-select when processDetailCode exists
-                  if (processDetailCode) {
-                    const matchedItem = res.data.find(
-                      (item) => item.detail_code === processDetailCode
-                    );
-          
-                    if (matchedItem) {
-                      setApplicationNumber(matchedItem.application_number);
-                    }
-                  }
-                }
-              } catch (err) {
-                console.error("Failed to fetch certificate data:", err);
-              }
-            };
-          
+
+          const fetchAllData = async (userId) => {
+     try {
+    const [certRes, refundRes] = await Promise.all([
+      axios.get(`/Getcertificate/${userId}`),
+      axios.get(`/getExistingRefund/${userId}`)
+    ]);
+    const certificateData = Array.isArray(certRes.data) ? certRes.data : [];
+    const refundData = Array.isArray(refundRes.data) ? refundRes.data : [];
+    let matchedItem = null;
+    //First try refund (priority)
+    if (processDetailCode) {
+      matchedItem = refundData.find(
+        (item) => item.detail_code === processDetailCode
+      );
+    }
+    //If not found in refund, try certificate
+    if (!matchedItem && processDetailCode) {
+      matchedItem = certificateData.find(
+        (item) => item.detail_code === processDetailCode
+      );
+    }
+    // If matched, populate state
+    if (matchedItem) {
+      setApplicationNumber(matchedItem.application_number || "");
+    } 
+    else {
+      setApplicationNumber("");
+    }
+
+  } catch (err) {
+    console.error("❌ Failed loading certificate/refund data:", err);
+    setApplicationNumber("");
+  }
+};
 const customerFieldOrder = [
+ "Applicant_First_Name_EN",
   "Applicant_First_Name_AM",
-  "Applicant_First_Name_EN",
+ "Applicant_Middle_Name_En",
   "Applicant_Middle_Name_AM",
-  "Applicant_Middle_Name_En",
+   "Applicant_Last_Name_EN",
   "Applicant_Last_Name_AM",
-  "Applicant_Last_Name_EN",
   "TIN",
   "Gender",
   "Email",
@@ -147,7 +163,7 @@ const customerFieldOrder = [
   // "Signiture"
 ];
 const renderFormSection = () => {
-  if (formcode === "E0D68EE8-56E6-4262-A407-8999F92FCCDE") {
+  if (formcode === "E0D68EE8-56E6-4262-A407-8999F92FCCDE" || formcode === "8B4ADCF4-EC5F-4C66-979F-654889CEB0D0") {
     return (
       <Paper elevation={2} sx={{ p: 2, mb: 3, borderRadius: 2 }}>
         <Box display="flex" alignItems="center" justifyContent="space-between">
