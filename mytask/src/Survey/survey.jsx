@@ -61,7 +61,7 @@ function Surveycomp({ formCode, onsave1, detailId }) {
     return updatedJson;
   };
 
-  // 🔹 Save form handler
+  // Save form handler
   const handlesaveform = () => {
     if (!survey || !formJson) return;
 

@@ -26,7 +26,7 @@ import Survey from "./Survey/survey";
 import Customer from "./Customer/customer";
 import Review from "./Review/review";
 import Medical_Certificate from "./Medical_certificate/medical_certificate_application";
-
+import Payment_refund_application from "./Payment_Refund/payment_refund_application";
 const Main = () => {
   const { application_number, service_code, task_code, organization_code, application_detail_id, meta_data_forms_form_code } = useParams();
   
@@ -166,9 +166,11 @@ const Main = () => {
   const getStepContent = (step) => {
     switch (step) {
       case 0:
-        if (code === "E0D68EE8-56E6-4262-A407-8999F92FCCDE" || code === "8B4ADCF4-EC5F-4C66-979F-654889CEB0D0") {
-          return <Medical_Certificate  processDetailCode={application_detail_id}  onsave={handleSave} onFileLoad={(file) => setDocumentFile(file)} />;
-        } else {
+        if (code === "E0D68EE8-56E6-4262-A407-8999F92FCCDE") {
+          return <Medical_Certificate  processDetailCode={application_detail_id}  onsave={handleSave} />;
+        } else if( code === "8B4ADCF4-EC5F-4C66-979F-654889CEB0D0"){
+           return <Payment_refund_application  processDetailCode={application_detail_id}  onsave={handleSave} onFileLoad={(file) => setDocumentFile(file)} />;
+        }else{
           return <Survey formCode={meta_data_forms_form_code} onsave1={handleSave} detailId={application_detail_id} />;
         }
       case 1:

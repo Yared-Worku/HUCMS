@@ -34,6 +34,7 @@ import Diagnosis from "./Doctor/diagnosis";
 import LabTest from "./Laboratory/lab_test";
 import Dispanse from "./Pharmacy/dispanse";
 import Medical_Certificate from "./Doctor/medical_certificate";
+import Payment_Refund_CH from "./Payment_Refund/Refund_Validation_CH";
 
 const Main = () => {
   const {
@@ -46,8 +47,8 @@ const Main = () => {
     meta_data_forms_form_code,
   } = useParams();
 
-  // const Username = "dani123";
-const Username = window.__DNN_USER__?.username ?? "Guest";
+  const Username = "abrsh12";
+// const Username = window.__DNN_USER__?.username ?? "Guest";
 
   const navigate = useNavigate();
   const code = meta_data_forms_form_code.toUpperCase();
@@ -55,6 +56,7 @@ const Username = window.__DNN_USER__?.username ?? "Guest";
   const [applicationNumber, setApplicationNumber] = useState(null);
   const [ProcessDetailCode, setprocessdetailcode] = useState(null);
   const [diagnosis_Code, setdiagnosis_Code] = useState(null);
+  const [pr_Code, setpr_Code] = useState(null);
   const [serviceName, setServiceName] = useState(null);
   const [userid, setUserid] = useState(null);
   const [cust_ID, setcust_ID] = useState(null);
@@ -252,7 +254,6 @@ const handleSavediagnosis = async (data) => {
     const res = await axios.post("/DiagnosisTaskData", payload);
 
     if (res.data) {
-      // 🔹 set only if returned (important for edit → avoid overwrite)
       if (res.data.processDetailCode) {
         setprocessdetailcode(res.data.processDetailCode);
       }
@@ -275,7 +276,52 @@ const handleSavediagnosis = async (data) => {
     setIsSaving(false);
   }
 };
+const handleSaveCHRefundData = async (data) => {
+  try {
+    setIsSaving(true);
+    setMessage("");
 
+    const payload = {
+      application_number: applicationNumber,
+      services_service_code: service_code,
+      tasks_task_code: task_code,
+      amount_inDigit: data.amountInDigit,
+      amount_inWord: data.amountInWord,
+      UserId: userid,
+      process_detail_code: application_detail_id || null,
+    };
+
+    const res = await axios.post("/CHRefundTaskData", payload);
+
+    if (res.data) {
+      if (res.data.processDetailCode) {
+        setprocessdetailcode(res.data.processDetailCode);
+      }
+      
+      if (res.data.pr_Code) {
+        setpr_Code(res.data.pr_Code);
+      }
+
+      if (res.data.pr_Code) {
+        setMessage("Payment refund updated successfully!");
+      } else {
+        setMessage("Payment refund saved successfully!");
+      }
+
+      setIsCompleted(true);
+      getLicense(res.data.applicationNumber || applicationNumber);
+      return true;
+    }
+
+    return false;
+  } catch (error) {
+    console.error("❌ Failed to save task data:", error);
+    setMessage("Failed to save data.");
+    return false;
+  } finally {
+    setIsSaving(false);
+  }
+};
   const handleReview = async () => {
     try {
       const res = await axios.get(`/GetTaskDetails`, {
@@ -284,7 +330,7 @@ const handleSavediagnosis = async (data) => {
       if (res.data && res.data.length > 0) {
         openCommonPopup("REVIEW", "Task Review Data", res.data);
       } else {
-        setMessage("No data found for this task.");
+         openCommonPopup("MESSAGE", "Error", "No data found to review for this task.");
       }
     } catch (error) {
       console.error("❌ Failed to fetch review data:", error);
@@ -615,7 +661,10 @@ const handleAccordionChange = (panel) => (event, isExpanded) => {
           } else if(code === "97045723-453F-471D-8190-B59A636855C8"){
             return <Medical_Certificate userId={userid} application_number={application_number} todocode={todocode}/>
           }
-          else{
+          else if(code === "F0FA6F1E-0BD4-41AC-A05D-BB44A8B79EA4"){
+              return <Payment_Refund_CH application_number={application_number} ProcessDetailCode ={application_detail_id}
+               onSave={handleSaveCHRefundData} pr_Code ={pr_Code} onpr_Code={(pr_Code) => setpr_Code(pr_Code)}/>
+          }else{
             return (
               <Survey
                 formCode={meta_data_forms_form_code}

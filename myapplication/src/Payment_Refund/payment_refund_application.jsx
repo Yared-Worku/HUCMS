@@ -10,7 +10,7 @@ import {
   Divider
 } from "@mui/material";
 
-const Medical_Certificate_Application = ({ processDetailCode, onsave, onFileLoad }) => {
+const Payment_refund_application = ({ processDetailCode, onsave, onFileLoad }) => {
 
   const [applications, setApplications] = useState([]);
   const [application_number, setApplicationNumber] = useState("");
@@ -19,12 +19,20 @@ const Medical_Certificate_Application = ({ processDetailCode, onsave, onFileLoad
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
   const [userid, setUserid] = useState(null);
+  const [uploadedfile, setfile] = useState("");
 
   // const Username = 'amani';
   const Username = window.__DNN_USER__?.username ?? "Guest";
  useEffect(() => {
   fetchuserid();
 }, []);
+
+useEffect(() => {
+  if (uploadedfile && onFileLoad) {
+    onFileLoad(uploadedfile);
+  }
+}, [uploadedfile]);
+
   const fetchuserid = async () => {
     try {
       const res = await axios.get(`/GetUserID/${Username}`);
@@ -33,7 +41,7 @@ const Medical_Certificate_Application = ({ processDetailCode, onsave, onFileLoad
       if (Array.isArray(res.data) && res.data.length > 0) {
         const id = res.data[0].userid;
         setUserid(id);
-        getCertificate(id);
+        getExistingRefund(id);
       } else {
         console.error("Unexpected API response:", res.data);
       }
@@ -42,14 +50,12 @@ const Medical_Certificate_Application = ({ processDetailCode, onsave, onFileLoad
     }
   };
 
-const getCertificate = async (userid) => {
+const getExistingRefund = async (userid) => {
   try {
-    const res = await axios.get(`/Getcertificate/${userid}`);
+    const res = await axios.get(`/getExistingRefund/${userid}`);
 
     if (Array.isArray(res.data) && res.data.length > 0) {
-      setApplications(res.data);
-
-      // auto-select when processDetailCode exists
+            setApplications(res.data);
       if (processDetailCode) {
         const matchedItem = res.data.find(
           (item) => item.detail_code === processDetailCode
@@ -59,27 +65,29 @@ const getCertificate = async (userid) => {
           setApplicationNumber(matchedItem.application_number);
           setDiagnosiscode(matchedItem.diagnosis_code);
           setDetailcode(matchedItem.detail_code);
+          setfile(matchedItem.uploadedfile);
         }
+
       }
     }
   } catch (err) {
-    console.error("Failed to fetch certificate data:", err);
+    console.error("Failed to fetch payment refund data:", err);
   }
 };
-  const handleSelectChange = (e) => {
-    const selectedAppNumber = e.target.value;
-    setApplicationNumber(selectedAppNumber);
 
-    const selectedItem = applications.find(
-      (item) => item.application_number === selectedAppNumber
-    );
+const handleSelectChange = (e) => {
+  const selectedAppNumber = e.target.value;
+  setApplicationNumber(selectedAppNumber);
 
-    if (selectedItem) {
-      setDiagnosiscode(selectedItem.diagnosis_code);
-      setDetailcode(selectedItem.detail_code);
-    }
-  };
+  const selectedItem = applications.find(
+    (item) => item.application_number === selectedAppNumber
+  );
 
+  if (selectedItem) {
+    setDiagnosiscode(selectedItem.diagnosis_code);
+    setDetailcode(selectedItem.detail_code);
+  }
+};
   const handleSave = () => {
     if (!diagnosis_code) {
       setMessage("Please select an application.");
@@ -148,4 +156,4 @@ const getCertificate = async (userid) => {
     </Box>
   );
 };
-export default Medical_Certificate_Application;
+export default Payment_refund_application;
