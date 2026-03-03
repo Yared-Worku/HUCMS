@@ -12,8 +12,8 @@ const MyApplication = () => {
   const itemsPerPage = 5;
   const navigate = useNavigate();
   const [userid, setUserid] = useState(null);
-  const Username = window.__DNN_USER__?.username ?? "Guest";
-  //  const Username = 'amani'
+  // const Username = window.__DNN_USER__?.username ?? "Guest";
+   const Username = 'amani'
   useEffect(() => {
     fetchuserid();
   }, []);

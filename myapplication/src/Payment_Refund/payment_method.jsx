@@ -10,7 +10,7 @@ import {
   Divider
 } from "@mui/material";
 
-const Payment_refund_application = ({ processDetailCode, onsave, onFileLoad }) => {
+const Payment_method = ({ processDetailCode, onsave, onFileLoad }) => {
 
   const [applications, setApplications] = useState([]);
   const [application_number, setApplicationNumber] = useState("");
@@ -22,7 +22,7 @@ const Payment_refund_application = ({ processDetailCode, onsave, onFileLoad }) =
   const [uploadedfile, setfile] = useState("");
 
   const Username = 'amani';
-  // const Username = window.__DNN_USER__?.username ?? "Guest";
+//   const Username = window.__DNN_USER__?.username ?? "Guest";
  useEffect(() => {
   fetchuserid();
 }, []);
@@ -156,4 +156,4 @@ const handleSelectChange = (e) => {
     </Box>
   );
 };
-export default Payment_refund_application;
+export default Payment_method;
