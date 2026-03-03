@@ -23,6 +23,7 @@ const Payment_method = ({ processDetailCode, onsave, onFileLoad }) => {
 
   const Username = 'amani';
 //   const Username = window.__DNN_USER__?.username ?? "Guest";
+
  useEffect(() => {
   fetchuserid();
 }, []);
