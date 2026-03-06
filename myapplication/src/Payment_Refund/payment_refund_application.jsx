@@ -21,8 +21,8 @@ const Payment_refund_application = ({ processDetailCode, onsave, onFileLoad }) =
   const [userid, setUserid] = useState(null);
   const [uploadedfile, setfile] = useState("");
 
-  const Username = 'amani';
-  // const Username = window.__DNN_USER__?.username ?? "Guest";
+  // const Username = 'amani';
+  const Username = window.__DNN_USER__?.username ?? "Guest";
  useEffect(() => {
   fetchuserid();
 }, []);

@@ -34,15 +34,16 @@ const Review = ({ formCode, processDetailCode, userId }) => {
     const [application_number, setApplicationNumber] = useState("");
     const [applicationOpen, setApplicationOpen] = useState(false);
   const formcode = formCode.toUpperCase();
+  const [savedPayments, setSavedPayments] = useState([]);
+  const [paymentsOpen, setPaymentsOpen] = useState(false);
+
   useEffect(() => {
     if (!userId) return;
     fetchCustomer();
         fetchSurvey();
         fetchAllData(userId)
-
+        fetchPaymentMethods(userId);
   }, [userId]);
-  // 🔹 Fetch survey JSON for this application
-  
 
     const fetchSurvey = async () => {
       try {
@@ -50,21 +51,16 @@ const Review = ({ formCode, processDetailCode, userId }) => {
         if (Array.isArray(res.data) && res.data.length > 0) {
           const json = res.data[0].value ? JSON.parse(res.data[0].value) : {};
           setSurveyJson(json);
-
-          // Initialize Survey model in read-only mode
           const surveyModel = new Model(json);
-          surveyModel.readOnly = true; // Entire survey is read-only
+          surveyModel.readOnly = true; 
           surveyModel.showNavigationButtons = false;
           surveyModel.showCompletedPage = false;
-
-          // Pre-fill answers and make sure each question is read-only
           const answers = {};
           json.pages?.forEach((page) => {
             page.elements?.forEach((el) => {
               if (el.name && el.hasOwnProperty("value")) {
                 answers[el.name] = el.value;
               }
-              // Make sure question cannot be edited
               if (el.type) {
                 el.isReadOnly = true;
               }
@@ -111,7 +107,7 @@ const Review = ({ formCode, processDetailCode, userId }) => {
       }
     };
 
-          const fetchAllData = async (userId) => {
+   const fetchAllData = async (userId) => {
      try {
     const [certRes, refundRes] = await Promise.all([
       axios.get(`/Getcertificate/${userId}`),
@@ -145,6 +141,17 @@ const Review = ({ formCode, processDetailCode, userId }) => {
     setApplicationNumber("");
   }
 };
+const fetchPaymentMethods = async (uid) => {
+    try {
+      const res = await axios.get(`/getInsertedPaymentMethod/${uid}`);
+      if (Array.isArray(res.data)) {
+        setSavedPayments(res.data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch payment methods:", err);
+    }
+  };
+
 const customerFieldOrder = [
  "Applicant_First_Name_EN",
   "Applicant_First_Name_AM",
@@ -163,7 +170,7 @@ const customerFieldOrder = [
   // "Signiture"
 ];
 const renderFormSection = () => {
-  if (formcode === "E0D68EE8-56E6-4262-A407-8999F92FCCDE" || formcode === "8B4ADCF4-EC5F-4C66-979F-654889CEB0D0") {
+  if (formcode === "E0D68EE8-56E6-4262-A407-8999F92FCCDE") {
     return (
       <Paper elevation={2} sx={{ p: 2, mb: 3, borderRadius: 2 }}>
         <Box display="flex" alignItems="center" justifyContent="space-between">
@@ -190,6 +197,74 @@ const renderFormSection = () => {
           </div>
         </Collapse>
       </Paper>
+    );
+  } else if(formcode === "8B4ADCF4-EC5F-4C66-979F-654889CEB0D0"){
+    // debugger
+    const activePayments = savedPayments.filter(pm => pm.status === true);
+    return (
+      <>
+      <Paper elevation={2} sx={{ p: 2, mb: 3, borderRadius: 2 }}>
+        <Box display="flex" alignItems="center" justifyContent="space-between">
+          <Typography variant="h6">📄 Application Information</Typography>
+          <IconButton
+            size="small"
+            onClick={() => setApplicationOpen(!applicationOpen)}
+          >
+            {applicationOpen ? <ExpandLess /> : <ExpandMore />}
+          </IconButton>
+        </Box>
+
+        <Collapse in={applicationOpen}>
+          <div className="row mt-2">
+            <div className="col-md-4 mb-3">
+              <label className="form-label">Selected Application Number</label>
+              <input
+                type="text"
+                className="form-control"
+                value={application_number ?? ""}
+                readOnly
+              />
+            </div>
+          </div>
+        </Collapse>
+      </Paper>
+      <Paper elevation={2} sx={{ p: 2, mb: 3, borderRadius: 2 }}>
+          <Box display="flex" alignItems="center" justifyContent="space-between">
+            <Typography variant="h6">💳 Payment Methods</Typography>
+            <IconButton size="small" onClick={() => setPaymentsOpen(!paymentsOpen)}>
+              {paymentsOpen ? <ExpandLess /> : <ExpandMore />}
+            </IconButton>
+          </Box>
+
+          <Collapse in={paymentsOpen}>
+            <Box mt={2}>
+              {activePayments.length > 0 ? (
+                <div className="row">
+                  {activePayments.map((pm, index) => (
+                    <div className="col-md-6 mb-3" key={index}>
+                      <label className="form-label text-primary" style={{ fontWeight: 600 }}>
+                        Method {index + 1}
+                      </label>
+                      <div className="p-2 border rounded bg-light">
+                        <Typography variant="body2">
+                          <strong>Name:</strong> {pm.name}
+                        </Typography>
+                        <Typography variant="body1">
+                          <strong>Account No:</strong> {pm.account_number}
+                        </Typography>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <Typography variant="body2" color="textSecondary">
+                  No active payment methods found.
+                </Typography>
+              )}
+            </Box>
+          </Collapse>
+        </Paper>
+    </>
     );
   }
   else {
@@ -225,12 +300,10 @@ const renderFormSection = () => {
       <Typography variant="h5" gutterBottom>
           🔎 Review Your Application
         </Typography>
-
         <Typography variant="body2" sx={{ mb: 2, color: "gray" }}>
           Please check your details before submitting.
         </Typography>
        {renderFormSection()}
-      {/* Customer Section (Read-only) */}
       <Paper elevation={2} sx={{ p: 2, mb: 3, borderRadius: 2 }}>
         <Box display="flex" alignItems="center" justifyContent="space-between">
           <Typography variant="h6">👤 Customer Information</Typography>

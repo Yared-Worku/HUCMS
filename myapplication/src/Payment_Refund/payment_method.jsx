@@ -10,17 +10,29 @@ import {
   FormControlLabel,
   Checkbox,
   Alert,
-  TextField
+  TextField,
+  CircularProgress
 } from "@mui/material";
 
-const Payment_method = ({ processDetailCode, onsave }) => {
+const Payment_method = ({ processDetailCode, onsave, userid }) => {
   const [message, setMessage] = useState("");
-  const [paymentMethods, setPaymentMethods] = useState([]); 
-  const [selectedMethods, setSelectedMethods] = useState({}); 
+  const [paymentMethods, setPaymentMethods] = useState([]);
+  const [selectedMethods, setSelectedMethods] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [originalSavedData, setOriginalSavedData] = useState({});
+  const [allDbRecords, setAllDbRecords] = useState({});
 
   useEffect(() => {
-    getPaymentMethod();
-  }, []);
+    const fetchData = async () => {
+      setLoading(true);
+      await Promise.all([
+        getPaymentMethod(),
+        userid ? getInsertedPaymentMethod(userid) : Promise.resolve()
+      ]);
+      setLoading(false);
+    };
+    fetchData();
+  }, [userid]);
 
   const getPaymentMethod = async () => {
     try {
@@ -29,46 +41,70 @@ const Payment_method = ({ processDetailCode, onsave }) => {
         setPaymentMethods(res.data);
       }
     } catch (err) {
-      setMessage("Error loading payment methods.");
+      setMessage("Error loading available payment methods.");
+    }
+  };
+
+  const getInsertedPaymentMethod = async (uid) => {
+    try {
+      const res = await axios.get(`/getInsertedPaymentMethod/${uid}`);
+
+      if (Array.isArray(res.data)) {
+        const activeData = {};
+        const historyData = {};
+
+        res.data.forEach((item) => {
+          const accNo = item.account_number?.toString() || "";
+          historyData[item.method_code] = accNo;
+          if (item.status === true || item.status === 1) {
+            activeData[item.method_code] = accNo;
+          }
+        });
+
+        setAllDbRecords(historyData);
+        setOriginalSavedData(activeData);
+        setSelectedMethods(activeData);
+      }
+    } catch (err) {
+      console.error("Error loading saved methods:", err);
     }
   };
 
   const handleCheckboxChange = (code) => {
     setSelectedMethods((prev) => {
       const newSelected = { ...prev };
+      
       if (newSelected[code] !== undefined) {
         delete newSelected[code];
       } else {
-        newSelected[code] = "";
+        newSelected[code] = allDbRecords[code] || "";
       }
       return newSelected;
     });
   };
 
-const handleAccountChange = (code, value) => {
-    if (value === "" || /^\d+$/.test(value)) {
-      setSelectedMethods((prev) => ({
-        ...prev,
-        [code]: value
-      }));
-    }
+  const handleAccountChange = (code, value) => {
+    setSelectedMethods((prev) => ({
+      ...prev,
+      [code]: value
+    }));
   };
 
   const handleSave = () => {
     const selectedCodes = Object.keys(selectedMethods);
-    
+
     if (selectedCodes.length === 0) {
       setMessage("Please select at least one payment method.");
       return;
     }
 
-    const isMissingAccount = selectedCodes.some(code => !selectedMethods[code].trim());
+    const isMissingAccount = selectedCodes.some(code => !selectedMethods[code]?.trim());
     if (isMissingAccount) {
       setMessage("Please enter an account number for all selected methods.");
       return;
     }
+
     if (onsave) {
-      debugger
       const formattedData = selectedCodes.map((code) => ({
         method_code: code,
         account_number: selectedMethods[code],
@@ -76,13 +112,24 @@ const handleAccountChange = (code, value) => {
       onsave(formattedData);
     }
   };
+
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" height="200px">
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  const isUpdateMode = Object.keys(originalSavedData).length > 0;
+
   return (
     <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
       <Paper
         elevation={3}
         sx={{
           width: "100%",
-          maxWidth: 900, 
+          maxWidth: 900,
           p: 4,
           borderRadius: 3
         }}
@@ -98,17 +145,17 @@ const handleAccountChange = (code, value) => {
           <Typography variant="h6" sx={{ color: "#0b5c8e", fontWeight: 700 }}>
             Available Payment Methods
           </Typography>
-          <Box sx={{ height: 1, backgroundColor: "#e0e0e0", mt: 1 }} />
+          <Box sx={{ height: 2, backgroundColor: "#0b5c8e", opacity: 0.2, mt: 1 }} />
         </Box>
 
-        <Typography sx={{ color: "#0b5c8e", fontWeight: 600, mb: 3 }}>
-          Select the payment methods and enter your account numbers below.
+        <Typography sx={{ color: "#555", fontWeight: 500, mb: 3 }}>
+          Select your preferred payment methods. Existing account details will be restored automatically upon selection.
         </Typography>
 
         <FormGroup sx={{ pl: 1 }}>
           {paymentMethods.map((method) => {
             const isChecked = selectedMethods[method.method_code] !== undefined;
-            
+
             return (
               <Box key={method.method_code} sx={{ mb: 2 }}>
                 <FormControlLabel
@@ -128,17 +175,23 @@ const handleAccountChange = (code, value) => {
                     </Typography>
                   }
                 />
-                
+
                 {isChecked && (
-                  <Box sx={{ pl: 4, mt: 1, maxWidth: 400 }}>
+                  <Box sx={{ pl: 4, mt: 1, maxWidth: 450 }}>
                     <TextField
                       fullWidth
                       size="small"
-                      label={`Enter ${method.name} Account Number`}
+                      label={`${method.name} Account Number`}
                       variant="outlined"
-                      value={selectedMethods[method.method_code]}
+                      InputLabelProps={{ shrink: true }}
+                      value={selectedMethods[method.method_code] || ""}
                       onChange={(e) => handleAccountChange(method.method_code, e.target.value)}
-                      placeholder="Account Number..."
+                      placeholder="Enter account number..."
+                      // helperText={
+                      //   allDbRecords[method.method_code] && !originalSavedData[method.method_code]
+                      //     ? "Previously added account, you can update"
+                      //     : ""
+                      // }
                     />
                   </Box>
                 )}
@@ -147,15 +200,20 @@ const handleAccountChange = (code, value) => {
           })}
         </FormGroup>
 
-        <div style={{ marginTop: "20px" }}>
+        <Box sx={{ mt: 4 }}>
           <button
             type="button"
             className="actionBtn saveBtn"
             onClick={handleSave}
+            style={{
+              padding: "10px 25px",
+              fontSize: "1rem",
+              cursor: "pointer"
+            }}
           >
-            💾 {processDetailCode ? "Update" : "Save"}
+            💾 {isUpdateMode ? "Update" : "Save"}
           </button>
-        </div>
+        </Box>
       </Paper>
     </Box>
   );

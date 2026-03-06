@@ -31,8 +31,8 @@ import Payment_method from "./Payment_Refund/payment_method";
 const Main = () => {
   const { application_number, service_code, task_code, organization_code, application_detail_id, meta_data_forms_form_code } = useParams();
   
-  // const Username = window.__DNN_USER__?.username ?? "Guest";
-  const Username = 'amani';
+  const Username = window.__DNN_USER__?.username ?? "Guest";
+  // const Username = 'amani';
 
   const navigate = useNavigate();
   const [message, setMessage] = useState("");
@@ -163,24 +163,27 @@ const Main = () => {
   };
 
     const handleSavePaymentMethod = async (data) => {
-      debugger
-    setMessage("");
-    try {
-   const payload = data.map((item) => ({
-        method_code: item.method_code,
-        account_number: item.account_number,
-        UserId: userid,
-      }));
-      const res = await axios.post("/setPaymentMethod", payload);
-      if (res.data) {
-      setMessage("Thank you for sebmiting payment method!");
+  setMessage("");
+  try {
+    const activeCodesString = data.map(item => item.method_code).join(',');
+
+    const payload = data.map((item) => ({
+      method_code: item.method_code,
+      account_number: item.account_number,
+      UserId: userid,
+      AllActiveMethods: activeCodesString
+    }));
+    const res = await axios.post("/setPaymentMethod", payload); 
+    
+    if (res.data) {
+      setMessage("Thank you for submitting payment method!");
       completed(true);
-      getLicense(res.data.applicationNumber);
-      }
-    } catch (error) {
-      console.error("❌ Failed to set payment method:", error);
     }
-  };
+  } catch (error) {
+    console.error("❌ Failed to set payment method:", error);
+    setMessage("Error: Could not save payment methods.");
+  }
+};
 
   const code = meta_data_forms_form_code.toUpperCase();
 
@@ -190,7 +193,7 @@ const Main = () => {
       case 0:
            return <Payment_refund_application  processDetailCode={application_detail_id}  onsave={handleSave} onFileLoad={(file) => setDocumentFile(file)} />;
       case 1:
-        return <Payment_method processDetailCode={application_detail_id}  onsave={handleSavePaymentMethod}  />;
+        return <Payment_method processDetailCode={application_detail_id}  onsave={handleSavePaymentMethod}  userid={userid}/>;
          case 2:
         return <Customer onsave2={completed} />;
       case 3:
