@@ -1,160 +1,164 @@
 import React, { useState, useEffect } from "react";
 import "../Services.css";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import {
   Box,
   Paper,
   Typography,
-  TextField,
-  Divider
+  Divider,
+  FormGroup,
+  FormControlLabel,
+  Checkbox,
+  Alert,
+  TextField
 } from "@mui/material";
 
-const Payment_method = ({ processDetailCode, onsave, onFileLoad }) => {
-
-  const [applications, setApplications] = useState([]);
-  const [application_number, setApplicationNumber] = useState("");
-  const [diagnosis_code, setDiagnosiscode] = useState(null);
-  const [detail_code, setDetailcode] = useState(null);
+const Payment_method = ({ processDetailCode, onsave }) => {
   const [message, setMessage] = useState("");
-  const navigate = useNavigate();
-  const [userid, setUserid] = useState(null);
-  const [uploadedfile, setfile] = useState("");
+  const [paymentMethods, setPaymentMethods] = useState([]); 
+  const [selectedMethods, setSelectedMethods] = useState({}); 
 
-  const Username = 'amani';
-//   const Username = window.__DNN_USER__?.username ?? "Guest";
+  useEffect(() => {
+    getPaymentMethod();
+  }, []);
 
- useEffect(() => {
-  fetchuserid();
-}, []);
-
-useEffect(() => {
-  if (uploadedfile && onFileLoad) {
-    onFileLoad(uploadedfile);
-  }
-}, [uploadedfile]);
-
-  const fetchuserid = async () => {
+  const getPaymentMethod = async () => {
     try {
-      const res = await axios.get(`/GetUserID/${Username}`);
-      console.log("GetUserID response:", res.data);
-
-      if (Array.isArray(res.data) && res.data.length > 0) {
-        const id = res.data[0].userid;
-        setUserid(id);
-        getExistingRefund(id);
-      } else {
-        console.error("Unexpected API response:", res.data);
+      const res = await axios.get("/getPaymentMethod");
+      if (Array.isArray(res.data)) {
+        setPaymentMethods(res.data);
       }
     } catch (err) {
-      console.error("Failed to fetch userid:", err);
+      setMessage("Error loading payment methods.");
     }
   };
 
-const getExistingRefund = async (userid) => {
-  try {
-    const res = await axios.get(`/getExistingRefund/${userid}`);
-
-    if (Array.isArray(res.data) && res.data.length > 0) {
-            setApplications(res.data);
-      if (processDetailCode) {
-        const matchedItem = res.data.find(
-          (item) => item.detail_code === processDetailCode
-        );
-
-        if (matchedItem) {
-          setApplicationNumber(matchedItem.application_number);
-          setDiagnosiscode(matchedItem.diagnosis_code);
-          setDetailcode(matchedItem.detail_code);
-          setfile(matchedItem.uploadedfile);
-        }
-
+  const handleCheckboxChange = (code) => {
+    setSelectedMethods((prev) => {
+      const newSelected = { ...prev };
+      if (newSelected[code] !== undefined) {
+        delete newSelected[code];
+      } else {
+        newSelected[code] = "";
       }
+      return newSelected;
+    });
+  };
+
+const handleAccountChange = (code, value) => {
+    if (value === "" || /^\d+$/.test(value)) {
+      setSelectedMethods((prev) => ({
+        ...prev,
+        [code]: value
+      }));
     }
-  } catch (err) {
-    console.error("Failed to fetch payment refund data:", err);
-  }
-};
+  };
 
-const handleSelectChange = (e) => {
-  const selectedAppNumber = e.target.value;
-  setApplicationNumber(selectedAppNumber);
-
-  const selectedItem = applications.find(
-    (item) => item.application_number === selectedAppNumber
-  );
-
-  if (selectedItem) {
-    setDiagnosiscode(selectedItem.diagnosis_code);
-    setDetailcode(selectedItem.detail_code);
-  }
-};
   const handleSave = () => {
-    if (!diagnosis_code) {
-      setMessage("Please select an application.");
+    const selectedCodes = Object.keys(selectedMethods);
+    
+    if (selectedCodes.length === 0) {
+      setMessage("Please select at least one payment method.");
       return;
     }
 
+    const isMissingAccount = selectedCodes.some(code => !selectedMethods[code].trim());
+    if (isMissingAccount) {
+      setMessage("Please enter an account number for all selected methods.");
+      return;
+    }
     if (onsave) {
-      onsave(diagnosis_code);
+      debugger
+      const formattedData = selectedCodes.map((code) => ({
+        method_code: code,
+        account_number: selectedMethods[code],
+      }));
+      onsave(formattedData);
     }
   };
-
   return (
     <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
       <Paper
         elevation={3}
         sx={{
           width: "100%",
-          maxWidth: 900,
+          maxWidth: 900, 
           p: 4,
           borderRadius: 3
         }}
       >
-
-        {message && <div className="alert alert-info">{message}</div>}
+        {message && (
+          <Alert severity="info" sx={{ mb: 2 }} onClose={() => setMessage("")}>
+            {message}
+          </Alert>
+        )}
 
         <Divider sx={{ my: 1 }} />
-
         <Box sx={{ mt: 2, mb: 2 }}>
           <Typography variant="h6" sx={{ color: "#0b5c8e", fontWeight: 700 }}>
-           Select Application
+            Available Payment Methods
           </Typography>
           <Box sx={{ height: 1, backgroundColor: "#e0e0e0", mt: 1 }} />
         </Box>
 
-        <Typography sx={{ color: "#0b5c8e", fontWeight: 600 }}>
-          Choose an application from the list below to proceed.
+        <Typography sx={{ color: "#0b5c8e", fontWeight: 600, mb: 3 }}>
+          Select the payment methods and enter your account numbers below.
         </Typography>
 
-        <TextField
-          select
-          fullWidth
-          value={application_number}
-          onChange={handleSelectChange}
-          SelectProps={{ native: true }}
-          
-        >
-          <option value="">-- Select --</option>
-          {applications.map((app) => (
-            <option key={app.application_number} value={app.application_number}>
-              {app.application_number}
-            </option>
-          ))}
-        </TextField>
+        <FormGroup sx={{ pl: 1 }}>
+          {paymentMethods.map((method) => {
+            const isChecked = selectedMethods[method.method_code] !== undefined;
+            
+            return (
+              <Box key={method.method_code} sx={{ mb: 2 }}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={isChecked}
+                      onChange={() => handleCheckboxChange(method.method_code)}
+                      sx={{
+                        color: "#0b5c8e",
+                        "&.Mui-checked": { color: "#0b5c8e" },
+                      }}
+                    />
+                  }
+                  label={
+                    <Typography sx={{ fontWeight: 600, color: "#333" }}>
+                      {method.name}
+                    </Typography>
+                  }
+                />
+                
+                {isChecked && (
+                  <Box sx={{ pl: 4, mt: 1, maxWidth: 400 }}>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      label={`Enter ${method.name} Account Number`}
+                      variant="outlined"
+                      value={selectedMethods[method.method_code]}
+                      onChange={(e) => handleAccountChange(method.method_code, e.target.value)}
+                      placeholder="Account Number..."
+                    />
+                  </Box>
+                )}
+              </Box>
+            );
+          })}
+        </FormGroup>
 
         <div style={{ marginTop: "20px" }}>
-     <button
-       type="button"
-          className="actionBtn saveBtn"
-       onClick={handleSave}
-         >
-       💾 {processDetailCode ? "Update" : "Save"}
-      </button>
+          <button
+            type="button"
+            className="actionBtn saveBtn"
+            onClick={handleSave}
+          >
+            💾 {processDetailCode ? "Update" : "Save"}
+          </button>
         </div>
-
       </Paper>
     </Box>
   );
 };
+
 export default Payment_method;

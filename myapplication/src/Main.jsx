@@ -135,13 +135,13 @@ const Main = () => {
         organization_code: organization_code,
         tasks_task_code: task_code,
         UserId: userid,
-        document: documentFile 
+        // document: documentFile 
       };
 
       const isGuid = typeof data === "string" && /^[0-9a-fA-F-]{36}$/.test(data);
       if (isGuid) {
         payload.diagnosis_code = data;
-        // payload.document = documentFile;
+        payload.document = documentFile;
       } else {
         payload.value = JSON.stringify(data);
       }
@@ -162,6 +162,26 @@ const Main = () => {
     }
   };
 
+    const handleSavePaymentMethod = async (data) => {
+      debugger
+    setMessage("");
+    try {
+   const payload = data.map((item) => ({
+        method_code: item.method_code,
+        account_number: item.account_number,
+        UserId: userid,
+      }));
+      const res = await axios.post("/setPaymentMethod", payload);
+      if (res.data) {
+      setMessage("Thank you for sebmiting payment method!");
+      completed(true);
+      getLicense(res.data.applicationNumber);
+      }
+    } catch (error) {
+      console.error("❌ Failed to set payment method:", error);
+    }
+  };
+
   const code = meta_data_forms_form_code.toUpperCase();
 
   const getStepContent = (step) => {
@@ -170,7 +190,7 @@ const Main = () => {
       case 0:
            return <Payment_refund_application  processDetailCode={application_detail_id}  onsave={handleSave} onFileLoad={(file) => setDocumentFile(file)} />;
       case 1:
-        return <Payment_method processDetailCode={application_detail_id}  onsave={handleSave} onFileLoad={(file) => setDocumentFile(file)}  />;
+        return <Payment_method processDetailCode={application_detail_id}  onsave={handleSavePaymentMethod}  />;
          case 2:
         return <Customer onsave2={completed} />;
       case 3:
