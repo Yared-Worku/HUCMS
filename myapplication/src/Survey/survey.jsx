@@ -130,7 +130,7 @@ function Surveycomp({ formCode, onsave1, detailId }) {
 
       <div style={{ marginTop: "20px" }}>
         <button type="button" className="btn btn-success" onClick={handlesaveform}>
-          💾 {detailId ? "Update" : "Save"}
+           {detailId ? "Update" : "💾 Save"}
         </button>
       </div>
     </div>

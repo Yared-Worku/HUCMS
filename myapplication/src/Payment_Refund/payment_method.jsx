@@ -200,20 +200,15 @@ const Payment_method = ({ processDetailCode, onsave, userid }) => {
           })}
         </FormGroup>
 
-        <Box sx={{ mt: 4 }}>
+        <div style={{ marginTop: "20px" }}>
           <button
             type="button"
             className="actionBtn saveBtn"
             onClick={handleSave}
-            style={{
-              padding: "10px 25px",
-              fontSize: "1rem",
-              cursor: "pointer"
-            }}
           >
-            💾 {isUpdateMode ? "Update" : "Save"}
+             {isUpdateMode ? "Update" : "💾 Save"}
           </button>
-        </Box>
+       </div>
       </Paper>
     </Box>
   );

@@ -148,7 +148,7 @@ const handleSelectChange = (e) => {
           className="actionBtn saveBtn"
        onClick={handleSave}
          >
-       💾 {processDetailCode ? "Update" : "Save"}
+        {processDetailCode ? "Update" : "💾 Save"}
       </button>
         </div>
 
