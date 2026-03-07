@@ -19,8 +19,17 @@ import {
   TextField,
   Accordion,
   AccordionSummary,
-  AccordionDetails
+  AccordionDetails,
+  Divider,
+  Avatar, 
+   Chip
 } from "@mui/material";
+import FullscreenIcon from '@mui/icons-material/Fullscreen';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import PersonIcon from '@mui/icons-material/Person';
+import MedicationIcon from '@mui/icons-material/Medication';
+import NoPhotographyIcon from '@mui/icons-material/NoPhotography';
+import InboxIcon from '@mui/icons-material/Inbox';
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import PendingActionsIcon from "@mui/icons-material/PendingActions";
@@ -35,6 +44,7 @@ import LabTest from "./Laboratory/lab_test";
 import Dispanse from "./Pharmacy/dispanse";
 import Medical_Certificate from "./Doctor/medical_certificate";
 import Payment_Refund_CH from "./Payment_Refund/Refund_Validation_CH";
+import ReportProblemIcon from '@mui/icons-material/ReportProblem';
 
 const Main = () => {
   const {
@@ -97,6 +107,10 @@ const [expanded, setExpanded] = useState(false);
     const [physical_examination, setPhysicalExamination] = useState("");
     const [reason_for_referal, setReferalReason] = useState("");
     const [RX, setRX] = useState("");
+    const [expandedIndex, setExpandedIndex] = React.useState(null);
+    const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
+    const [rejectionReason, setRejectionReason] = useState("");
+
   useEffect(() => {
     getLicense(application_number);
     fetchuserid();
@@ -338,6 +352,24 @@ const handleSaveCHRefundData = async (data) => {
     }
   };
 
+    const handleReviewCh = async () => {
+    try {
+      const res = await axios.get(`/getReviewCH/${todocode}`,{
+       params: { 
+          pr_Codefromquery: pr_Code 
+        }
+    });
+      if (res.data && res.data.length > 0) {
+        openCommonPopup("REVIEWCH", "Task Review Data", res.data);
+      } else {
+         openCommonPopup("MESSAGE", "Error", "No data found to review for this task.");
+      }
+    } catch (error) {
+      console.error("❌ Failed to fetch review data:", error);
+       openCommonPopup("MESSAGE", "Error", "Failed to fetch data.");
+    }
+  };
+
   const handleReviewPatientHistory = async () => {
     try {
      const res = await axios.get("/Getpatienthistory", {
@@ -368,8 +400,6 @@ const handleLabRequest = async (labTestValue) => {
     };
 
     const res = await axios.post("/Labrequest", payload);
-
-    // Optional: update labTests state if API returns lab_test
     if (res.data?.lab_test) {
       const tests = res.data.lab_test
         .split(",")
@@ -412,8 +442,6 @@ const handleLabRequest = async (labTestValue) => {
     };
 
     const res = await axios.post("/SetAppointment", payload);
-
-    // Optional: if backend returns updated appointment info
     if (res.data?.appointment_reason) {
       setappointment_reason(res.data.appointment_reason);
     }
@@ -503,27 +531,34 @@ const handleRefer = async () => {
       openCommonPopup("MESSAGE", "Error", "❌ Failed to save prescription.");
     }
   };
-  const handleActionSelect = async (action) => {
-    setSelectedAction(action);
-    setSelectedActionCode(action.task_rules_code);
-    setAnchorEl(null);
-
-    try {
-      const res = await axios.post("/ToDoTask", {
-        application_number: applicationNumber,
-        todocode: todocode,
-        organization_code: organization_code,
-        userId: userid,
-        ProcessDetailCode: ProcessDetailCode,
-        task_rules_code: action.task_rules_code,
-      });
-      setMessage("🎉 The task completed successfully!");
-      navigate("/mytask");
-    } catch (error) {
-      console.error("❌ Failed to create ToDo:", error);
-      setMessage("Could not create ToDo.");
-    }
-  };
+const handleActionSelect = async (action) => {
+  setAnchorEl(null);
+  const REJECT_RULE_CODE = "6c9145ad-43e8-42a1-84ad-f17553735465";
+  
+  if (action.task_rules_code?.toLowerCase() === REJECT_RULE_CODE.toLowerCase()) {
+    openCommonPopup("REJECTION_REASON", "Provide Rejection Reason", action);
+  } else {
+    await executeTaskAction(action.task_rules_code);
+  }
+};
+const executeTaskAction = async (ruleCode, reason = "") => {
+  try {
+    const res = await axios.post("/ToDoTask", {
+      application_number: applicationNumber,
+      todocode: todocode,
+      organization_code: organization_code,
+      userId: userid,
+      ProcessDetailCode: ProcessDetailCode,
+      task_rules_code: ruleCode,
+      rejection_reason: reason, 
+    });
+    setMessage("🎉 The task completed successfully!");
+    navigate("/mytask");
+  } catch (error) {
+    console.error("❌ Failed to create ToDo:", error);
+    setMessage("Could not create ToDo.");
+  }
+};
 const openLabTestPopup = () => {
   setLabTestInput(""); // clear previous input
   setPopupState({
@@ -567,6 +602,7 @@ const openPrescriptionPopup = () => {
     setAnchorEl(event.currentTarget);
     setLoadingActions(true);
     try {
+      // debugger
       const res = await axios.get(`/GetActionsByTaskCode`, {
         params: { taskCode: task_code },
       });
@@ -794,48 +830,66 @@ const handleAccordionChange = (panel) => (event, isExpanded) => {
               );
             
             }else{
-              return (
-                <>
-                  <Button
-                    variant="contained"
-                    startIcon={<AssignmentTurnedInIcon />}
-                    onClick={handleReview}
-                    sx={{ backgroundColor: "#fbc02d", color: "black" }}
-                  >
-                    Review
-                  </Button>
+       return (
+     <>
+    {/* Conditional Review Button */}
+    {code === "F0FA6F1E-0BD4-41AC-A05D-BB44A8B79EA4" ? (
+      <Button
+        variant="contained"
+        startIcon={<AssignmentTurnedInIcon />}
+        onClick={handleReviewCh}
+        sx={{ backgroundColor: "#fbc02d", color: "black" }}
+      >
+        Review
+      </Button>
+    ) : (
+      <Button
+        variant="contained"
+        startIcon={<AssignmentTurnedInIcon />}
+        onClick={handleReview}
+        sx={{ backgroundColor: "#fbc02d", color: "black" }}
+      >
+        Review
+      </Button>
+    )}
 
-                  <Button
-                    variant="contained"
-                    startIcon={<CheckCircleIcon />}
-                    onClick={handleRequiredActionClick}
-                    disabled={!isCompleted}
-                  >
-                    {loadingActions ? (
-                      <CircularProgress size={20} color="inherit" />
-                    ) : (
-                      selectedAction?.decision_rule_en || "Required Action"
-                    )}
-                  </Button>
+    {/* Required Action Button */}
+    <Button
+      variant="contained"
+      startIcon={<CheckCircleIcon />}
+      onClick={handleRequiredActionClick}
+      disabled={!isCompleted}
+    >
+      {loadingActions ? (
+        <CircularProgress size={20} color="inherit" />
+      ) : (
+        selectedAction?.decision_rule_en || "Required Action"
+      )}
+    </Button>
 
-                  <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
-                    {actions.map((action, index) => (
-                      <MenuItem key={index} onClick={() => handleActionSelect(action)}>
-                        {action.decision_rule_en || "—"}
-                      </MenuItem>
-                    ))}
-                  </Menu>
+    {/* Menu Component */}
+    <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
+      {actions.map((action, index) => (
+  <MenuItem 
+    key={index} 
+    onClick={() => handleActionSelect(action)} 
+  >
+    {action.decision_rule_en || "—"}
+  </MenuItem>
+    ))}
+    </Menu>
 
-                  <Button
-                    variant="contained"
-                    startIcon={<PendingActionsIcon />}
-                    onClick={handlePendClose}
-                    sx={{ backgroundColor: "#ffb300", color: "black" }}
-                  >
-                    Pend & Close
-                  </Button>
-                </>
-              );
+    {/* Pend & Close Button */}
+    <Button
+      variant="contained"
+      startIcon={<PendingActionsIcon />}
+      onClick={handlePendClose}
+      sx={{ backgroundColor: "#ffb300", color: "black" }}
+    >
+      Pend & Close
+    </Button>
+       </>
+         );
             }
           })()}
         </Stack>
@@ -1176,6 +1230,186 @@ const handleAccordionChange = (panel) => (event, isExpanded) => {
     </Button>
     </Box>
       )}
+{/* Case 8: REVIEW (Clinic Head) */}
+{popupState.type === "REVIEWCH" && (
+  <Box sx={{ mt: 2, px: 1 }}>
+    {Array.isArray(popupState.data) && popupState.data.length > 0 ? (
+      popupState.data.map((item, i) => {
+        const isExpanded = expandedIndex === i;
+        
+        return (
+          <Paper
+            key={i}
+            elevation={0}
+            sx={{
+              mb: 4,
+              borderRadius: 4,
+              overflow: "hidden",
+              border: "1px solid #f0f0f0",
+              boxShadow: isExpanded ? "0 20px 50px rgba(0,0,0,0.15)" : "0 10px 30px rgba(0,0,0,0.04)",
+              transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+            }}
+          >
+            <Grid container>
+              {!isExpanded && (
+                <Grid item xs={12} md={7} sx={{ p: 4 }}>
+                  <Stack spacing={3}>
+                    <Box>
+                      <Typography variant="overline" sx={{ color: "#fbc02d", fontWeight: 800, letterSpacing: 1.2 }}>
+                        Detail Review
+                      </Typography>
+                      <Grid container sx={{ mt: 1 }}>
+                        <Grid item xs={6}>
+                          <Typography variant="caption" color="textSecondary" display="block">Prescribed Medicine </Typography>
+                          <Typography variant="h6" sx={{ fontWeight: 700 }}>{item.rx}</Typography>
+                        </Grid>
+                        
+                        <Grid item xs={6}>
+                          <Typography marginLeft='30px' variant="caption" color="textSecondary" display="block">QUANTITY</Typography>
+                          <Typography marginLeft='30px' variant="h6" sx={{ fontWeight: 700 }}>{item.quantity}</Typography>
+                        </Grid>
+                      </Grid>
+                    </Box>
+
+                    <Divider />
+
+                    <Box>
+                      <Typography variant="overline" color="textSecondary" sx={{ fontWeight: 700 }}>
+                        Prescription Detail
+                      </Typography>
+                      <Stack direction="row" spacing={3} sx={{ mt: 1 }}>
+                        <Stack direction="row" spacing={1} alignItems="center">
+                          <Avatar sx={{ bgcolor: "#e3f2fd", color: "#1976d2", width: 32, height: 32 }}>
+                            <PersonIcon fontSize="small" />
+                          </Avatar>
+                          <Box>
+                            <Typography variant="caption" color="textSecondary" display="block">Priscriber</Typography>
+                            <Typography variant="body2" sx={{ fontWeight: 600 }}>{"Dr."} {item.doctorFname} {item.doctorLname}</Typography>
+                          </Box>
+                        </Stack>
+                        <Stack direction="row" spacing={1} alignItems="center">
+                          <Avatar sx={{ bgcolor: "#f1f8e9", color: "#388e3c", width: 32, height: 32 }}>
+                            <MedicationIcon fontSize="small" />
+                          </Avatar>
+                          <Box>
+                            <Typography variant="caption" color="textSecondary" display="block">Druggist</Typography>
+                            <Typography variant="body2" sx={{ fontWeight: 600 }}>{item.drugistFname} {item.drugistLname}</Typography>
+                          </Box>
+                        </Stack>
+                      </Stack>
+                    </Box>
+
+                    <Box sx={{ p: 2, borderRadius: 2, bgcolor: "#fffde7", border: "1px solid #fff59d" }}>
+                      <Typography variant="caption" sx={{ fontWeight: 800, color: "#fbc02d", display: 'block' }}>REMARK</Typography>
+                      <Typography variant="body2" sx={{ color: "#5d4037" }}>{item.remark || "N/A"}</Typography>
+                    </Box>
+                  </Stack>
+                </Grid>
+              )}
+              <Grid 
+                item 
+                xs={12} 
+                md={isExpanded ? 12 : 5} 
+                sx={{ 
+                  p: isExpanded ? 0 : 3, 
+                  bgcolor: "#fafafa", 
+                  transition: "all 0.4s ease-in-out",
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  borderLeft: isExpanded ? "none" : "1px solid #f0f0f0"
+                }}
+              >
+                {item.file ? (
+    <Box sx={{ width: '100%', textAlign: 'center', position: 'relative' }}>
+     <Box
+    component="img"
+    src={item.file}
+    onClick={() => setExpandedIndex(isExpanded ? null : i)}
+    sx={{
+      width: '100%',
+      maxHeight: isExpanded ? '80vh' : '300px',
+      minHeight: isExpanded ? '500px' : 'auto',
+      objectFit: isExpanded ? 'contain' : 'cover',
+      borderRadius: isExpanded ? 0 : 3,
+      cursor: isExpanded ? 'zoom-out' : 'zoom-in',
+      transition: "all 0.4s ease",
+      backgroundColor: isExpanded ? "#000" : "transparent"
+    }}
+  />
+  
+  <IconButton
+    onClick={() => setExpandedIndex(isExpanded ? null : i)}
+    sx={{ 
+      position: 'absolute', 
+      top: 10, 
+      right: 10, 
+      color: isExpanded ? '#fff' : '#000',
+      filter: "drop-shadow(0px 0px 3px rgba(0,0,0,0.5))", 
+      transition: "transform 0.2s",
+      '&:hover': { 
+        transform: "scale(1.2)",
+        bgcolor: 'transparent' 
+      }
+    }}
+  >
+    {isExpanded ? <CloseIcon sx={{ fontSize: 32 }} /> : <FullscreenIcon sx={{ fontSize: 25 }} />}
+  </IconButton>
+       </Box>
+                ) : (
+                  <Stack alignItems="center" spacing={1} sx={{ opacity: 0.3, py: 10 }}>
+                    <NoPhotographyIcon sx={{ fontSize: 48 }} />
+                    <Typography variant="caption">Image Missing</Typography>
+                  </Stack>
+                )}
+              </Grid>
+            </Grid>
+          </Paper>
+        );
+      })
+    ) : (
+      <Typography sx={{ py: 10, textAlign: 'center' }}>No review data.</Typography>
+    )}
+  </Box>
+)}
+{/* Case 9: REJECTION REASON */}
+{popupState.type === "REJECTION_REASON" && (
+  <Box sx={{ p: 1 }}>
+    <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
+      Please explain why this task is being rejected. This information will be saved.
+    </Typography>
+    <TextField
+      autoFocus
+      fullWidth
+      multiline
+      rows={2}
+      variant="outlined"
+      label="Reason"
+      value={rejectionReason}
+      onChange={(e) => setRejectionReason(e.target.value)}
+      sx={{ mb: 2 }}
+    />
+    <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+      <Button 
+        variant="outlined" 
+        onClick={() => setPopupState({ ...popupState, open: false })}
+      >
+        Cancel
+      </Button>
+      <Button 
+        variant="contained" 
+        color="error"
+        startIcon={<CheckCircleIcon />}
+        disabled={!rejectionReason.trim()}
+        onClick={() => {
+          executeTaskAction(popupState.data.task_rules_code, rejectionReason);
+        }}
+      >
+        Reject
+      </Button>
+    </Box>
+  </Box>
+)}
         </DialogContent>
         <DialogActions sx={{ backgroundColor: "#f5f5f5" }}>
           <Button onClick={handleClosePopup} variant="contained" sx={{ fontWeight: "bold" }}>
