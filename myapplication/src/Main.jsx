@@ -28,9 +28,11 @@ import Review from "./Review/review";
 import Medical_Certificate from "./Medical_certificate/medical_certificate_application";
 import Payment_refund_application from "./Payment_Refund/payment_refund_application";
 import Payment_method from "./Payment_Refund/payment_method";
+
 const Main = () => {
   const { application_number, service_code, task_code, organization_code, application_detail_id, meta_data_forms_form_code } = useParams();
-  
+  const code = meta_data_forms_form_code?.toUpperCase();
+
   const Username = window.__DNN_USER__?.username ?? "Guest";
   // const Username = 'amani';
 
@@ -44,7 +46,7 @@ const Main = () => {
   const [todocode, settodocode] = useState(null);
   const [completedSteps, setCompletedSteps] = useState({});
   const steps = ["Application", "Customer Detail", "Review"];
-  const stepspaymet = ["Application","Payment Method", "Customer Detail", "Review"];
+  const stepspaymet = ["Application", "Payment Method", "Customer Detail", "Review"];
   const [selectedFile, setSelectedFile] = useState(null);
   const [documentFile, setDocumentFile] = useState(""); 
   const [isDragging, setIsDragging] = useState(false);
@@ -128,6 +130,12 @@ const Main = () => {
 
   const handleSave = async (data) => {
     setMessage("");
+
+    if (code === "8B4ADCF4-EC5F-4C66-979F-654889CEB0D0" && !documentFile) {
+      setMessage("⚠️ Please upload the required document before saving or proceeding.");
+      return; 
+    }
+
     try {
       const payload = {
         application_number: applicationNumber,
@@ -162,62 +170,61 @@ const Main = () => {
     }
   };
 
-    const handleSavePaymentMethod = async (data) => {
-  setMessage("");
-  try {
-    const activeCodesString = data.map(item => item.method_code).join(',');
+  const handleSavePaymentMethod = async (data) => {
+    setMessage("");
+    try {
+      const activeCodesString = data.map(item => item.method_code).join(',');
 
-    const payload = data.map((item) => ({
-      method_code: item.method_code,
-      account_number: item.account_number,
-      UserId: userid,
-      AllActiveMethods: activeCodesString
-    }));
-    const res = await axios.post("/setPaymentMethod", payload); 
-    
-    if (res.data) {
-      setMessage("Thank you for submitting payment method!");
-      completed(true);
+      const payload = data.map((item) => ({
+        method_code: item.method_code,
+        account_number: item.account_number,
+        UserId: userid,
+        AllActiveMethods: activeCodesString
+      }));
+      const res = await axios.post("/setPaymentMethod", payload); 
+      
+      if (res.data) {
+        setMessage("Thank you for submitting payment method!");
+        completed(true);
+      }
+    } catch (error) {
+      console.error("❌ Failed to set payment method:", error);
+      setMessage("Error: Could not save payment methods.");
     }
-  } catch (error) {
-    console.error("❌ Failed to set payment method:", error);
-    setMessage("Error: Could not save payment methods.");
-  }
-};
-
-  const code = meta_data_forms_form_code.toUpperCase();
+  };
 
   const getStepContent = (step) => {
-    if(code === "8B4ADCF4-EC5F-4C66-979F-654889CEB0D0"){
-    switch (step) {
-      case 0:
-           return <Payment_refund_application  processDetailCode={application_detail_id}  onsave={handleSave} onFileLoad={(file) => setDocumentFile(file)} />;
-      case 1:
-        return <Payment_method processDetailCode={application_detail_id}  onsave={handleSavePaymentMethod}  userid={userid}/>;
-         case 2:
-        return <Customer onsave2={completed} />;
-      case 3:
-        return <Review formCode={meta_data_forms_form_code} processDetailCode={processDetailCode} userId={userid} />;
-      default:
-        return <Typography>⚠️ No component found</Typography>;
+    if (code === "8B4ADCF4-EC5F-4C66-979F-654889CEB0D0") {
+      switch (step) {
+        case 0:
+          return <Payment_refund_application processDetailCode={application_detail_id} onsave={handleSave} onFileLoad={(file) => setDocumentFile(file)} />;
+        case 1:
+          return <Payment_method processDetailCode={application_detail_id} onsave={handleSavePaymentMethod} userid={userid} />;
+        case 2:
+          return <Customer onsave2={completed} />;
+        case 3:
+          return <Review formCode={meta_data_forms_form_code} processDetailCode={processDetailCode} userId={userid} />;
+        default:
+          return <Typography>⚠️ No component found</Typography>;
+      }
+    } else {
+      switch (step) {
+        case 0:
+          if (code === "E0D68EE8-56E6-4262-A407-8999F92FCCDE") {
+            return <Medical_Certificate processDetailCode={application_detail_id} onsave={handleSave} />;
+          } else {
+            return <Survey formCode={meta_data_forms_form_code} onsave1={handleSave} detailId={application_detail_id} />;
+          }
+        case 1:
+          return <Customer onsave2={completed} />;
+        case 2:
+          return <Review formCode={meta_data_forms_form_code} processDetailCode={processDetailCode} userId={userid} />;
+        default:
+          return <Typography>⚠️ No component found</Typography>;
+      }
     }
-  }else{
-   switch (step) {
-      case 0:
-        if (code === "E0D68EE8-56E6-4262-A407-8999F92FCCDE") {
-          return <Medical_Certificate  processDetailCode={application_detail_id}  onsave={handleSave} />;
-        } else{
-          return <Survey formCode={meta_data_forms_form_code} onsave1={handleSave} detailId={application_detail_id} />;
-        }
-      case 1:
-        return <Customer onsave2={completed} />;
-      case 2:
-        return <Review formCode={meta_data_forms_form_code} processDetailCode={processDetailCode} userId={userid} />;
-      default:
-        return <Typography>⚠️ No component found</Typography>;
-    }
-  }
   };
+
   const activeStepsArray = code === "8B4ADCF4-EC5F-4C66-979F-654889CEB0D0" ? stepspaymet : steps;
 
   return (
@@ -241,94 +248,91 @@ const Main = () => {
           </Typography>
         </Box>
       </Paper>
-     {(
-        code === "8B4ADCF4-EC5F-4C66-979F-654889CEB0D0"
-         ) && (
-      <Box sx={{ display: 'flex', justifyContent: 'left', width: '100%' }}>
-        <Paper
-          elevation={isDragging ? 4 : 1}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-          sx={{
-            p: 1,
-            mb: 1,
-            borderRadius: 2,
-            border: '4px solid',
-            borderColor: isDragging ? 'primary.main' : '#e0e0e0',
-            backgroundColor: isDragging ? '#f0f7ff' : '#fafafa',
-            transition: 'all 0.1s ease',
-            position: 'relative',
-            overflow: 'hidden',
-            maxWidth: '450px',
-            width: '100%'
-          }}
-        >
-          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 2 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-              <Box sx={{
-                p: 0.8,
-                borderRadius: '50%',
-                backgroundColor: selectedFile ? 'success.light' : 'primary.light',
-                color: selectedFile ? 'success.main' : 'primary.main',
-                display: 'flex'
-              }}>
-                {selectedFile ? <FileIcon fontSize="small" /> : <UploadIcon fontSize="small" />}
-              </Box>
-              <Box>
-                <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                  {(selectedFile || documentFile) ? "Document Attached" : "Upload Document"}
-                </Typography>
-                <Typography variant="caption" sx={{
-                  display: 'block',
-                  maxWidth: '150px',
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis'
+      
+      {code === "8B4ADCF4-EC5F-4C66-979F-654889CEB0D0" && (
+        <Box sx={{ display: 'flex', justifyContent: 'left', width: '100%' }}>
+          <Paper
+            elevation={isDragging ? 4 : 1}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            sx={{
+              p: 1,
+              mb: 1,
+              borderRadius: 2,
+              border: '4px solid',
+              borderColor: isDragging ? 'primary.main' : '#e0e0e0',
+              backgroundColor: isDragging ? '#f0f7ff' : '#fafafa',
+              transition: 'all 0.1s ease',
+              position: 'relative',
+              overflow: 'hidden',
+              maxWidth: '450px',
+              width: '100%'
+            }}
+          >
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 2 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <Box sx={{
+                  p: 0.8,
+                  borderRadius: '50%',
+                  backgroundColor: selectedFile ? 'success.light' : 'primary.light',
+                  color: selectedFile ? 'success.main' : 'primary.main',
+                  display: 'flex'
                 }}>
-                   {selectedFile ? selectedFile.name : documentFile ? "File Uploaded " : "Drag or browse"}
-                </Typography>
+                  {selectedFile ? <FileIcon fontSize="small" /> : <UploadIcon fontSize="small" />}
+                </Box>
+                <Box>
+                  <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                    {(selectedFile || documentFile) ? "Document Attached" : "Upload Document"}
+                  </Typography>
+                  <Typography variant="caption" sx={{
+                    display: 'block',
+                    maxWidth: '150px',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
+                  }}>
+                    {selectedFile ? selectedFile.name : documentFile ? "File Uploaded " : "Drag or browse"}
+                  </Typography>
+                </Box>
+              </Box>
+
+              <Box>
+                <Button
+                  type="button"
+                  variant="outlined"
+                  component="label"
+                  size="small"
+                  sx={{ borderRadius: 1.5, textTransform: 'none' }}
+                >
+                  Browse
+                  <input
+                    type="file"
+                    hidden
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (file) handleFileUpload(file);
+                    }}
+                  />
+                </Button>
+
+                {selectedFile && (
+                  <IconButton
+                    size="small"
+                    color="error"
+                    onClick={() => {
+                      setSelectedFile(null);
+                      setDocumentFile("");
+                    }}
+                  >
+                    <CloseIcon fontSize="small" />
+                  </IconButton>
+                )}
               </Box>
             </Box>
-
-            <Box>
-              <Button
-                type="button"
-                variant="outlined"
-                component="label"
-                size="small"
-                sx={{ borderRadius: 1.5, textTransform: 'none' }}
-              >
-                Browse
-                <input
-                  type="file"
-                  hidden
-                  onChange={(e) => {
-                    const file = e.target.files[0];
-                    if (file) handleFileUpload(file);
-                  }}
-                />
-              </Button>
-
-              {selectedFile && (
-                <IconButton
-                  size="small"
-                  color="error"
-                  onClick={() => {
-                    setSelectedFile(null);
-                    setDocumentFile("");
-                  }}
-                >
-                  <CloseIcon fontSize="small" />
-                </IconButton>
-              )}
-            </Box>
-          </Box>
-        </Paper>
-      </Box>
-   )}
-      {message && <div className="alert alert-info" style={{ marginBottom: '10px' }}>{message}</div>}
-
+          </Paper>
+        </Box>
+      )}
       <Stepper activeStep={activeStep} alternativeLabel>
         {activeStepsArray.map((label) => (
           <Step key={label}>
@@ -336,7 +340,7 @@ const Main = () => {
           </Step>
         ))}
       </Stepper>
-
+      {message && <div className="alert alert-info" style={{ marginBottom: '10px' }}>{message}</div>}
       <Box sx={{ mt: 3 }}>{getStepContent(activeStep)}</Box>
 
       <Box sx={{ display: "flex", justifyContent: "space-between", mt: 3 }}>
@@ -358,7 +362,10 @@ const Main = () => {
             variant="contained"
             color="primary"
             onClick={() => setActiveStep((prev) => prev + 1)}
-            disabled={!completedSteps[activeStep]}
+            disabled={
+              !completedSteps[activeStep] || 
+              (code === "8B4ADCF4-EC5F-4C66-979F-654889CEB0D0" && activeStep === 0 && !documentFile)
+            }
           >
             Next
           </Button>

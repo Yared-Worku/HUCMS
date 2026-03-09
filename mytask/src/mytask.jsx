@@ -92,8 +92,25 @@ const Mytask = () => {
     }
   };
 
+  // Helper function to determine row class based on status
+  const getRowClass = (status, index) => {
+    const s = status?.toUpperCase();
+    if (s === 'P') return 'row-picked';
+    if (s === 'O') return 'row-open';
+    if (s === 'PS') return 'row-suspended';
+    return index % 2 === 0 ? 'rowEven' : 'rowOdd';
+  };
+
   return (
     <div className="mytask-page">
+      {/* Inline styles for status-based coloring */}
+      <style>{`
+        .row-picked { background-color: #e3f2fd !important; }    /* Soft Blue */
+        .row-open { background-color: #e8f5e9 !important; }      /* Soft Green */
+        .row-suspended { background-color: #ffebee !important; } /* Soft Red */
+        .table tbody tr:hover { filter: brightness(0.95); transition: 0.2s; }
+      `}</style>
+
       <div className="mytask-wrapper">
         <h6 className="page-title">📄 My Task</h6>
 
@@ -152,12 +169,12 @@ const Mytask = () => {
                 paginatedItems.map((task, index) => (
                   <tr
                     key={index}
-                    className={index % 2 === 0 ? "rowEven" : "rowOdd"}
+                    className={getRowClass(task.status, index)}
                   >
                     <td>{task.application_number}</td>
                     <td>{task.description_en}</td>
                     <td>{task.description_local}</td>
-                    <td>{task.status}</td>
+                    <td><strong>{task.status}</strong></td>
                     <td>
                       {task.start_date
                         ? new Date(task.start_date).toLocaleString()
