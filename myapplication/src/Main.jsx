@@ -12,7 +12,8 @@ import {
   IconButton,
   Tooltip,
   LinearProgress,
-  Fade
+  Fade,
+  Alert, AlertTitle
 } from "@mui/material";
 
 import {
@@ -30,7 +31,7 @@ import Payment_refund_application from "./Payment_Refund/payment_refund_applicat
 import Payment_method from "./Payment_Refund/payment_method";
 
 const Main = () => {
-  const { application_number, service_code, task_code, organization_code, application_detail_id, meta_data_forms_form_code } = useParams();
+  const { application_number, service_code, task_code, organization_code, application_detail_id, meta_data_forms_form_code, to_do_code } = useParams();
   const code = meta_data_forms_form_code?.toUpperCase();
 
   const Username = window.__DNN_USER__?.username ?? "Guest";
@@ -50,6 +51,7 @@ const Main = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [documentFile, setDocumentFile] = useState(""); 
   const [isDragging, setIsDragging] = useState(false);
+  const [backendMessage, setBackendMessage] = useState("");
 
   const completed = (isCompleted) => {
     setCompletedSteps((prev) => ({
@@ -61,7 +63,10 @@ const Main = () => {
   useEffect(() => {
     getLicense(application_number);
     fetchuserid();
-  }, []);
+if (to_do_code) {
+      fetchMessage(to_do_code);
+    }
+  }, [to_do_code]);
 
   const handleDragOver = (e) => { 
     e.preventDefault(); 
@@ -143,6 +148,7 @@ const Main = () => {
         organization_code: organization_code,
         tasks_task_code: task_code,
         UserId: userid,
+        todocode: to_do_code
         // document: documentFile 
       };
 
@@ -192,7 +198,16 @@ const Main = () => {
       setMessage("Error: Could not save payment methods.");
     }
   };
-
+const fetchMessage = async (todo) => {
+    try {
+      // debugger
+      const res = await axios.get(`/GetMessage/${todo}`);
+      const msg = typeof res.data === 'string' ? res.data : res.data.message;
+      setBackendMessage(msg);
+    } catch (err) {
+      console.error("Failed to fetch message:", err);
+    }
+  };
   const getStepContent = (step) => {
     if (code === "8B4ADCF4-EC5F-4C66-979F-654889CEB0D0") {
       switch (step) {
@@ -248,91 +263,105 @@ const Main = () => {
           </Typography>
         </Box>
       </Paper>
-      
-      {code === "8B4ADCF4-EC5F-4C66-979F-654889CEB0D0" && (
-        <Box sx={{ display: 'flex', justifyContent: 'left', width: '100%' }}>
-          <Paper
-            elevation={isDragging ? 4 : 1}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-            sx={{
-              p: 1,
-              mb: 1,
-              borderRadius: 2,
-              border: '4px solid',
-              borderColor: isDragging ? 'primary.main' : '#e0e0e0',
-              backgroundColor: isDragging ? '#f0f7ff' : '#fafafa',
-              transition: 'all 0.1s ease',
-              position: 'relative',
-              overflow: 'hidden',
-              maxWidth: '450px',
-              width: '100%'
-            }}
-          >
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 2 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                <Box sx={{
-                  p: 0.8,
-                  borderRadius: '50%',
-                  backgroundColor: selectedFile ? 'success.light' : 'primary.light',
-                  color: selectedFile ? 'success.main' : 'primary.main',
-                  display: 'flex'
-                }}>
-                  {selectedFile ? <FileIcon fontSize="small" /> : <UploadIcon fontSize="small" />}
-                </Box>
-                <Box>
-                  <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                    {(selectedFile || documentFile) ? "Document Attached" : "Upload Document"}
-                  </Typography>
-                  <Typography variant="caption" sx={{
-                    display: 'block',
-                    maxWidth: '150px',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis'
-                  }}>
-                    {selectedFile ? selectedFile.name : documentFile ? "File Uploaded " : "Drag or browse"}
-                  </Typography>
-                </Box>
-              </Box>
+<Box 
+  sx={{ 
+    display: 'flex', 
+    flexDirection: 'row', 
+    alignItems: 'flex-start', 
+    gap: 2, 
+    mb: 2, 
+    width: '100%' 
+  }}
+>
 
-              <Box>
-                <Button
-                  type="button"
-                  variant="outlined"
-                  component="label"
-                  size="small"
-                  sx={{ borderRadius: 1.5, textTransform: 'none' }}
-                >
-                  Browse
-                  <input
-                    type="file"
-                    hidden
-                    onChange={(e) => {
-                      const file = e.target.files[0];
-                      if (file) handleFileUpload(file);
-                    }}
-                  />
-                </Button>
-
-                {selectedFile && (
-                  <IconButton
-                    size="small"
-                    color="error"
-                    onClick={() => {
-                      setSelectedFile(null);
-                      setDocumentFile("");
-                    }}
-                  >
-                    <CloseIcon fontSize="small" />
-                  </IconButton>
-                )}
-              </Box>
+  {code === "8B4ADCF4-EC5F-4C66-979F-654889CEB0D0" && (
+    <Box sx={{ flex: 1, maxWidth: '450px' }}>
+      <Paper
+        elevation={isDragging ? 4 : 1}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        sx={{
+          p: 1,
+          borderRadius: 2,
+          border: '4px solid',
+          borderColor: isDragging ? 'primary.main' : '#e0e0e0',
+          backgroundColor: isDragging ? '#f0f7ff' : '#fafafa',
+          transition: 'all 0.1s ease',
+          position: 'relative',
+          overflow: 'hidden',
+          width: '100%'
+        }}
+      >
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Box sx={{
+              p: 0.8,
+              borderRadius: '50%',
+              backgroundColor: selectedFile ? 'success.light' : 'primary.light',
+              color: selectedFile ? 'success.main' : 'primary.main',
+              display: 'flex'
+            }}>
+              {selectedFile ? <FileIcon fontSize="small" /> : <UploadIcon fontSize="small" />}
             </Box>
-          </Paper>
+            <Box>
+              <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                {(selectedFile || documentFile) ? "Document Attached" : "Upload Document"}
+              </Typography>
+              <Typography variant="caption" sx={{ display: 'block', maxWidth: '150px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {selectedFile ? selectedFile.name : documentFile ? "File Uploaded " : "Drag or browse"}
+              </Typography>
+            </Box>
+          </Box>
+
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Button
+              type="button"
+              variant="outlined"
+              component="label"
+              size="small"
+              sx={{ borderRadius: 1.5, textTransform: 'none' }}
+            >
+              Browse
+              <input type="file" hidden onChange={(e) => {
+                const file = e.target.files[0];
+                if (file) handleFileUpload(file);
+              }} />
+            </Button>
+            {selectedFile && (
+              <IconButton size="small" color="error" onClick={() => { setSelectedFile(null); setDocumentFile(""); }}>
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            )}
+          </Box>
         </Box>
-      )}
+      </Paper>
+    </Box>
+  )}
+
+  {backendMessage && (
+    <Box sx={{ flex: 1 }}>
+      <Fade in={true}>
+        <Alert 
+          severity="info" 
+          sx={{ 
+            borderRadius: 2, 
+            borderLeft: '5px solid #0288d1',
+            minHeight: '68px', 
+            display: 'flex',
+            alignItems: 'center'
+          }}
+          onClose={() => setBackendMessage("")}
+        >
+          <Box>
+      <AlertTitle sx={{ m: 0, lineHeight: 1, fontWeight: 'bold', color: '#d32f2f' }}> Reviewer Comments:</AlertTitle>
+     <Typography variant="body2" sx={{ mt: 0.5 }}>{backendMessage}</Typography>
+          </Box>
+        </Alert>
+      </Fade>
+    </Box>
+  )}
+</Box>
       <Stepper activeStep={activeStep} alternativeLabel>
         {activeStepsArray.map((label) => (
           <Step key={label}>

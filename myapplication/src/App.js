@@ -44,7 +44,7 @@ function App() {
               <Route path="/certificate" element={<Medical_Certificate />} />
                <Route path="/refund" element={<Payment_refund_application />} />
                  <Route path="/payment_method" element={<Payment_method />} />
-      <Route path="/myApplication/:application_number/:service_code/:task_code/:organization_code/:application_detail_id/:meta_data_forms_form_code" element={<Main />}/>
+      <Route path="/myApplication/:application_number/:service_code/:task_code/:organization_code/:application_detail_id/:meta_data_forms_form_code/:to_do_code" element={<Main />}/>
      <Route path="/myApplication/:service_code/:task_code/:organization_code/:meta_data_forms_form_code" element={<Main />}/>
  </Routes>
  </Router>

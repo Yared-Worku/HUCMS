@@ -22,8 +22,16 @@ import {
   AccordionDetails,
   Divider,
   Avatar, 
-   Chip
+   Chip,
+     Fade,
+  Alert,
+   AlertTitle
 } from "@mui/material";
+import {
+  CloudUpload as UploadIcon,
+  InsertDriveFile as FileIcon, 
+  CheckCircle as SuccessIcon
+} from '@mui/icons-material';
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import PersonIcon from '@mui/icons-material/Person';
@@ -110,12 +118,16 @@ const [expanded, setExpanded] = useState(false);
     const [expandedIndex, setExpandedIndex] = React.useState(null);
     const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
     const [rejectionReason, setRejectionReason] = useState("");
+      const [backendMessage, setBackendMessage] = useState("");
 
   useEffect(() => {
     getLicense(application_number);
     fetchuserid();
     getDiagnosis();
-  }, []);
+if (todocode) {
+      fetchMessage(todocode);
+    }
+  }, [todocode]);
 
   // --- Helper to Open Common Popup ---
   const openCommonPopup = (type, title, data) => {
@@ -618,7 +630,16 @@ const openPrescriptionPopup = () => {
       setLoadingActions(false);
     }
   };
-
+const fetchMessage = async (todo) => {
+    try {
+      // debugger
+      const res = await axios.get(`/GetMessage/${todo}`);
+      const msg = typeof res.data === 'string' ? res.data : res.data.message;
+      setBackendMessage(msg);
+    } catch (err) {
+      console.error("Failed to fetch message:", err);
+    }
+  };
   const handleClose = () => setAnchorEl(null);
   const handlePendClose = () => navigate("/mytask");
 const handleAccordionChange = (panel) => (event, isExpanded) => {
@@ -682,7 +703,28 @@ const handleAccordionChange = (panel) => (event, isExpanded) => {
           </Typography>
         </Box>
       </Paper>
-
+ {backendMessage && (
+    <Box sx={{ flex: 1 }}>
+      <Fade in={true}>
+        <Alert 
+          severity="info" 
+          sx={{ 
+            borderRadius: 2, 
+            borderLeft: '5px solid #0288d1',
+            minHeight: '68px', 
+            display: 'flex',
+            alignItems: 'center'
+          }}
+          onClose={() => setBackendMessage("")}
+        >
+          <Box>
+      <AlertTitle sx={{ m: 0, lineHeight: 1, fontWeight: 'bold', color: '#d32f2f' }}> Reviewer Comments:</AlertTitle>
+     <Typography variant="body2" sx={{ mt: 0.5 }}>{backendMessage}</Typography>
+          </Box>
+        </Alert>
+      </Fade>
+    </Box>
+  )}
       {message && <div className="alert alert-info">{message}</div>}
 
       <Box sx={{ mt: 3, flex: 1 }}>
@@ -1306,63 +1348,85 @@ const handleAccordionChange = (panel) => (event, isExpanded) => {
                   </Stack>
                 </Grid>
               )}
-              <Grid 
-                item 
-                xs={12} 
-                md={isExpanded ? 12 : 5} 
-                sx={{ 
-                  p: isExpanded ? 0 : 3, 
-                  bgcolor: "#fafafa", 
-                  transition: "all 0.4s ease-in-out",
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  borderLeft: isExpanded ? "none" : "1px solid #f0f0f0"
-                }}
-              >
-                {item.file ? (
+
+             <Grid 
+  item 
+  xs={12} 
+  md={isExpanded ? 12 : 5} 
+  sx={{ 
+    p: isExpanded ? 0 : 2, // Reduced padding to give more room to the image
+    bgcolor: "#fafafa", 
+    transition: "all 0.4s ease-in-out",
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    borderLeft: isExpanded ? "none" : "1px solid #f0f0f0",
+    position: 'relative'
+  }}
+>
+  {/* Correctly Styled Receipt Title */}
+  {!isExpanded && (
+    <Box sx={{ width: '100%', mb: 1, px: 1, borderBottom: '1px solid #e0e0e0', pb: 0.5 }}>
+      <Typography 
+        variant="overline" 
+        sx={{ 
+          fontWeight: 'bold', 
+          color: 'text.secondary', 
+          letterSpacing: 1.2,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1
+        }}
+      >
+        <FileIcon sx={{ fontSize: 16 }} /> 
+        Uploaded Receipt
+      </Typography>
+    </Box>
+  )}
+
+  {item.file ? (
     <Box sx={{ width: '100%', textAlign: 'center', position: 'relative' }}>
-     <Box
-    component="img"
-    src={item.file}
-    onClick={() => setExpandedIndex(isExpanded ? null : i)}
-    sx={{
-      width: '100%',
-      maxHeight: isExpanded ? '80vh' : '300px',
-      minHeight: isExpanded ? '500px' : 'auto',
-      objectFit: isExpanded ? 'contain' : 'cover',
-      borderRadius: isExpanded ? 0 : 3,
-      cursor: isExpanded ? 'zoom-out' : 'zoom-in',
-      transition: "all 0.4s ease",
-      backgroundColor: isExpanded ? "#000" : "transparent"
-    }}
-  />
-  
-  <IconButton
-    onClick={() => setExpandedIndex(isExpanded ? null : i)}
-    sx={{ 
-      position: 'absolute', 
-      top: 10, 
-      right: 10, 
-      color: isExpanded ? '#fff' : '#000',
-      filter: "drop-shadow(0px 0px 3px rgba(0,0,0,0.5))", 
-      transition: "transform 0.2s",
-      '&:hover': { 
-        transform: "scale(1.2)",
-        bgcolor: 'transparent' 
-      }
-    }}
-  >
-    {isExpanded ? <CloseIcon sx={{ fontSize: 32 }} /> : <FullscreenIcon sx={{ fontSize: 25 }} />}
-  </IconButton>
-       </Box>
-                ) : (
-                  <Stack alignItems="center" spacing={1} sx={{ opacity: 0.3, py: 10 }}>
-                    <NoPhotographyIcon sx={{ fontSize: 48 }} />
-                    <Typography variant="caption">Image Missing</Typography>
-                  </Stack>
-                )}
-              </Grid>
+      <Box
+        component="img"
+        src={item.file}
+        onClick={() => setExpandedIndex(isExpanded ? null : i)}
+        sx={{
+          width: '100%',
+          maxHeight: isExpanded ? '80vh' : '300px',
+          minHeight: isExpanded ? '500px' : 'auto',
+          objectFit: isExpanded ? 'contain' : 'cover',
+          borderRadius: isExpanded ? 0 : 2,
+          cursor: isExpanded ? 'zoom-out' : 'zoom-in',
+          transition: "all 0.4s ease",
+          boxShadow: isExpanded ? 'none' : '0px 2px 8px rgba(0,0,0,0.1)',
+          backgroundColor: isExpanded ? "#000" : "transparent"
+        }}
+      />
+      <IconButton
+        onClick={() => setExpandedIndex(isExpanded ? null : i)}
+        sx={{ 
+          position: 'absolute', 
+          top: 10, 
+          right: 10, 
+          color: isExpanded ? '#fff' : '#1976d2', 
+          bgcolor: isExpanded ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.7)',
+          backdropFilter: 'blur(4px)',
+          '&:hover': { 
+            transform: "scale(1.1)",
+            bgcolor: isExpanded ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.9)' 
+          }
+        }}
+      >
+        {isExpanded ? <CloseIcon sx={{ fontSize: 32 }} /> : <FullscreenIcon sx={{ fontSize: 25 }} />}
+      </IconButton>
+    </Box>
+  ) : (
+    <Stack alignItems="center" spacing={1} sx={{ opacity: 0.3, py: 10 }}>
+      <NoPhotographyIcon sx={{ fontSize: 48 }} />
+      <Typography variant="caption">Image Missing</Typography>
+    </Stack>
+  )}
+         </Grid>
             </Grid>
           </Paper>
         );

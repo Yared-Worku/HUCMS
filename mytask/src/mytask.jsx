@@ -103,14 +103,6 @@ const Mytask = () => {
 
   return (
     <div className="mytask-page">
-      {/* Inline styles for status-based coloring */}
-      <style>{`
-        .row-picked { background-color: #e3f2fd !important; }    /* Soft Blue */
-        .row-open { background-color: #e8f5e9 !important; }      /* Soft Green */
-        .row-suspended { background-color: #ffebee !important; } /* Soft Red */
-        .table tbody tr:hover { filter: brightness(0.95); transition: 0.2s; }
-      `}</style>
-
       <div className="mytask-wrapper">
         <h6 className="page-title">📄 My Task</h6>
 
@@ -183,7 +175,7 @@ const Mytask = () => {
                     <td>
                       <button
                         type="button"
-                        className="actionBtn editBtn"
+                       className="actionBtn editBtn"
                         onClick={() => handlePick(task)}
                       >
                         Pick

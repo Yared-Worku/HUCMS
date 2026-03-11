@@ -692,3 +692,18 @@ h2 {
     opacity: 1;
   }
 }
+.row-picked td { 
+    background-color: #e3f2fd !important; 
+}
+.row-open td { 
+    background-color: #e8f5e9 !important; 
+}
+.row-suspended td { 
+    background-color: #ffebee !important; 
+}
+.row-started td {
+  background-color: #fff9c4 !important; 
+  
+}
+.table tbody tr:hover { filter: brightness(0.95); transition: 0.2s; }
+

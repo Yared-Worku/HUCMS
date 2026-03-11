@@ -14,7 +14,8 @@ const MyApplication = () => {
   const [userid, setUserid] = useState(null);
   
   const Username = window.__DNN_USER__?.username ?? "Guest";
-  //  const Username = 'amani'
+  // const Username = 'amani'
+  
   useEffect(() => {
     fetchuserid();
   }, []);
@@ -25,9 +26,9 @@ const MyApplication = () => {
       console.log("GetUserID response:", res.data);
 
       if (Array.isArray(res.data) && res.data.length > 0) {
-        const id = res.data[0].userid; //  make sure this matches API field
+        const id = res.data[0].userid; 
         setUserid(id);
-        await fetchApplications(id); // fetch apps immediately after userid
+        await fetchApplications(id); 
       } else {
         console.error("Unexpected API response:", res.data);
       }
@@ -36,10 +37,10 @@ const MyApplication = () => {
     }
   };
 
-  // Fetch applications
   const fetchApplications = async (id) => {
     try {
       setLoading(true);
+      // debugger
       const res = await axios.get(`/Application?userId=${id}`);
       setApplications(res.data);
     } catch (err) {
@@ -50,7 +51,6 @@ const MyApplication = () => {
     }
   };
 
-  // Sorting
   const requestSort = (key) => {
     let direction = 'asc';
     if (sortConfig.key === key && sortConfig.direction === 'asc') direction = 'desc';
@@ -68,7 +68,6 @@ const MyApplication = () => {
     });
   }, [applications, sortConfig]);
 
-  // Filter by search term (using description_en instead of name)
   const filteredApplications = useMemo(() => {
     const term = searchTerm.toLowerCase();
     return sortedApplications.filter(
@@ -77,14 +76,23 @@ const MyApplication = () => {
   }, [searchTerm, sortedApplications]);
 
   const totalPages = Math.ceil(filteredApplications.length / itemsPerPage);
+  
   const paginatedItems = useMemo(() => {
     const start = (currentPage - 1) * itemsPerPage;
     return filteredApplications.slice(start, start + itemsPerPage);
   }, [filteredApplications, currentPage]);
 
+  const getRowClass = (status, index) => {
+    const s = status?.toUpperCase();
+    if (s === 'PS') return 'row-suspended';
+    if (s === 'S') return 'row-started';
+    return index % 2 === 0 ? 'rowEven' : 'rowOdd';
+  };
+
   return (
     <div className="container">
-      <h5>📄 My Application</h5>
+         <div className="mytask-wrapper">
+      <h6  className="page-title">📄 My Application</h6>
 
       <div className="searchContainer">
         <input
@@ -95,7 +103,7 @@ const MyApplication = () => {
           className="searchInput"
         />
       </div>
-
+</div>
       {loading ? (
         <p>⏳ Loading applications...</p>
       ) : (
@@ -130,18 +138,18 @@ const MyApplication = () => {
               </tr>
             ) : (
               paginatedItems.map((app, index) => (
-                <tr key={index} className={index % 2 === 0 ? 'rowEven' : 'rowOdd'}>
-                    <td>{app.application_number}</td>
+                <tr key={index} className={getRowClass(app.status, index)}>
+                  <td>{app.application_number}</td>
                   <td>{app.service_description_en}</td>
                   <td>{app.description_local}</td>
-                  <td>{app.status}</td>
+                  <td><strong>{app.status}</strong></td>
                   <td>{app.start_date ? new Date(app.start_date).toLocaleString() : ''}</td>
                   <td>
                     <button
                       type="button"
                       className="actionBtn editBtn"
                       onClick={() =>
-                        navigate(`/myApplication/${app.application_number}/${app.services_service_code}/${app.tasks_task_code}/${app.organization_code}/${app.application_detail_id}/${app.meta_data_forms_form_code}`)
+                        navigate(`/myApplication/${app.application_number}/${app.services_service_code}/${app.tasks_task_code}/${app.organization_code}/${app.application_detail_id}/${app.meta_data_forms_form_code}/${app.to_do_code}`)
                       }
                     >
                       Pick
