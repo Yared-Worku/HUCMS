@@ -25,13 +25,14 @@ import {
    Chip,
      Fade,
   Alert,
-   AlertTitle
+   AlertTitle,
 } from "@mui/material";
 import {
   CloudUpload as UploadIcon,
   InsertDriveFile as FileIcon, 
   CheckCircle as SuccessIcon
 } from '@mui/icons-material';
+import PaymentsIcon from '@mui/icons-material/Payments';
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import PersonIcon from '@mui/icons-material/Person';
@@ -65,7 +66,7 @@ const Main = () => {
     meta_data_forms_form_code,
   } = useParams();
 
-  const Username = "abrsh12";
+  const Username = "brehane12";
 // const Username = window.__DNN_USER__?.username ?? "Guest";
 
   const navigate = useNavigate();
@@ -88,12 +89,12 @@ const Main = () => {
   const [PopupInput, setPopupInput] = useState("");
 const [expanded, setExpanded] = useState(false);
   const [diagnosis, setDiagnosis] = useState("");
-  // Unified Popup State ---
+  
   const [popupState, setPopupState] = useState({
     open: false,
-    type: "MESSAGE", // 'REVIEW' or 'MESSAGE'
+    type: "MESSAGE", 
     title: "",
-    data: null, // Can be array (for reviews) or string (for messages)
+    data: null, 
   });
 
   const [actions, setActions] = useState([]);
@@ -129,11 +130,10 @@ if (todocode) {
     }
   }, [todocode]);
 
-  // --- Helper to Open Common Popup ---
   const openCommonPopup = (type, title, data) => {
     setPopupState({
       open: true,
-      type: type, // 'REVIEW' for JSON forms, 'MESSAGE' for success/error text
+      type: type, 
       title: title,
       data: data,
     });
@@ -382,6 +382,30 @@ const handleSaveCHRefundData = async (data) => {
     }
   };
 
+  const handleReviewSSD = async () => {
+  try {
+    const [chResponse, ssdResponse] = await Promise.all([
+      axios.get(`/getReviewCh/${todocode}`), 
+      axios.get(`/getReviewSSD/${todocode}`, {
+        params: { pr_Codefromquery: pr_Code }
+      })
+    ]);
+    const reviewData = {
+      prescriptions: chResponse.data || [], 
+      amounts: ssdResponse.data || []    
+    };
+    if (reviewData.prescriptions.length > 0 || reviewData.amounts.length > 0) {
+      openCommonPopup("REVIEWSSD", "Task Review Data", reviewData);
+    } else {
+      openCommonPopup("MESSAGE", "Error", "No data found to review for this task.");
+    }
+
+  } catch (error) {
+    console.error("❌ Failed to fetch combined review data:", error);
+    openCommonPopup("MESSAGE", "Error", "Failed to fetch data.");
+  }
+};
+
   const handleReviewPatientHistory = async () => {
     try {
      const res = await axios.get("/Getpatienthistory", {
@@ -545,9 +569,9 @@ const handleRefer = async () => {
   };
 const handleActionSelect = async (action) => {
   setAnchorEl(null);
-  const REJECT_RULE_CODE = "6c9145ad-43e8-42a1-84ad-f17553735465";
-  
-  if (action.task_rules_code?.toLowerCase() === REJECT_RULE_CODE.toLowerCase()) {
+  // const REJECT_RULE_CODE = "6c9145ad-43e8-42a1-84ad-f17553735465"; 
+  if (action.task_rules_code?.toLowerCase() === "6c9145ad-43e8-42a1-84ad-f17553735465".toLowerCase() 
+    || action.task_rules_code?.toLowerCase() === "c309ecb9-02ca-4582-9455-0da40192ccb7".toLowerCase()) {
     openCommonPopup("REJECTION_REASON", "Provide Rejection Reason", action);
   } else {
     await executeTaskAction(action.task_rules_code);
@@ -648,7 +672,6 @@ const handleAccordionChange = (panel) => (event, isExpanded) => {
   const renderJson = (jsonString) => {
     try {
       const surveyJson = typeof jsonString === 'string' ? JSON.parse(jsonString) : jsonString;
-      // Extract answers logic (simplified for brevity based on your code)
       const answers = {};
       surveyJson.pages?.forEach((page) => {
         page.elements?.forEach((el) => {
@@ -670,6 +693,11 @@ const handleAccordionChange = (panel) => (event, isExpanded) => {
       return <Typography variant="body2">Invalid Data Format</Typography>;
     }
   };
+const getClickHandler = () => {
+  if (code === "F0FA6F1E-0BD4-41AC-A05D-BB44A8B79EA4") return handleReviewCh;
+  if (code === "E9760B40-AA42-4D42-A5F9-B6AB296D6C2B") return handleReviewSSD;
+  return handleReview;
+};
 
   return (
     <Box
@@ -875,26 +903,14 @@ const handleAccordionChange = (panel) => (event, isExpanded) => {
        return (
      <>
     {/* Conditional Review Button */}
-    {code === "F0FA6F1E-0BD4-41AC-A05D-BB44A8B79EA4" ? (
-      <Button
-        variant="contained"
-        startIcon={<AssignmentTurnedInIcon />}
-        onClick={handleReviewCh}
-        sx={{ backgroundColor: "#fbc02d", color: "black" }}
-      >
-        Review
-      </Button>
-    ) : (
-      <Button
-        variant="contained"
-        startIcon={<AssignmentTurnedInIcon />}
-        onClick={handleReview}
-        sx={{ backgroundColor: "#fbc02d", color: "black" }}
-      >
-        Review
-      </Button>
-    )}
-
+<Button
+  variant="contained"
+  startIcon={<AssignmentTurnedInIcon />}
+  onClick={getClickHandler()}
+  sx={{ backgroundColor: "#fbc02d", color: "black" }}
+>
+  Review
+</Button>
     {/* Required Action Button */}
     <Button
       variant="contained"
@@ -978,9 +994,7 @@ const handleAccordionChange = (panel) => (event, isExpanded) => {
             overflowY: "auto",
             p: 3,
           }}
-        >
-          {/* Conditional Rendering based on Type */}
-          
+        >          
           {/* Case 1: REVIEW (Renders JSON Forms) */}
           {popupState.type === "REVIEW" && (
              <>
@@ -1354,7 +1368,7 @@ const handleAccordionChange = (panel) => (event, isExpanded) => {
   xs={12} 
   md={isExpanded ? 12 : 5} 
   sx={{ 
-    p: isExpanded ? 0 : 2, // Reduced padding to give more room to the image
+    p: isExpanded ? 0 : 2, 
     bgcolor: "#fafafa", 
     transition: "all 0.4s ease-in-out",
     display: 'flex',
@@ -1364,7 +1378,6 @@ const handleAccordionChange = (panel) => (event, isExpanded) => {
     position: 'relative'
   }}
 >
-  {/* Correctly Styled Receipt Title */}
   {!isExpanded && (
     <Box sx={{ width: '100%', mb: 1, px: 1, borderBottom: '1px solid #e0e0e0', pb: 0.5 }}>
       <Typography 
@@ -1472,6 +1485,157 @@ const handleAccordionChange = (panel) => (event, isExpanded) => {
         Reject
       </Button>
     </Box>
+    </Box>
+   )}
+   {/* Case 10: REVIEW (STUDENT SERVICE DEAN) */}
+{popupState.type === "REVIEWSSD" && (
+  <Box sx={{ mt: 2, px: 1 }}>
+    {popupState.data ? (
+      <>
+        {/* --- SECTION 1: FINANCIAL DETAILS  --- */}
+        <Accordion sx={{ borderRadius: 2, '&:before': { display: 'none' }, boxShadow: "0 4px 20px rgba(0,0,0,0.05)" }}>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ bgcolor: "#fafafa", borderRadius: 2 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "#388e3c", display: 'flex', alignItems: 'center', gap: 1 }}>
+              <PaymentsIcon fontSize="small" /> Second Review
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails sx={{ pt: 3 }}>
+            {Array.isArray(popupState.data.amounts) && popupState.data.amounts.length > 0 ? (
+              popupState.data.amounts.map((amt, idx) => (
+                <Paper key={idx} elevation={0} sx={{ p: 3, mb: 2, border: "1px solid #f0f0f0", borderRadius: 3, bgcolor: "#f1f8e9" }}>
+                  <Grid container spacing={2} alignItems="center">
+                    <Grid item xs={12} sm={4}>
+                      <Typography variant="caption" color="textSecondary" display="block" sx={{ fontWeight: 800 }}>AMOUNT (IN DIGIT)</Typography>
+                      <Typography variant="h5" sx={{ fontWeight: 700, color: "#2e7d32" }}>
+                        {amt.amount_indigit} {"ETB"}
+                      </Typography>
+                    </Grid>
+                    <Grid marginLeft='20px' item xs={12} sm={8}>
+                      <Typography variant="caption" color="textSecondary" display="block" sx={{ fontWeight: 800 }}>AMOUNT (IN WORD)</Typography>
+                      <Typography variant="h6" sx={{ textTransform: "capitalize", color: "#5d4037", fontStyle: 'italic' }}>
+                        {amt.amount_inword}
+                      </Typography>
+                    </Grid>
+                  </Grid>
+                </Paper>
+              ))
+            ) : (
+              <Typography sx={{ py: 4, textAlign: 'center', color: 'text.secondary' }}>No financial data found.</Typography>
+            )}
+          </AccordionDetails>
+        </Accordion>
+        {/* --- SECTION 2: PRESCRIPTION DETAILS --- */}
+        <Accordion  sx={{ mb: 2, borderRadius: 2, '&:before': { display: 'none' }, boxShadow: "0 4px 20px rgba(0,0,0,0.05)" }}>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ bgcolor: "#fafafa", borderRadius: 2 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "#1976d2", display: 'flex', alignItems: 'center', gap: 1 }}>
+              <MedicationIcon fontSize="small" /> First Review
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails sx={{ pt: 3 }}>
+            {Array.isArray(popupState.data.prescriptions) && popupState.data.prescriptions.length > 0 ? (
+              popupState.data.prescriptions.map((item, i) => {
+                const isExpanded = expandedIndex === i;
+                return (
+                  <Paper
+                    key={i}
+                    elevation={0}
+                    sx={{
+                      mb: 4,
+                      borderRadius: 4,
+                      overflow: "hidden",
+                      border: "1px solid #f0f0f0",
+                      boxShadow: isExpanded ? "0 20px 50px rgba(0,0,0,0.15)" : "0 10px 30px rgba(0,0,0,0.04)",
+                      transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+                    }}
+                  >
+                    <Grid container>
+                      {!isExpanded && (
+                        <Grid item xs={12} md={7} sx={{ p: 4 }}>
+                          <Stack spacing={3}>
+                            <Box>
+                              <Typography variant="overline" sx={{ color: "#fbc02d", fontWeight: 800, letterSpacing: 1.2 }}>
+                                Detail Review
+                              </Typography>
+                              <Grid container sx={{ mt: 1 }}>
+                                <Grid item xs={6}>
+                                  <Typography variant="caption" color="textSecondary" display="block">Prescribed Medicine </Typography>
+                                  <Typography variant="h6" sx={{ fontWeight: 700 }}>{item.rx}</Typography>
+                                </Grid>
+                                <Grid item xs={6}>
+                                  <Typography marginLeft='30px' variant="caption" color="textSecondary" display="block">QUANTITY</Typography>
+                                  <Typography marginLeft='30px' variant="h6" sx={{ fontWeight: 700 }}>{item.quantity}</Typography>
+                                </Grid>
+                              </Grid>
+                            </Box>
+                            <Divider />
+                            <Box>
+                              <Typography variant="overline" color="textSecondary" sx={{ fontWeight: 700 }}>
+                                Prescription Detail
+                              </Typography>
+                              <Stack direction="row" spacing={3} sx={{ mt: 1 }}>
+                                <Stack direction="row" spacing={1} alignItems="center">
+                                  <Avatar sx={{ bgcolor: "#e3f2fd", color: "#1976d2", width: 32, height: 32 }}>
+                                    <PersonIcon fontSize="small" />
+                                  </Avatar>
+                                  <Box>
+                                    <Typography variant="caption" color="textSecondary" display="block">Priscriber</Typography>
+                                    <Typography variant="body2" sx={{ fontWeight: 600 }}>{"Dr."} {item.doctorFname} {item.doctorLname}</Typography>
+                                  </Box>
+                                </Stack>
+                                <Stack direction="row" spacing={1} alignItems="center">
+                                  <Avatar sx={{ bgcolor: "#f1f8e9", color: "#388e3c", width: 32, height: 32 }}>
+                                    <MedicationIcon fontSize="small" />
+                                  </Avatar>
+                                  <Box>
+                                    <Typography variant="caption" color="textSecondary" display="block">Druggist</Typography>
+                                    <Typography variant="body2" sx={{ fontWeight: 600 }}>{item.drugistFname} {item.drugistLname}</Typography>
+                                  </Box>
+                                </Stack>
+                              </Stack>
+                            </Box>
+                            <Box sx={{ p: 2, borderRadius: 2, bgcolor: "#fffde7", border: "1px solid #fff59d" }}>
+                              <Typography variant="caption" sx={{ fontWeight: 800, color: "#fbc02d", display: 'block' }}>REMARK</Typography>
+                              <Typography variant="body2" sx={{ color: "#5d4037" }}>{item.remark || "N/A"}</Typography>
+                            </Box>
+                          </Stack>
+                        </Grid>
+                      )}
+                      <Grid item xs={12} md={isExpanded ? 12 : 5} sx={{ p: isExpanded ? 0 : 2, bgcolor: "#fafafa", transition: "all 0.4s ease-in-out", display: 'flex', flexDirection: 'column', alignItems: 'center', borderLeft: isExpanded ? "none" : "1px solid #f0f0f0", position: 'relative' }}>
+                        {!isExpanded && (
+                          <Box sx={{ width: '100%', mb: 1, px: 1, borderBottom: '1px solid #e0e0e0', pb: 0.5 }}>
+                            <Typography variant="overline" sx={{ fontWeight: 'bold', color: 'text.secondary', letterSpacing: 1.2, display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <FileIcon sx={{ fontSize: 16 }} /> Uploaded Receipt
+                            </Typography>
+                          </Box>
+                        )}
+                        {item.file ? (
+                          <Box sx={{ width: '100%', textAlign: 'center', position: 'relative' }}>
+                            <Box component="img" src={item.file} onClick={() => setExpandedIndex(isExpanded ? null : i)} sx={{ width: '100%', maxHeight: isExpanded ? '80vh' : '300px', minHeight: isExpanded ? '500px' : 'auto', objectFit: isExpanded ? 'contain' : 'cover', borderRadius: isExpanded ? 0 : 2, cursor: isExpanded ? 'zoom-out' : 'zoom-in', transition: "all 0.4s ease", boxShadow: isExpanded ? 'none' : '0px 2px 8px rgba(0,0,0,0.1)', backgroundColor: isExpanded ? "#000" : "transparent" }} />
+                            <IconButton onClick={() => setExpandedIndex(isExpanded ? null : i)} sx={{ position: 'absolute', top: 10, right: 10, color: isExpanded ? '#fff' : '#1976d2', bgcolor: isExpanded ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.7)', backdropFilter: 'blur(4px)', '&:hover': { transform: "scale(1.1)", bgcolor: isExpanded ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.9)' } }}>
+                              {isExpanded ? <CloseIcon sx={{ fontSize: 32 }} /> : <FullscreenIcon sx={{ fontSize: 25 }} />}
+                            </IconButton>
+                          </Box>
+                        ) : (
+                          <Stack alignItems="center" spacing={1} sx={{ opacity: 0.3, py: 10 }}>
+                            <NoPhotographyIcon sx={{ fontSize: 48 }} />
+                            <Typography variant="caption">Image Missing</Typography>
+                          </Stack>
+                        )}
+                      </Grid>
+                    </Grid>
+                  </Paper>
+                );
+              })
+            ) : (
+              <Typography sx={{ py: 4, textAlign: 'center', color: 'text.secondary' }}>No prescription records found.</Typography>
+            )}
+          </AccordionDetails>
+        </Accordion>
+
+      </>
+    ) : (
+      <Typography sx={{ py: 10, textAlign: 'center' }}>No review data.</Typography>
+    )}
   </Box>
 )}
         </DialogContent>
