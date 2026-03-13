@@ -13,6 +13,7 @@ import LabTest from './Laboratory/lab_test';
 import Dispanse from './Pharmacy/dispanse';
 import Medical_Certificate from './Doctor/medical_certificate';
 import Payment_Refund_CH from './Payment_Refund/Refund_Validation_CH';
+import Validation_Finance from './Payment_Refund/Validation_Finance';
 
 function App() {
    const [loading, setLoading] = useState(true);
@@ -46,6 +47,7 @@ function App() {
               <Route path="/diagnosis" element={<Diagnosis />} />
              <Route path="/lab_test" element={<LabTest />} />
              <Route path="/dispanse" element={<Dispanse />} />
+               <Route path="/finance" element={<Validation_Finance />} />
         <Route path="/certificate" element={<Medical_Certificate />} />
          <Route path="/refund_ch" element={<Payment_Refund_CH />} />
            <Route path="/myTask/:application_number/:service_code/:task_code/:organization_code/:todocode/:application_detail_id/:meta_data_forms_form_code" element={<Main />}/>
