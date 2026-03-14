@@ -15,11 +15,20 @@ const Validation_Finance = ({ application_number, todocode, ProcessDetailCode, t
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
 
-  useEffect(() => {
-    if (application_number) {
-      fetchPaymentMethods();
-    }
-  }, [application_number]);
+useEffect(() => {
+  const loadData = async () => {
+    setIsLoading(true);
+    await Promise.all([
+      fetchPaymentMethods(),
+      fetchProcessedData()
+    ]);
+    setIsLoading(false);
+  };
+
+  if (application_number) {
+    loadData();
+  }
+}, [application_number]);
 
   const fetchPaymentMethods = async () => {
     try {
@@ -32,6 +41,22 @@ const Validation_Finance = ({ application_number, todocode, ProcessDetailCode, t
       setIsLoading(false);
     }
   };
+ const fetchProcessedData = async () => {
+  try {
+    setIsLoading(true);
+    const res = await axios.get(`/getProcessedData/${ProcessDetailCode}`);
+    if (res.data && res.data.length > 0) {
+      const savedMethod = res.data[0]; 
+      setSelectedMethod(savedMethod);
+    }
+  } catch (err) {
+    if (err.response?.status !== 404) {
+      console.error("Error fetching processed data:", err);
+    }
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handleSave = async () => {
     if (!selectedMethod) return;
@@ -149,22 +174,28 @@ const Validation_Finance = ({ application_number, todocode, ProcessDetailCode, t
           color="text.secondary"
           sx={{ mt: 3, display: "block" }}
         >
-          Please select the payment method where the payment was processed.
+          Please select the payment method where the payment was processed and take a required action to complete the application.
         </Typography>
 
         <div style={{ marginTop: "30px" }}>
           <button
-            type="button"
-            className="actionBtn saveBtn"
-            onClick={handleSave}
-            disabled={!selectedMethod || saving}
-            style={{ 
-              opacity: (!selectedMethod || saving) ? 0.6 : 1,
-              cursor: (!selectedMethod || saving) ? "not-allowed" : "pointer" 
-            }}
-          >
-            {saving ? "Processing..." : "💾 Save"}
-          </button>
+  type="button"
+  className="actionBtn saveBtn"
+  onClick={handleSave}
+  disabled={!selectedMethod || saving}
+  style={{ 
+    opacity: (!selectedMethod || saving) ? 0.6 : 1,
+    cursor: (!selectedMethod || saving) ? "not-allowed" : "pointer" 
+  }}
+    >
+    {saving ? (
+    "Processing..."
+     ) : (
+    <>
+      {ProcessDetailCode ? "🔄 Update" : "💾 Save"}
+    </>
+  )}
+    </button>
         </div>
       </Paper>
     </Box>

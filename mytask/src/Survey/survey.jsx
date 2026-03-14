@@ -11,11 +11,9 @@ import {
 function Surveycomp({ formCode, onsave1, detailId }) {
   const [formJson, setFormJson] = useState(null);
   const [survey, setSurvey] = useState(null);
-  const [data, setData] = useState(null); // Data fetched from DB
+  const [data, setData] = useState(null); 
   const [loading, setLoading] = useState(true);
-  const [isSaved, setIsSaved] = useState(false); // Track save status
-
-  // 🔹 Fetch existing form data if detailId is provided
+  const [isSaved, setIsSaved] = useState(false); 
   useEffect(() => {
     if (!detailId) {
       setData({});
@@ -44,7 +42,6 @@ function Surveycomp({ formCode, onsave1, detailId }) {
     fetchData();
   }, [detailId]);
 
-  // 🔹 Helper: merge answers into full JSON for saving
   const mergeAnswersIntoJson = (formStructure, answers) => {
     if (!formStructure?.pages) return formStructure;
     const updatedJson = JSON.parse(JSON.stringify(formStructure));
@@ -61,7 +58,6 @@ function Surveycomp({ formCode, onsave1, detailId }) {
     return updatedJson;
   };
 
-  // Save form handler
   const handlesaveform = () => {
     if (!survey || !formJson) return;
 
@@ -69,10 +65,9 @@ function Surveycomp({ formCode, onsave1, detailId }) {
     const mergedJson = mergeAnswersIntoJson(formJson, surveyData);
 
     onsave1(mergedJson);
-    setIsSaved(true); // disable button after save
+    setIsSaved(true); 
   };
 
-  // Load survey form (either from DB or static JSON)
   useEffect(() => {
     if (!formCode || data === null) return;
 
@@ -81,7 +76,6 @@ function Surveycomp({ formCode, onsave1, detailId }) {
       surveyModel.showNavigationButtons = false;
       surveyModel.showCompletedPage = false;
 
-      // Pre-fill answers if form contains saved "value" fields
       const answers = {};
       jsonData.pages?.forEach((page) => {
         page.elements?.forEach((el) => {
@@ -99,11 +93,9 @@ function Surveycomp({ formCode, onsave1, detailId }) {
     };
 
     if (Object.keys(data).length === 0) {
-      // Load a fresh JSON form if no saved data
       axios
         .get(`http://yared.local/json/${encodeURIComponent(formCode)}.json`)
         .then((res) => {
-          // console.log("🆕 Loaded new form:", res.data);
           loadSurvey(res.data);
         })
         .catch((err) => {
@@ -112,8 +104,7 @@ function Surveycomp({ formCode, onsave1, detailId }) {
           setLoading(false);
         });
     } else {
-      //Load saved JSON from DB
-      // console.log("📄 Loaded saved form data:", data);
+
       loadSurvey(data);
     }
   }, [formCode, data]);
@@ -132,10 +123,7 @@ function Surveycomp({ formCode, onsave1, detailId }) {
         }}
       >
     <div style={{ padding: "20px" }}>
-      {/* Render Survey */}
       <Survey.Survey model={survey} />
-
-      {/* Save Button */}
       <div style={{ marginTop: "20px" }}>
         <button
           type="button"

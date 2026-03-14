@@ -38,8 +38,8 @@ import Validation_Finance from "./Payment_Refund/Validation_Finance";
 const Main = () => {
   const { application_number,service_code,task_code,organization_code,todocode,application_detail_id,meta_data_forms_form_code,} = useParams();
 
-  const Username = "kira12";
-// const Username = window.__DNN_USER__?.username ?? "Guest";
+  // const Username = "kira12";
+const Username = window.__DNN_USER__?.username ?? "Guest";
 
   const navigate = useNavigate();
   const code = meta_data_forms_form_code.toUpperCase();
@@ -421,21 +421,6 @@ const handleReview = async () => {
   }
 };
 
-  // const handleReview = async () => {
-  //   try {
-  //     debugger
-  //     const res = await axios.get(`/GetTaskDetails/${todocode}`);
-  //     if (res.data && res.data.length > 0) {
-  //       openCommonPopup("REVIEW", "Task Review", res.data);
-  //     } else {
-  //        openCommonPopup("MESSAGE", "Error", "No data found to review for this task.");
-  //     }
-  //   } catch (error) {
-  //     console.error("❌ Failed to fetch review data:", error);
-  //      openCommonPopup("MESSAGE", "Error", "Failed to fetch data.");
-  //   }
-  // };
-
   const handleReviewPatientHistory = async () => {
     try {
      const res = await axios.get("/Getpatienthistory", {
@@ -552,7 +537,10 @@ const handleRefer = async () => {
       UserId: userid,
       vitalSign: vitalsign,
       physicalExamination: physicalexamination,
-      referalReason: referalreason
+      referalReason: referalreason,
+      todocode: todocode,
+      application_number: application_number,
+      processDetailCode: application_detail_id
     };
     const res = await axios.post("/ReferalData", payload);
     if (res.data?.refCode) {
@@ -565,6 +553,7 @@ const handleRefer = async () => {
         ? "✅ Referal data updated successfully."
         : "✅ Referal data saved successfully."
     );
+    navigate("/mytask");
     return true;
   } catch (error) {
     console.error("❌ Failed to save referal data:", error);
@@ -615,7 +604,7 @@ const executeTaskAction = async (ruleCode, reason = "") => {
       todocode: todocode,
       organization_code: organization_code,
       userId: userid,
-      ProcessDetailCode: ProcessDetailCode,
+      ProcessDetailCode: application_detail_id,
       task_rules_code: ruleCode,
       rejection_reason: reason, 
     });
@@ -946,12 +935,37 @@ const getClickHandler = () => {
 >
   Review
 </Button>
-    {/* Required Action Button */}
+{/* Required Action Button */}
     <Button
       variant="contained"
-      startIcon={<CheckCircleIcon />}
+      startIcon={<CheckCircleIcon sx={{ fontSize: '1.2rem' }} />}
       onClick={handleRequiredActionClick}
       disabled={!isCompleted}
+      disableElevation 
+      sx={{
+        borderRadius: '12px', // More modern rounded corners
+        px: 4,
+        py: 1.2,
+        textTransform: "none", 
+        fontWeight: 700,
+        fontSize: '0.9rem',
+        background: "linear-gradient(135deg, #0b5c8e 0%, #157cb8 100%)", // Rich depth gradient
+        boxShadow: "0 4px 12px rgba(11, 92, 142, 0.25)",
+        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+        "&:hover": {
+          transform: "translateY(-2px)", 
+          boxShadow: "0 6px 16px rgba(11, 92, 142, 0.35)",
+          background: "linear-gradient(135deg, #094a73 0%, #0b5c8e 100%)",
+        },
+        "&:active": {
+          transform: "translateY(0)",
+        },
+        "&:disabled": {
+          backgroundColor: "#f1f5f9",
+          color: "#94a3b8",
+          boxShadow: "none",
+        }
+      }}
     >
       {loadingActions ? (
         <CircularProgress size={20} color="inherit" />
@@ -961,18 +975,67 @@ const getClickHandler = () => {
     </Button>
 
     {/* Menu Component */}
-    <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
-      {actions.map((action, index) => (
-  <MenuItem 
-    key={index} 
-    onClick={() => handleActionSelect(action)} 
-  >
-    {action.decision_rule_en || "—"}
-  </MenuItem>
-    ))}
+    <Menu 
+      anchorEl={anchorEl} 
+      open={Boolean(anchorEl)} 
+      onClose={handleClose}
+      transformOrigin={{ horizontal: "center", vertical: "top" }}
+      anchorOrigin={{ horizontal: "center", vertical: "bottom" }}
+      PaperProps={{
+        sx: {
+          mt: 1.5, 
+          minWidth: 260, 
+          borderRadius: "18px", 
+          backgroundColor: "rgba(255, 255, 255, 0.85)", 
+          backdropFilter: "blur(12px)", 
+          WebkitBackdropFilter: "blur(12px)",
+          boxShadow: "0px 20px 40px rgba(0, 0, 0, 0.1)", 
+          border: "1px solid rgba(255, 255, 255, 0.6)",
+          p: 1, 
+          overflow: "hidden",
+        }
+      }}
+    >
+      {actions.map((action, index) => {
+        const isSelected = selectedAction?.decision_rule_en === action.decision_rule_en;
+        
+        return (
+          <MenuItem 
+            key={index} 
+            onClick={() => handleActionSelect(action)}
+            selected={isSelected}
+            sx={{
+              borderRadius: "10px", 
+              mb: 0.5,
+              py: 1.5,
+              px: 2,
+              fontSize: "0.92rem",
+              fontWeight: isSelected ? 700 : 500,
+              color: isSelected ? "#0b5c8e" : "#475569",
+              transition: "all 0.2s ease",
+              "&:last-child": { mb: 0 },
+              "&:hover": {
+                backgroundColor: "rgba(11, 92, 142, 0.05)",
+                color: "#0b5c8e",
+                transform: "translateX(4px)",
+              },
+              "&.Mui-selected": {
+                backgroundColor: "rgba(11, 92, 142, 0.08)", 
+                color: "#0b5c8e",
+                "&:hover": {
+                  backgroundColor: "rgba(11, 92, 142, 0.12)",
+                }
+              }
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+               {action.decision_rule_en || "—"}
+               {isSelected && <CheckCircleIcon sx={{ fontSize: '1.1rem', ml: 1, opacity: 0.8 }} />}
+            </Box>
+          </MenuItem>
+        );
+      })}
     </Menu>
-
-    {/* Pend & Close Button */}
     <Button
       variant="contained"
       startIcon={<PendingActionsIcon />}
@@ -1030,30 +1093,6 @@ const getClickHandler = () => {
             p: 3,
           }}
         >          
-          {/* Case 1: REVIEW (Renders JSON Forms)
-          {popupState.type === "REVIEW" && (
-             <>
-               {Array.isArray(popupState.data) && popupState.data.length > 0 ? (
-                 popupState.data.map((item, i) => (
-                   <Paper
-                     key={i}
-                     sx={{
-                       mb: 2,
-                       p: 2,
-                       borderRadius: 1,
-                       backgroundColor: "#ffffff",
-                       boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
-                     }}
-                   >
-                     {renderJson(item.formJson || item.value)}
-                   </Paper>
-                 ))
-               ) : (
-                 <Typography>No details available to display.</Typography>
-               )}
-             </>
-          )} */}
-
     {/* Case 1: REVIEW (FINANCE HEAD) */}
    {popupState.type === "REVIEW" && (
   <Box sx={{ mt: 2, px: 1 }}>
