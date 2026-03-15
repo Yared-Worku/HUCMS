@@ -22,7 +22,15 @@ const Dashboard = () => {
     stats: { completed: 0, open: 0, suspended: 0, picked: 0, rejected: 0 },
     details: []
   });
-  // --- Reusable Stat Card Component ---
+
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogContent, setDialogContent] = useState({ title: '', data: [] });
+   const [userid, setUserid] = useState(null);
+   const [roleid, setRoleid] = useState(null);
+  const { stats, details } = dashboardData;
+   const [apptDialogOpen, setApptDialogOpen] = useState(false);
+  const [apptData, setApptData] = useState([]);
+  
 const StatCard = ({ title, value, color, icon }) => (
   <Paper
     elevation={0}
@@ -77,16 +85,8 @@ const formatDate = (dateString) => {
   });
 };
 
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [dialogContent, setDialogContent] = useState({ title: '', data: [] });
-    const [userid, setUserid] = useState(null);
-    const [roleid, setRoleid] = useState(null);
-      const { stats, details } = dashboardData;
-const [apptDialogOpen, setApptDialogOpen] = useState(false);
-const [apptData, setApptData] = useState([]);
-
-    // const Username = window.__DNN_USER__?.username ?? "Guest";
-  const Username = "amani";
+    const Username = window.__DNN_USER__?.username ?? "Guest";
+  // const Username = "amani";
 
   useEffect(() => {
     fetchuserid();
