@@ -10,7 +10,8 @@ import {
   FolderOpenOutlined,            
   AssignmentIndOutlined,       
   CancelOutlined,
-  PauseCircleOutlineOutlined 
+  PauseCircleOutlineOutlined,
+  AccessTimeOutlined
 } from '@mui/icons-material';
 import { 
   PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, Label 
@@ -81,6 +82,8 @@ const formatDate = (dateString) => {
     const [userid, setUserid] = useState(null);
     const [roleid, setRoleid] = useState(null);
       const { stats, details } = dashboardData;
+const [apptDialogOpen, setApptDialogOpen] = useState(false);
+const [apptData, setApptData] = useState([]);
 
     // const Username = window.__DNN_USER__?.username ?? "Guest";
   const Username = "amani";
@@ -97,16 +100,17 @@ const formatDate = (dateString) => {
         const roleid = res.data[0].roleid;
         setRoleid(roleid);
         setUserid(id);
-        await fetchStudentdashboard(id);
+       await fetchStudentdashboard(id, roleid);
       }
     } catch (err) {
       console.error("Failed to fetch userid:", err);
     }
   };
 
-const fetchStudentdashboard = async (id) => {
-  debugger
-     axios.get(`/StudentDashboardResponse/${id}`)
+const fetchStudentdashboard = async (id, roleid) => {
+     axios.get(`/StudentDashboardResponse/${id}`,{
+      params: {roleID: roleid}
+     })
       .then(res => {
         if (res.data) {
           setDashboardData(res.data);
@@ -133,21 +137,38 @@ const quickActionsConfig = [
     { label: "Check Application Progress", filterStatuses: ['P'] },
     { label: "Review Completed Applications", filterStatuses: ['C'] },
     { label: "Review Rejected Applications", filterStatuses: ['PS'] },
-    { label: "Review Suspended Applications", filterStatuses: ['S'] } 
+    { label: "Review Suspended Applications", filterStatuses: ['S'] } ,
+    { label: "Check your appointment", isAppointment: true }
   ];
 
-  const handleQuickActionClick = (action) => {
+const handleQuickActionClick = async (action) => {
+  if (action.isAppointment) {
+    try {
+      const res = await axios.get(`/getAppointmentReview/${userid}`);
+      const mappedAppointments = res.data.map((item, index) => ({
+        id: index,
+        doctorName: `Dr. ${item.doctorFName || ''} ${item.doctorLName || ''}`.trim(),
+        date: item.appointment_date,
+        application_number: item.application_number,
+      }));
+      
+      setApptData(mappedAppointments);
+      setApptDialogOpen(true); 
+    } catch (err) {
+      console.error("Failed to fetch appointments:", err);
+    }
+  } else {
     const filteredData = details.filter(item => 
       action.filterStatuses.includes(item.status)
     );
-    
     setDialogContent({ title: action.label, data: filteredData });
     setDialogOpen(true);
-  };
+  }
+};
 
   const closeDialog = () => setDialogOpen(false);
   const showRoleColumn = dialogContent.data.some(row => row.roleID !== '4ED1B191-AD58-4EAD-B269-02576B4DD8D0'.toLowerCase());
-
+  const totalValue = chartData.reduce((sum, item) => sum + item.value, 0);
   return (
     <Box sx={{ 
       width: '100vw', 
@@ -174,6 +195,7 @@ const quickActionsConfig = [
             />
           </Grid>
           {roleid === '4ED1B191-AD58-4EAD-B269-02576B4DD8D0'.toLowerCase() && (
+            <>
     <Grid item xs={12} sm={4} md={2.4}>
       <StatCard 
         title="SUSPENDED APPLICATIONS" 
@@ -182,6 +204,13 @@ const quickActionsConfig = [
         icon={<PauseCircleOutlineOutlined />} 
       />
        </Grid>
+        <Grid item xs={12} sm={4} md={2.4}>
+            <StatCard title="APPLICATIONS IN PROGRESS"
+             value={stats.picked}  color="#2196f3" 
+             icon={<AccessTimeOutlined />} 
+             />
+          </Grid>
+          </>
           )}
          {roleid !== '4ED1B191-AD58-4EAD-B269-02576B4DD8D0'.toLowerCase() && (
             <>
@@ -226,53 +255,58 @@ const quickActionsConfig = [
               </Typography>
               
               <Box sx={{ width: '100%', height: 300 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={chartData}
-                      cx="50%" 
-                      cy="50%"
-                      innerRadius="65%"
-                      outerRadius="85%"
-                      paddingAngle={5}
-                      dataKey="value"
-                      stroke="none"
-                    >
-                      {chartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                      <Label 
-                        value={stats.completed} 
-                        position="centerBottom" 
-                        fontSize="32px" 
-                        fontWeight="bold" 
-                        fill="#1e293b" 
-                        dy={-10} 
-                      />
-                      <Label 
-                        value="Completed" 
-                        position="centerTop" 
-                        fontSize="16px" 
-                        fill="#64748b" 
-                        dy={20} 
-                      />
-                    </Pie>
-                    <Tooltip 
-                      contentStyle={{ 
-                        borderRadius: '8px', 
-                        border: 'none', 
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)' 
-                      }} 
-                    />
-                    <Legend 
-                      verticalAlign="bottom" 
-                      height={36} 
-                      iconType="circle" 
-                      wrapperStyle={{ paddingTop: '20px' }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-              </Box>
+        <ResponsiveContainer width="100%" height="100%">
+      <PieChart>
+        <Pie
+          data={chartData}
+          cx="50%" 
+          cy="50%"
+          innerRadius="65%"
+          outerRadius="85%"
+          paddingAngle={5}
+          dataKey="value"
+          stroke="none"
+          label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
+        >
+          {chartData.map((entry, index) => (
+            <Cell key={`cell-${index}`} fill={entry.color} />
+          ))}
+          <Label 
+            value={totalValue > 0 ? `${((stats.completed / totalValue) * 100).toFixed(1)}%` : '0%'} 
+            position="centerBottom" 
+            fontSize="32px" 
+            fontWeight="bold" 
+            fill="#1e293b" 
+            dy={-10} 
+          />
+          <Label 
+            value="Completed" 
+            position="centerTop" 
+            fontSize="16px" 
+            fill="#64748b" 
+            dy={20} 
+          />
+        </Pie>
+        <Tooltip 
+          formatter={(value) => [
+            `${value} (${totalValue > 0 ? ((value / totalValue) * 100).toFixed(1) : 0}%)`, 
+            'Value'
+          ]}
+          contentStyle={{ 
+            borderRadius: '8px', 
+            border: 'none', 
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)' 
+          }} 
+        />
+        <Legend 
+          verticalAlign="bottom" 
+          height={36} 
+          iconType="circle" 
+          wrapperStyle={{ paddingTop: '20px' }}
+        />
+      </PieChart>
+    </ResponsiveContainer>
+      </Box>
             </Paper>
           </Grid>
      {roleid === '4ED1B191-AD58-4EAD-B269-02576B4DD8D0'.toLowerCase() && (
@@ -329,58 +363,240 @@ const quickActionsConfig = [
         </Grid>
       </Box>
 
-      <Dialog 
-        open={dialogOpen} 
-        onClose={closeDialog} 
-        maxWidth="md" 
-        fullWidth
-        PaperProps={{ sx: { borderRadius: 3 } }}
-      >
-        <DialogTitle sx={{ fontWeight: 700, color: '#1e293b' }}>
-          {dialogContent.title}
-        </DialogTitle>
-        <DialogContent dividers>
-  {dialogContent.data.length > 0 ? (
-    <TableContainer sx={{ maxHeight: 300 }}> 
-      <Table size="small" stickyHeader aria-label="sticky table">
-        <TableHead>
-          <TableRow>
-            {/* 3. Ensure cells have a background so rows don't bleed through while scrolling */}
-            <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#fff' }}>Application No</TableCell>
-            <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#fff' }}>Service Name</TableCell>
-            {showRoleColumn && (
-              <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#fff' }}>Currently processing by</TableCell>
-            )}
-            <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#fff' }}>Application Date</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {dialogContent.data.map((row, idx) => (
-            <TableRow key={idx} hover>
-              <TableCell>{row.application_No}</TableCell>
-              <TableCell>{row.service_Name}</TableCell>
-              {showRoleColumn && (
-                <TableCell>{row.roleName}</TableCell>
-              )}
-              <TableCell>{formatDate(row.application_Date)}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
-  ) : (
-    <Typography sx={{ color: '#64748b', py: 3, textAlign: 'center' }}>
-      No applications found for this status.
+<Dialog 
+  open={dialogOpen} 
+  onClose={closeDialog} 
+  maxWidth="md" 
+  fullWidth
+  PaperProps={{ 
+    sx: { 
+      borderRadius: 4, 
+      boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)' 
+    } 
+  }}
+>
+  <DialogTitle sx={{ 
+    fontWeight: 800, 
+    color: '#1e293b', 
+    display: 'flex', 
+    justifyContent: 'space-between', 
+    alignItems: 'center',
+    pt: 3,
+    pb: 2
+  }}>
+    {dialogContent.title}
+    <Typography variant="caption" sx={{ fontWeight: 600, color: '#64748b', bgcolor: '#f1f5f9', px: 1.5, py: 0.5, borderRadius: 10 }}>
+      {dialogContent.data.length} Total
     </Typography>
-  )}
-</DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={closeDialog} variant="contained" disableElevation sx={{ borderRadius: 2 }}>
-            Close
-          </Button>
-        </DialogActions>
-      </Dialog>
+  </DialogTitle>
 
+  <DialogContent dividers sx={{ p: 0 }}>
+    {dialogContent.data.length > 0 ? (
+      <TableContainer sx={{ maxHeight: 300 }}> 
+        <Table size="medium" stickyHeader>
+          <TableHead>
+            <TableRow>
+              <TableCell sx={{ fontWeight: 700, backgroundColor: '#f8fafc', color: '#475569', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Application No
+              </TableCell>
+              <TableCell sx={{ fontWeight: 700, backgroundColor: '#f8fafc', color: '#475569', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Service Name
+              </TableCell>
+              {showRoleColumn && (
+                <TableCell sx={{ fontWeight: 700, backgroundColor: '#f8fafc', color: '#475569', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  Progress 
+                </TableCell>
+              )}
+              <TableCell sx={{ fontWeight: 700, backgroundColor: '#f8fafc', color: '#475569', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Application Date
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {dialogContent.data.map((row, idx) => (
+              <TableRow key={idx} hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                <TableCell sx={{ fontWeight: 600, color: '#0f172a' }}>
+                  {row.application_No}
+                </TableCell>
+                <TableCell sx={{ color: '#334155' }}>
+                  {row.service_Name}
+                </TableCell>
+           {showRoleColumn && (
+     <TableCell>
+    <Typography 
+      variant="body2" 
+      sx={{ 
+        color: '#334155', 
+        fontSize: '0.875rem' 
+      }}
+    >
+      Under process by{' '}
+      <Box 
+        component="span" 
+        sx={{ 
+          fontWeight: 700, 
+          color: '#0f172a' 
+        }}
+      >
+        {row.roleName}
+      </Box>
+            </Typography>
+          </TableCell>
+         )}
+                <TableCell sx={{ color: '#64748b', fontWeight: 500 }}>
+                  {formatDate(row.application_Date)}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    ) : (
+      <Box sx={{ py: 10, textAlign: 'center' }}>
+        <Typography variant="body1" sx={{ color: '#94a3b8', fontWeight: 500 }}>
+          No records found for this status.
+        </Typography>
+      </Box>
+    )}
+  </DialogContent>
+
+  <DialogActions sx={{ p: 2.5, bgcolor: '#f8fafc' }}>
+    <Button 
+    type='button'
+      onClick={closeDialog} 
+      variant="outlined" 
+      sx={{ 
+        borderRadius: 2, 
+        textTransform: 'none', 
+        fontWeight: 700, 
+        px: 3,
+        color: '#475569',
+        borderColor: '#e2e8f0',
+        '&:hover': { borderColor: '#cbd5e1', bgcolor: '#fff' }
+      }}
+    >
+      Close
+    </Button>
+  </DialogActions>
+</Dialog>
+      
+<Dialog 
+  open={apptDialogOpen} 
+  onClose={() => setApptDialogOpen(false)} 
+  maxWidth="sm" 
+  fullWidth
+  PaperProps={{ 
+    sx: { 
+      borderRadius: 4,
+      boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)'
+    } 
+  }}
+>
+  <DialogTitle sx={{ 
+    fontWeight: 800, 
+    color: '#1e293b', 
+    display: 'flex', 
+    alignItems: 'center', 
+    justifyContent: 'space-between',
+    pt: 3 
+  }}>
+    <Stack direction="row" alignItems="center" spacing={1.5}>
+      <Avatar sx={{ bgcolor: '#e0e7ff', color: '#4338ca' }}>
+        <AccessTimeOutlined />
+      </Avatar>
+      <Typography variant="h6" sx={{ fontWeight: 800 }}>My Appointments</Typography>
+    </Stack>
+    <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 600 }}>
+      {apptData.length} Scheduled
+    </Typography>
+  </DialogTitle>
+
+  <DialogContent sx={{ px: 0 }}> 
+    {apptData.length > 0 ? (
+      <TableContainer>
+        <Table>
+          <TableHead sx={{ bgcolor: '#f8fafc' }}>
+            <TableRow>
+              <TableCell sx={{ fontWeight: 700, color: '#475569', fontSize: '0.75rem', textTransform: 'uppercase' }}>Application NO</TableCell>
+              <TableCell sx={{ fontWeight: 700, color: '#475569', fontSize: '0.75rem', textTransform: 'uppercase' }}>Provider</TableCell>
+              <TableCell align="right" sx={{ fontWeight: 700, color: '#475569', fontSize: '0.75rem', textTransform: 'uppercase' }}>Appointment Date</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {apptData.map((row) => (
+              <TableRow 
+                key={row.id} 
+                sx={{ '&:hover': { bgcolor: '#f1f5f9' }, transition: 'background 0.2s' }}
+              >
+                <TableCell>
+                  <Typography variant="body2" sx={{ fontWeight: 700, color: '#1e293b' }}>
+                    {row.application_number}
+                  </Typography>
+    
+                </TableCell>
+                
+                <TableCell>
+                  <Stack direction="row" spacing={1.5} alignItems="center">
+                    <Avatar sx={{ width: 32, height: 32, fontSize: '0.8rem', bgcolor: '#f1f5f9', color: '#1e293b', border: '1px solid #e2e8f0' }}>
+                      {row.doctorName?.charAt(4)} 
+                    </Avatar>
+                    <Box>
+                      <Typography variant="body2" sx={{ fontWeight: 600, color: '#1e293b' }}>
+                        {row.doctorName}
+                      </Typography>
+                      
+                    </Box>
+                  </Stack>
+                </TableCell>
+
+                <TableCell align="right">
+                  <Box sx={{ 
+                    display: 'inline-block', 
+                    px: 1.5, 
+                    py: 0.5, 
+                    borderRadius: 2, 
+                    bgcolor: '#f0f9ff', 
+                    border: '1px solid #e0f2fe' 
+                  }}>
+                    <Typography variant="body2" sx={{ fontWeight: 700, color: '#0369a1' }}>
+                      {formatDate(row.date)}
+                    </Typography>
+                  </Box>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    ) : (
+      <Stack alignItems="center" sx={{ py: 8, px: 3 }}>
+        <Avatar sx={{ width: 64, height: 64, mb: 2, bgcolor: '#f8fafc' }}>
+          <FolderOpenOutlined sx={{ fontSize: 32, color: '#cbd5e1' }} />
+        </Avatar>
+        <Typography sx={{ color: '#64748b', fontWeight: 500 }}>No upcoming appointments found.</Typography>
+      </Stack>
+    )}
+  </DialogContent>
+
+  <DialogActions sx={{ p: 2.5, bgcolor: '#f8fafc' }}>
+    <Button 
+    type='button'
+       onClick={() => setApptDialogOpen(false)} 
+      variant="outlined" 
+      sx={{ 
+        borderRadius: 2, 
+        textTransform: 'none', 
+        fontWeight: 700, 
+        px: 3,
+        color: '#475569',
+        borderColor: '#e2e8f0',
+        '&:hover': { borderColor: '#cbd5e1', bgcolor: '#fff' }
+      }}
+    >
+      Close
+    </Button>
+  </DialogActions>
+</Dialog>
     </Box>
   );
 };
