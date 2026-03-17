@@ -134,7 +134,7 @@ const fetchStudentdashboard = async (id, roleid) => {
        })
 
 const quickActionsConfig = [
-    { label: "Check Application Progress", filterStatuses: ['P'] },
+    { label: "Check Application Progress", filterStatuses: ['P', 'O'] },
     { label: "Review Completed Applications", filterStatuses: ['C'] },
     { label: "Review Rejected Applications", filterStatuses: ['PS'] },
     { label: "Review Suspended Applications", filterStatuses: ['S'] } ,
