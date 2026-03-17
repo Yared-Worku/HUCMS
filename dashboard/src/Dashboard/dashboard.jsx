@@ -206,7 +206,7 @@ const handleQuickActionClick = async (action) => {
        </Grid>
         <Grid item xs={12} sm={4} md={2.4}>
             <StatCard title="APPLICATIONS IN PROGRESS"
-             value={stats.picked}  color="#2196f3" 
+             value={(stats.picked || 0) + (stats.open || 0)} color="#2196f3"
              icon={<AccessTimeOutlined />} 
              />
           </Grid>
@@ -429,17 +429,17 @@ const handleQuickActionClick = async (action) => {
         color: '#334155', 
         fontSize: '0.875rem' 
       }}
-    >
-      Under process by{' '}
-      <Box 
-        component="span" 
-        sx={{ 
-          fontWeight: 700, 
-          color: '#0f172a' 
-        }}
-      >
-        {row.roleName}
-      </Box>
+        >
+         {row.roleName ? (
+          <>
+        Under process by{' '}
+        <Box component="span" sx={{ fontWeight: 700, color: '#0f172a' }}>
+           {row.roleName}
+         </Box>
+            </>
+             ) : (
+          "Not picked by case worker yet"
+          )}
             </Typography>
           </TableCell>
          )}
