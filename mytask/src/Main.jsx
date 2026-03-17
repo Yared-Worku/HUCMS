@@ -38,8 +38,8 @@ import Validation_Finance from "./Payment_Refund/Validation_Finance";
 const Main = () => {
   const { application_number,service_code,task_code,organization_code,todocode,application_detail_id,meta_data_forms_form_code,} = useParams();
 
-  // const Username = "kira12";
-const Username = window.__DNN_USER__?.username ?? "Guest";
+  const Username = "kira12";
+// const Username = window.__DNN_USER__?.username ?? "Guest";
 
   const navigate = useNavigate();
   const code = meta_data_forms_form_code.toUpperCase();
@@ -733,25 +733,44 @@ const getClickHandler = () => {
     >
       {/* Header */}
       <Paper
-        elevation={3}
-        sx={{
-          p: 0.8,
-          mb: 1.5,
-          borderRadius: 2,
-          background: "linear-gradient(135deg, #1976d2 20%, #42a5f5 90%)",
-          color: "white",
-          boxShadow: "0 4px 8px rgba(0,0,0,0.15)",
-        }}
-      >
-        <Box sx={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 1 }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
-            Application Number: <span style={{ fontWeight: 600 }}>{applicationNumber || "—"}</span>
-          </Typography>
-          <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
-            Service Name: <span style={{ fontWeight: 600 }}>{serviceName || "—"}</span>
-          </Typography>
-        </Box>
-      </Paper>
+  elevation={3}
+  sx={{
+    p: 1.5,
+    mb: 2,
+    borderRadius: 2,
+    background: "linear-gradient(135deg, #1976d2 30%, #42a5f5 90%)",
+    color: "white",
+  }}
+>
+  <Box
+    sx={{
+      display: "flex",
+      flexDirection: { xs: "column", sm: "row" }, 
+      justifyContent: "space-between",
+      alignItems: { xs: "flex-start", sm: "center" },
+      gap: { xs: 1, sm: 0 } 
+    }}
+  >
+    <Typography 
+      variant="h6" 
+      sx={{ 
+        fontWeight: "bold",
+        fontSize: { xs: "1rem", sm: "1.25rem" } 
+      }}
+    >
+      Application Number: {applicationNumber || "—"}
+    </Typography>
+    <Typography 
+      variant="h6" 
+      sx={{ 
+        fontWeight: "bold",
+        fontSize: { xs: "1rem", sm: "1.25rem" } 
+      }}
+    >
+      Service Name: {serviceName || "—"}
+    </Typography>
+  </Box>
+</Paper>
  {backendMessage && (
     <Box sx={{ flex: 1 }}>
       <Fade in={true}>
@@ -807,249 +826,276 @@ const getClickHandler = () => {
       </Box>
 
       {/* Footer Buttons */}
-      <Paper
-        elevation={5}
-        sx={{
-          mt: 3,
-          py: 0.8,
-          px: 1.5,
-          borderRadius: 2,
-          background: "white",
-          boxShadow: "0 -2px 8px rgba(0,0,0,0.08)",
-        }}
-      >
-        <Stack direction="row" spacing={3} justifyContent="center" alignItems="center">
-          {(() => {
-            const codeUpper = code?.toUpperCase();
-
-            if (codeUpper === "F178E9EA-D0DF-41B7-A24A-836ECD79505C") {
-              return (
-                <>
-                  <Button
-                    variant="contained"
-                    startIcon={<AssignmentTurnedInIcon />}
-                    onClick={handleReviewPatientHistory}
-                    sx={{
-                      backgroundColor: "#fbc02d",
-                      color: "black",
-                      textTransform: "none",
-                      "&:hover": { backgroundColor: "#f9a825" },
-                    }}
-                  >
-                    Review Patient History
-                  </Button>
-                  <Button
-                  variant="contained"
-               startIcon={<CheckCircleIcon />}
-          onClick={openLabTestPopup}  
-           sx={{
-    backgroundColor: "#fc6837",
-    textTransform: "none",
-    "&:hover": { backgroundColor: "#f92525" },
-           }}
-           disabled={!isCompleted}
-            >
-             Request Lab Test
-                </Button>
-                  <Button
-       variant="contained"
-        startIcon={<CheckCircleIcon />}
-                  onClick={openAppointmentPopup}  
-              sx={{
-                      backgroundColor: "#f52525",
-                      textTransform: "none",
-                      "&:hover": { backgroundColor: "#d80a0a" },
-                    }}
-               disabled={!isCompleted}
-                  >
-                    Appointment
-                  </Button>
-
-                  <Button
-                    variant="contained"
-                    sx={{
-                      textTransform: "none",
-                      "&:hover": { backgroundColor: "#0a3ad8" },
-                    }}
-                    startIcon={<CheckCircleIcon />}
-                      onClick={openReferalPopup}
-                      disabled={!isCompleted}
-                  >
-                    Refer
-                  </Button>
-                <Button
-                    variant="contained"
-                    sx={{
-                      backgroundColor: "#07b307",
-                      // color: "black",
-                      textTransform: "none",
-                      "&:hover": { backgroundColor: "#218c01" },
-                    }}
-                    startIcon={<AssignmentTurnedInIcon />}
-                    onClick={openPrescriptionPopup}
-                    disabled={!isCompleted}
-                  >
-                    Prescribe
-                  </Button>
-                  
-                  <Button
-                    variant="contained"
-                    startIcon={<PendingActionsIcon />}
-                    onClick={handlePendClose}
-                    sx={{
-                      backgroundColor: "#ffb300",
-                      color: "black",
-                      textTransform: "none",
-                      "&:hover": { backgroundColor: "#d8bd0a" },
-                    }}
-                  >
-                    Pend & Close
-                  </Button>
-                </>
-              );
-            } else if(code === "5FF766C5-E596-4BF0-AF8F-BD015C03C103" 
-              || code === "5DABA599-80ED-42EA-B559-40443C02486A" 
-              || code === "97045723-453F-471D-8190-B59A636855C8"){
-             return (
-                <>
-                  <Button
-                    variant="contained"
-                    startIcon={<PendingActionsIcon />}
-                    onClick={handlePendClose}
-                    sx={{ backgroundColor: "#ffb300", color: "black" }}
-                  >
-                    Pend & Close
-                  </Button>
-                </>
-              );
-            
-            }else{
-       return (
-     <>
-    {/* Conditional Review Button */}
-<Button
-  variant="contained"
-  startIcon={<AssignmentTurnedInIcon />}
-  onClick={getClickHandler()}
-  sx={{ backgroundColor: "#fbc02d", color: "black" }}
+     <Paper
+  elevation={5}
+  sx={{
+    mt: 3,
+    py: 0.8,
+    px: 1.5,
+    borderRadius: 2,
+    background: "white",
+    boxShadow: "0 -2px 8px rgba(0,0,0,0.08)",
+    width: "100%",
+    // Fixes for overflow
+    boxSizing: "border-box", 
+    overflow: "hidden",      
+  }}
 >
-  Review
-</Button>
-{/* Required Action Button */}
-    <Button
-      variant="contained"
-      startIcon={<CheckCircleIcon sx={{ fontSize: '1.2rem' }} />}
-      onClick={handleRequiredActionClick}
-      disabled={!isCompleted}
-      disableElevation 
-      sx={{
-        borderRadius: '12px', // More modern rounded corners
-        px: 4,
-        py: 1.2,
-        textTransform: "none", 
-        fontWeight: 700,
-        fontSize: '0.9rem',
-        background: "linear-gradient(135deg, #0b5c8e 0%, #157cb8 100%)", // Rich depth gradient
-        boxShadow: "0 4px 12px rgba(11, 92, 142, 0.25)",
-        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-        "&:hover": {
-          transform: "translateY(-2px)", 
-          boxShadow: "0 6px 16px rgba(11, 92, 142, 0.35)",
-          background: "linear-gradient(135deg, #094a73 0%, #0b5c8e 100%)",
-        },
-        "&:active": {
-          transform: "translateY(0)",
-        },
-        "&:disabled": {
-          backgroundColor: "#f1f5f9",
-          color: "#94a3b8",
-          boxShadow: "none",
-        }
-      }}
-    >
-      {loadingActions ? (
-        <CircularProgress size={20} color="inherit" />
-      ) : (
-        selectedAction?.decision_rule_en || "Required Action"
-      )}
-    </Button>
+  <Stack 
+    direction={{ xs: "column", sm: "row" }} 
+    flexWrap="wrap" 
+    spacing={{ xs: 1.5, sm: 2, md: 3 }} 
+    justifyContent="center" 
+    alignItems="center"
+    sx={{
+      py: { xs: 1, sm: 0 },
+      width: "100%",
+    }}
+  >
+    {(() => {
+      const codeUpper = code?.toUpperCase();
 
-    {/* Menu Component */}
-    <Menu 
-      anchorEl={anchorEl} 
-      open={Boolean(anchorEl)} 
-      onClose={handleClose}
-      transformOrigin={{ horizontal: "center", vertical: "top" }}
-      anchorOrigin={{ horizontal: "center", vertical: "bottom" }}
-      PaperProps={{
-        sx: {
-          mt: 1.5, 
-          minWidth: 260, 
-          borderRadius: "18px", 
-          backgroundColor: "rgba(255, 255, 255, 0.85)", 
-          backdropFilter: "blur(12px)", 
-          WebkitBackdropFilter: "blur(12px)",
-          boxShadow: "0px 20px 40px rgba(0, 0, 0, 0.1)", 
-          border: "1px solid rgba(255, 255, 255, 0.6)",
-          p: 1, 
-          overflow: "hidden",
-        }
-      }}
-    >
-      {actions.map((action, index) => {
-        const isSelected = selectedAction?.decision_rule_en === action.decision_rule_en;
-        
+      if (codeUpper === "F178E9EA-D0DF-41B7-A24A-836ECD79505C") {
         return (
-          <MenuItem 
-            key={index} 
-            onClick={() => handleActionSelect(action)}
-            selected={isSelected}
-            sx={{
-              borderRadius: "10px", 
-              mb: 0.5,
-              py: 1.5,
-              px: 2,
-              fontSize: "0.92rem",
-              fontWeight: isSelected ? 700 : 500,
-              color: isSelected ? "#0b5c8e" : "#475569",
-              transition: "all 0.2s ease",
-              "&:last-child": { mb: 0 },
-              "&:hover": {
-                backgroundColor: "rgba(11, 92, 142, 0.05)",
-                color: "#0b5c8e",
-                transform: "translateX(4px)",
-              },
-              "&.Mui-selected": {
-                backgroundColor: "rgba(11, 92, 142, 0.08)", 
-                color: "#0b5c8e",
-                "&:hover": {
-                  backgroundColor: "rgba(11, 92, 142, 0.12)",
-                }
-              }
+          <>
+            <Button
+              variant="contained"
+              startIcon={<AssignmentTurnedInIcon />}
+              onClick={handleReviewPatientHistory}
+              sx={{
+                width: { xs: "100%", sm: "auto" }, 
+                backgroundColor: "#fbc02d",
+                color: "black",
+                textTransform: "none",
+                "&:hover": { backgroundColor: "#f9a825" },
+              }}
+            >
+              Review Patient History
+            </Button>
+            <Button
+              variant="contained"
+              startIcon={<CheckCircleIcon />}
+              onClick={openLabTestPopup}
+              sx={{
+                width: { xs: "100%", sm: "auto" },
+                backgroundColor: "#fc6837",
+                textTransform: "none",
+                "&:hover": { backgroundColor: "#f92525" },
+              }}
+              disabled={!isCompleted}
+            >
+              Request Lab Test
+            </Button>
+            <Button
+              variant="contained"
+              startIcon={<CheckCircleIcon />}
+              onClick={openAppointmentPopup}
+              sx={{
+                width: { xs: "100%", sm: "auto" },
+                backgroundColor: "#f52525",
+                textTransform: "none",
+                "&:hover": { backgroundColor: "#d80a0a" },
+              }}
+              disabled={!isCompleted}
+            >
+              Appointment
+            </Button>
+
+            <Button
+              variant="contained"
+              sx={{
+                width: { xs: "100%", sm: "auto" },
+                textTransform: "none",
+                "&:hover": { backgroundColor: "#0a3ad8" },
+              }}
+              startIcon={<CheckCircleIcon />}
+              onClick={openReferalPopup}
+              disabled={!isCompleted}
+            >
+              Refer
+            </Button>
+            <Button
+              variant="contained"
+              sx={{
+                width: { xs: "100%", sm: "auto" },
+                backgroundColor: "#07b307",
+                textTransform: "none",
+                "&:hover": { backgroundColor: "#218c01" },
+              }}
+              startIcon={<AssignmentTurnedInIcon />}
+              onClick={openPrescriptionPopup}
+              disabled={!isCompleted}
+            >
+              Prescribe
+            </Button>
+
+            <Button
+              variant="contained"
+              startIcon={<PendingActionsIcon />}
+              onClick={handlePendClose}
+              sx={{
+                width: { xs: "100%", sm: "auto" },
+                backgroundColor: "#ffb300",
+                color: "black",
+                textTransform: "none",
+                "&:hover": { backgroundColor: "#d8bd0a" },
+              }}
+            >
+              Pend & Close
+            </Button>
+          </>
+        );
+      } else if (
+        code === "5FF766C5-E596-4BF0-AF8F-BD015C03C103" ||
+        code === "5DABA599-80ED-42EA-B559-40443C02486A" ||
+        code === "97045723-453F-471D-8190-B59A636855C8"
+      ) {
+        return (
+          <Button
+            variant="contained"
+            startIcon={<PendingActionsIcon />}
+            onClick={handlePendClose}
+            sx={{ 
+              width: { xs: "100%", sm: "auto" },
+              backgroundColor: "#ffb300", 
+              color: "black" 
             }}
           >
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-               {action.decision_rule_en || "—"}
-               {isSelected && <CheckCircleIcon sx={{ fontSize: '1.1rem', ml: 1, opacity: 0.8 }} />}
-            </Box>
-          </MenuItem>
+            Pend & Close
+          </Button>
         );
-      })}
-    </Menu>
-    <Button
-      variant="contained"
-      startIcon={<PendingActionsIcon />}
-      onClick={handlePendClose}
-      sx={{ backgroundColor: "#ffb300", color: "black" }}
-    >
-      Pend & Close
-    </Button>
-       </>
-         );
-            }
-          })()}
-        </Stack>
-      </Paper>
+      } else {
+        return (
+          <>
+            <Button
+              variant="contained"
+              startIcon={<AssignmentTurnedInIcon />}
+              onClick={getClickHandler()}
+              sx={{ 
+                width: { xs: "100%", sm: "auto" },
+                backgroundColor: "#fbc02d", 
+                color: "black" 
+              }}
+            >
+              Review
+            </Button>
+            <Button
+              variant="contained"
+              startIcon={<CheckCircleIcon sx={{ fontSize: "1.2rem" }} />}
+              onClick={handleRequiredActionClick}
+              disabled={!isCompleted}
+              disableElevation
+              sx={{
+                width: { xs: "100%", sm: "auto" },
+                borderRadius: "12px",
+                px: 4,
+                py: 1.2,
+                textTransform: "none",
+                fontWeight: 700,
+                fontSize: "0.9rem",
+                background: "linear-gradient(135deg, #0b5c8e 0%, #157cb8 100%)",
+                boxShadow: "0 4px 12px rgba(11, 92, 142, 0.25)",
+                transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                "&:hover": {
+                  transform: "translateY(-2px)",
+                  boxShadow: "0 6px 16px rgba(11, 92, 142, 0.35)",
+                  background: "linear-gradient(135deg, #094a73 0%, #0b5c8e 100%)",
+                },
+                "&:active": { transform: "translateY(0)" },
+                "&:disabled": {
+                  backgroundColor: "#f1f5f9",
+                  color: "#94a3b8",
+                  boxShadow: "none",
+                },
+              }}
+            >
+              {loadingActions ? (
+                <CircularProgress size={20} color="inherit" />
+              ) : (
+                selectedAction?.decision_rule_en || "Required Action"
+              )}
+            </Button>
+
+            {/* RESTORED MENU COMPONENT - UNTOUCHED */}
+            <Menu 
+              anchorEl={anchorEl} 
+              open={Boolean(anchorEl)} 
+              onClose={handleClose}
+              transformOrigin={{ horizontal: "center", vertical: "top" }}
+              anchorOrigin={{ horizontal: "center", vertical: "bottom" }}
+              PaperProps={{
+                sx: {
+                  mt: 1.5, 
+                  minWidth: 260, 
+                  borderRadius: "18px", 
+                  backgroundColor: "rgba(255, 255, 255, 0.85)", 
+                  backdropFilter: "blur(12px)", 
+                  WebkitBackdropFilter: "blur(12px)",
+                  boxShadow: "0px 20px 40px rgba(0, 0, 0, 0.1)", 
+                  border: "1px solid rgba(255, 255, 255, 0.6)",
+                  p: 1, 
+                  overflow: "hidden",
+                }
+              }}
+            >
+              {actions.map((action, index) => {
+                const isSelected = selectedAction?.decision_rule_en === action.decision_rule_en;
+                return (
+                  <MenuItem 
+                    key={index} 
+                    onClick={() => handleActionSelect(action)}
+                    selected={isSelected}
+                    sx={{
+                      borderRadius: "10px", 
+                      mb: 0.5,
+                      py: 1.5,
+                      px: 2,
+                      fontSize: "0.92rem",
+                      fontWeight: isSelected ? 700 : 500,
+                      color: isSelected ? "#0b5c8e" : "#475569",
+                      transition: "all 0.2s ease",
+                      "&:last-child": { mb: 0 },
+                      "&:hover": {
+                        backgroundColor: "rgba(11, 92, 142, 0.05)",
+                        color: "#0b5c8e",
+                        transform: "translateX(4px)",
+                      },
+                      "&.Mui-selected": {
+                        backgroundColor: "rgba(11, 92, 142, 0.08)", 
+                        color: "#0b5c8e",
+                        "&:hover": {
+                          backgroundColor: "rgba(11, 92, 142, 0.12)",
+                        }
+                      }
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                       {action.decision_rule_en || "—"}
+                       {isSelected && <CheckCircleIcon sx={{ fontSize: '1.1rem', ml: 1, opacity: 0.8 }} />}
+                    </Box>
+                  </MenuItem>
+                );
+              })}
+            </Menu>
+
+            <Button
+              variant="contained"
+              startIcon={<PendingActionsIcon />}
+              onClick={handlePendClose}
+              sx={{ 
+                width: { xs: "100%", sm: "auto" },
+                backgroundColor: "#ffb300", 
+                color: "black" 
+              }}
+            >
+              Pend & Close
+            </Button>
+          </>
+        );
+      }
+    })()}
+  </Stack>
+</Paper>
 
       {/* --- SINGLE COMMON POPUP --- */}
       <Dialog 

@@ -245,24 +245,44 @@ const fetchMessage = async (todo) => {
   return (
     <Box sx={{ width: "100%", p: 3 }}>
       <Paper
-        elevation={3}
-        sx={{
-          p: 1.5,
-          mb: 2,
-          borderRadius: 2,
-          background: "linear-gradient(135deg, #1976d2 30%, #42a5f5 90%)",
-          color: "white",
-        }}
-      >
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-            Application Number: {applicationNumber}
-          </Typography>
-          <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-            Service Name: {serviceName}
-          </Typography>
-        </Box>
-      </Paper>
+  elevation={3}
+  sx={{
+    p: 1.5,
+    mb: 2,
+    borderRadius: 2,
+    background: "linear-gradient(135deg, #1976d2 30%, #42a5f5 90%)",
+    color: "white",
+  }}
+>
+  <Box
+    sx={{
+      display: "flex",
+      flexDirection: { xs: "column", sm: "row" }, 
+      justifyContent: "space-between",
+      alignItems: { xs: "flex-start", sm: "center" },
+      gap: { xs: 1, sm: 0 } 
+    }}
+  >
+    <Typography 
+      variant="h6" 
+      sx={{ 
+        fontWeight: "bold",
+        fontSize: { xs: "1rem", sm: "1.25rem" } 
+      }}
+    >
+      Application Number: {applicationNumber || "—"}
+    </Typography>
+    <Typography 
+      variant="h6" 
+      sx={{ 
+        fontWeight: "bold",
+        fontSize: { xs: "1rem", sm: "1.25rem" } 
+      }}
+    >
+      Service Name: {serviceName || "—"}
+    </Typography>
+  </Box>
+</Paper>
 <Box 
   sx={{ 
     display: 'flex', 
