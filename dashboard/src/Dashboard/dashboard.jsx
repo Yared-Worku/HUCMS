@@ -123,13 +123,14 @@ const fetchStudentdashboard = async (id, roleid) => {
     { name: 'Open', value: stats.open, color: '#2196f3' },   
     { name: 'Suspended', value: stats.suspended, color: '#ffc107' }, 
     { name: 'Picked', value: stats.picked, color: '#ff9800' }, 
-    { name: 'Rejected', value: stats.rejected, color: '#f44336' }
+    { name: 'Rejected', value: stats.rejected, color: '#f44336' },
+    { name: 'In Progress', value: (stats.open || 0) + (stats.picked || 0), color: '#2196f3' }
   ];
   const chartData = rawChartData.filter(item => {
     if (roleid === '4ED1B191-AD58-4EAD-B269-02576B4DD8D0'.toLowerCase() ) {
     return item.name !== 'Open' && item.name !== 'Picked';
        }else{
-       return item.name !== 'Suspended';
+       return item.name !== 'Suspended' && item.name !== 'In Progress';;
        }
        })
 
