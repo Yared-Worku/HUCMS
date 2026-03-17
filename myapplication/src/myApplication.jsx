@@ -104,64 +104,65 @@ const MyApplication = () => {
         />
       </div>
 </div>
-      {loading ? (
-        <p>⏳ Loading applications...</p>
-      ) : (
-        <table className="table">
-          <thead>
-            <tr>
-              {[
-                { key: 'application_number', label: 'Application Number' },
-                { key: 'service_description_en', label: 'Application Name (EN)' },
-                { key: 'description_local', label: 'Application Name (Local)' },
-                { key: 'status', label: 'Status' },
-                { key: 'start_date', label: 'Start Date' }
-              ].map(col => (
-                <th
-                  key={col.key}
-                  onClick={() => requestSort(col.key)}
-                  style={{ cursor: 'pointer' }}
+{loading ? (
+  <p>⏳ Loading applications...</p>
+) : (
+  <div className="table-container"> {/* ADDED THIS WRAPPER */}
+    <table className="table">
+      <thead>
+        <tr>
+          {[
+            { key: 'application_number', label: 'Application Number' },
+            { key: 'service_description_en', label: 'Application Name (EN)' },
+            { key: 'description_local', label: 'Application Name (Local)' },
+            { key: 'status', label: 'Status' },
+            { key: 'start_date', label: 'Start Date' }
+          ].map(col => (
+            <th
+              key={col.key}
+              onClick={() => requestSort(col.key)}
+              style={{ cursor: 'pointer' }}
+            >
+              {col.label}{' '}
+              {sortConfig.key === col.key && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+            </th>
+          ))}
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {paginatedItems.length === 0 ? (
+          <tr>
+            <td colSpan={7} style={{ textAlign: 'center' }}>
+              No applications found
+            </td>
+          </tr>
+        ) : (
+          paginatedItems.map((app, index) => (
+            <tr key={index} className={getRowClass(app.status, index)}>
+              <td className="break-word">{app.application_number}</td> {/* ADDED CLASS */}
+              <td>{app.service_description_en}</td>
+              <td>{app.description_local}</td>
+              <td><strong>{app.status}</strong></td>
+              <td>{app.start_date ? new Date(app.start_date).toLocaleString() : ''}</td>
+              <td>
+                <button
+                  type="button"
+                  className="actionBtn editBtn"
+                  onClick={() =>
+                    navigate(`/myApplication/${app.application_number}/${app.services_service_code}/${app.tasks_task_code}/${app.organization_code}/${app.application_detail_id}/${app.meta_data_forms_form_code}/${app.to_do_code}`)
+                  }
                 >
-                  {col.label}{' '}
-                  {sortConfig.key === col.key && (sortConfig.direction === 'asc' ? '▲' : '▼')}
-                </th>
-              ))}
-              <th>Actions</th>
+                  Pick
+                </button>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {paginatedItems.length === 0 ? (
-              <tr>
-                <td colSpan={7} style={{ textAlign: 'center' }}>
-                  No applications found
-                </td>
-              </tr>
-            ) : (
-              paginatedItems.map((app, index) => (
-                <tr key={index} className={getRowClass(app.status, index)}>
-                  <td>{app.application_number}</td>
-                  <td>{app.service_description_en}</td>
-                  <td>{app.description_local}</td>
-                  <td><strong>{app.status}</strong></td>
-                  <td>{app.start_date ? new Date(app.start_date).toLocaleString() : ''}</td>
-                  <td>
-                    <button
-                      type="button"
-                      className="actionBtn editBtn"
-                      onClick={() =>
-                        navigate(`/myApplication/${app.application_number}/${app.services_service_code}/${app.tasks_task_code}/${app.organization_code}/${app.application_detail_id}/${app.meta_data_forms_form_code}/${app.to_do_code}`)
-                      }
-                    >
-                      Pick
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      )}
-
+          ))
+        )}
+      </tbody>
+    </table>
+  </div>
+)}
       <div className="pagination">
         <button type="button" onClick={() => setPage(1)} disabled={currentPage === 1} className="pageBtn">&laquo;</button>
         <button type="button" onClick={() => setPage(currentPage - 1)} disabled={currentPage === 1} className="pageBtn">&lsaquo;</button>

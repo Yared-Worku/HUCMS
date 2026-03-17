@@ -552,10 +552,10 @@ h2 {
   background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
-  align-items: flex-start; /* push down from top instead of centering */
+  align-items: flex-start; 
   z-index: 9999;
   overflow-y: auto;
-  padding-top: 170px; /* offset from DNN header */
+  padding-top: 170px; 
 }
 
 /* Scrollable modal content */
@@ -565,8 +565,8 @@ h2 {
   padding: 20px;
   width: 80%;
   max-width: 800px;
-  max-height: 70vh; /* limit modal height */
-  overflow-y: auto; /* scroll within the modal */
+  max-height: 70vh;
+  overflow-y: auto; 
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   position: relative;
 }
@@ -693,22 +693,20 @@ h2 {
   }
 }
 
-/* Services.css */
-
 /* Table General Styling */
 .table {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 1rem;
   background-color: #fff;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1); /* Adds the glow effect seen in image */
-  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  border-radius: 8px; 
   overflow: hidden;
 }
 
 /* The Green Header */
 .table-header-green {
-  background-color: #28a745; /* Matches the green in the image */
+  background-color: #28a745; 
   color: white;
   text-align: left;
 }
@@ -740,11 +738,11 @@ h2 {
 
 /* Action Button (Pick) */
 .actionBtn.editBtn {
-  background-color: #17a2b8; /* Teal color from image */
+  background-color: #17a2b8; 
   color: white;
   border: none;
   padding: 6px 16px;
-  border-radius: 20px; /* Pill shape */
+  border-radius: 20px;
   font-size: 14px;
   cursor: pointer;
   transition: background 0.2s;
@@ -794,7 +792,7 @@ h2 {
 
 /* Shared width wrapper */
 .mytask-wrapper {
-  max-width: 1300px;   /* same visual width as table */
+  max-width: 1300px; 
   margin: 0 auto;
 }
 
@@ -820,26 +818,26 @@ h2 {
   border-collapse: collapse;
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 8px 40px rgba(5, 163, 55, 0.8); /* softer green shadow */
+  box-shadow: 0 8px 40px rgba(5, 163, 55, 0.8); 
   transition: box-shadow 0.3s ease;
 }
 
 .table th,
 .table td {
-  color: #000000 !important;          /* normal black text */
-  font-weight: normal;  /* remove bold */
+  color: #000000 !important;      
+  font-weight: normal; 
   text-align: left;
-  padding: 6px 8px;     /* keep your spacing */
+  padding: 6px 8px;    
 }
 .searchContainer {
-  margin-bottom: 1px; /* smaller gap than before */
+  margin-bottom: 1px; 
 }
 .page-title {
-  margin-bottom: 0.5px; /* reduced from larger default */
+  margin-bottom: 0.5px; 
 }
 .table tbody tr td {
-  padding: 6px 8px;      /* minimal vertical padding */
-  line-height: 2;      /* reduces extra space inside cells */
+  padding: 6px 8px;     
+  line-height: 2;     
 }
 
  .custom-modal-overlay {
@@ -859,7 +857,59 @@ h2 {
           #printable-area, #printable-area * { display: block !important; }
           #printable-area { position: absolute; left: 0; top: 0; width: 100%; border: none; }
         }
-        .row-picked { background-color: #e3f2fd !important; }    /* Soft Blue */
-.row-open { background-color: #e8f5e9 !important; }      /* Soft Green */
-.row-suspended { background-color: #ffebee !important; } /* Soft Red */
+        .row-picked { background-color: #e3f2fd !important; }   
+.row-open { background-color: #e8f5e9 !important; }      
+.row-suspended { background-color: #ffebee !important; } 
 .table tbody tr:hover { filter: brightness(0.95); transition: 0.2s; }
+
+/* The scrollable container */
+.service-table-wrapper {
+  width: 100%;
+  max-width: 1300px;
+  margin: 0 auto;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+}
+
+/* The table layout */
+.responsive-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 850px; 
+}
+
+/* Header styles */
+.responsive-table th {
+  cursor: pointer;
+  color: #000;
+  font-weight: 600;
+  padding: 12px 10px;
+  text-align: left;
+  white-space: nowrap;
+  background-color: #f8f9fa;
+}
+
+/* Specific cell behavior */
+.app-number-cell {
+  word-break: break-all; 
+  min-width: 160px;
+  max-width: 200px;
+  padding: 10px;
+}
+
+.date-cell {
+  white-space: nowrap;
+  padding: 10px;
+}
+
+.standard-cell {
+  padding: 10px;
+}
+
+/* Action button alignment */
+.action-cell {
+  text-align: center;
+  min-width: 100px;
+}

@@ -118,21 +118,40 @@ const getCertificate = async (userid) => {
           Choose an application from the list below to proceed.
         </Typography>
 
-        <TextField
-          select
-          fullWidth
-          value={application_number}
-          onChange={handleSelectChange}
-          SelectProps={{ native: true }}
-          
-        >
-          <option value="">-- Select --</option>
-          {applications.map((app) => (
-            <option key={app.application_number} value={app.application_number}>
-              {app.application_number}
-            </option>
-          ))}
-        </TextField>
+<TextField
+  select
+  fullWidth
+  value={application_number}
+  onChange={handleSelectChange}
+  SelectProps={{
+    MenuProps: {
+      PaperProps: {
+        sx: {
+          maxWidth: 300, 
+          "& .MuiMenuItem-root": {
+            whiteSpace: "normal", 
+            wordBreak: "break-all",
+            fontSize: "0.85rem",
+          },
+        },
+      },
+    },
+  }}
+  sx={{
+    "& .MuiInputBase-input": {
+      whiteSpace: "nowrap",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+    },
+  }}
+>
+  <option value="" disabled>-- Select --</option>
+  {applications.map((app) => (
+    <option key={app.application_number} value={app.application_number}>
+      {app.application_number}
+    </option>
+  ))}
+</TextField>
 
         <div style={{ marginTop: "20px" }}>
      <button

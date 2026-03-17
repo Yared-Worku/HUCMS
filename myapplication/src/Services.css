@@ -707,3 +707,54 @@ h2 {
 }
 .table tbody tr:hover { filter: brightness(0.95); transition: 0.2s; }
 
+/* Container for the whole page */
+.container {
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+  overflow-x: hidden; 
+}
+
+.service-info-box, .mytask-wrapper {
+  word-break: break-all; 
+  overflow-wrap: anywhere;
+}
+
+/* 2. Fix for the Search Input */
+.searchContainer {
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.searchInput {
+  width: 100%;
+  box-sizing: border-box; 
+}
+
+/* 3. The Responsive Table Wrapper */
+.table-container {
+  width: 100%;
+  overflow-x: auto; 
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+}
+
+/* 4. Column Content Control */
+.table td, .table th {
+  min-width: 120px; 
+  padding: 12px 8px;
+}
+
+.break-word {
+  word-break: break-all; 
+  max-width: 150px;
+}
+
+/* 5. Pagination responsiveness */
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  justify-content: center;
+}
