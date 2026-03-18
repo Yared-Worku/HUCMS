@@ -81,85 +81,70 @@ const MedicalCertificateReport = () => {
   }, [filteredCerts, currentPage]);
 
   const handlePrint = () => {
-  const printContents = document.getElementById("printable-area");
-  const printWindow = window.open("", "_blank", "width=900,height=900");
-  printWindow.document.write(`
-    <html>
-      <head>
-        <title>Medical Certificate</title>
-        <style>
-          /* This rule removes the browser headers and footers */
-          @page { 
-            size: auto;   /* auto is the initial value */
-            margin: 0;    /* this removes headers and footers */
-          }
+    const printContents = document.getElementById("printable-area");
+    const printWindow = window.open("", "_blank", "width=900,height=900");
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Medical Certificate</title>
+          <style>
+            @page { 
+              size: auto;  
+              margin: 0;    
+            }
+            body {
+              font-family: "Times New Roman", Times, serif;
+              margin: 0;
+              padding: 50px; 
+              color: #000;
+            }
+            h2.cert-title {
+              text-align: center;
+              font-size: 24px;
+              text-decoration: underline;
+              margin-bottom: 30px;
+            }
+            .cert-row {
+              display: flex !important;
+              justify-content: space-between !important;
+              margin-bottom: 20px;
+            }
+            .photo-container {
+              width: 140px;
+              height: 170px;
+              border: 1px solid #000;
+            }
+            .photo-container img {
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+            }
+            h5 { font-weight: bold; margin-bottom: 5px; text-decoration: underline; }
+            p { margin: 5px 0; }
+            @media print {
+              body { -webkit-print-color-adjust: exact; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="certificate-paper">
+            ${printContents.innerHTML}
+          </div>
+          <script>
+            window.onload = function() {
+              window.focus();
+              setTimeout(() => {
+                window.print();
+                window.close();
+              }, 500);
+            };
+          </script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+  };
 
-          body {
-            font-family: "Times New Roman", Times, serif;
-            margin: 0;
-            padding: 50px; /* Add padding here so content doesn't touch the edge */
-            color: #000;
-          }
-
-          /* Professional Medical Layout Styles */
-          h2.cert-title {
-            text-align: center;
-            font-size: 24px;
-            text-decoration: underline;
-            margin-bottom: 30px;
-          }
-
-          .cert-row {
-            display: flex !important;
-            justify-content: space-between !important;
-            margin-bottom: 20px;
-          }
-
-          .photo-container {
-            width: 140px;
-            height: 170px;
-            border: 1px solid #000;
-          }
-
-          .photo-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-          }
-
-          .cert-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-          }
-
-          h5 { font-weight: bold; margin-bottom: 5px; text-decoration: underline; }
-          p { margin: 5px 0; }
-          
-          /* Ensures the print process waits for the photo */
-          @media print {
-            body { -webkit-print-color-adjust: exact; }
-          }
-        </style>
-      </head>
-      <body>
-        <div class="certificate-paper">
-          ${printContents.innerHTML}
-        </div>
-        <script>
-          window.onload = function() {
-            window.focus();
-            setTimeout(() => {
-              window.print();
-              window.close();
-            }, 500);
-          };
-        </script>
-      </body>
-    </html>
-  `);
-  printWindow.document.close();
-};
   const exportPDF = () => {
     const input = document.getElementById("printable-area");
     html2canvas(input, { scale: 2 }).then((canvas) => {
@@ -191,9 +176,10 @@ const MedicalCertificateReport = () => {
       </div>
       <div
         className="service-table-wrapper"
-        style={{ width: "100%", maxWidth: "1300px", margin: "0 auto" }}
+        // ADDED overflowX: "auto" to make table scrollable on mobile
+        style={{ width: "100%", maxWidth: "1300px", margin: "0 auto", overflowX: "auto" }}
       >
-        <table className="table" style={{ width: "100%" }}>
+        <table className="table" style={{ width: "100%", minWidth: "600px" }}> {/* Added minWidth to maintain structure */}
           <thead className="table-header-green">
             <tr>
               {[
@@ -206,7 +192,7 @@ const MedicalCertificateReport = () => {
                 <th
                   key={col.key}
                   onClick={() => requestSort(col.key)}
-                  style={{ cursor: "pointer", color: "#000", fontWeight: 600 }}
+                  style={{ cursor: "pointer", color: "#000", fontWeight: 600, whiteSpace: "nowrap" }}
                 >
                   {col.label}
                   {sortConfig.key === col.key &&
@@ -320,29 +306,32 @@ const MedicalCertificateReport = () => {
             style={{
               display: "flex",
               flexDirection: "column",
-              maxHeight: "90vh", 
-              overflow: "hidden", 
-              // width: "auto", 
+              maxHeight: "90vh",
+              overflow: "hidden",
+              width: "95%", // ENSURES modal fits mobile screens
               maxWidth: "800px",
+              margin: "auto" // Centers modal 
             }}
           >
             <div
               className="modal-header-actions"
               style={{
                 display: "flex",
+                flexWrap: "wrap", // Added wrap for smaller screens
                 justifyContent: "space-between",
                 alignItems: "center",
                 padding: "10px 20px",
                 backgroundColor: "#1976d2",
                 borderTopLeftRadius: "8px",
                 borderTopRightRadius: "8px",
-                flexShrink: 0, 
+                flexShrink: 0,
                 zIndex: 10,
+                gap: "10px"
               }}
             >
-              <div style={{ display: "flex", gap: "10px" }}>
+              <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
                 <button
-                type="button"
+                  type="button"
                   onClick={handlePrint}
                   style={{
                     padding: "8px 16px",
@@ -365,7 +354,7 @@ const MedicalCertificateReport = () => {
                   Print
                 </button>
                 <button
-                type="button"
+                  type="button"
                   onClick={exportPDF}
                   style={{
                     padding: "8px 16px",
@@ -402,11 +391,11 @@ const MedicalCertificateReport = () => {
                 <CloseIcon />
               </IconButton>
             </div>
-            {/* SCROLLABLE CONTENT WRAPPER */}
+            
             <div
               style={{
-                overflowY: "auto", 
-                flex: 1, 
+                overflowY: "auto",
+                flex: 1,
                 padding: "20px",
                 backgroundColor: "#f5f5f5",
               }}
@@ -415,9 +404,9 @@ const MedicalCertificateReport = () => {
                 <h6 className="cert-title">MEDICAL CERTIFICATE</h6>
 
                 <div className="cert-body">
-                  {/* Top Section */}
-                  <div className="cert-row">
-                    <div className="cert-col">
+                  {/* Top Section - ADDED flexWrap & gap for responsiveness */}
+                  <div className="cert-row" style={{ display: "flex", flexWrap: "wrap-reverse", justifyContent: "space-between", gap: "20px" }}>
+                    <div className="cert-col" style={{ flex: "1 1 250px" }}>
                       <p>
                         <strong>Patient Name:</strong>{" "}
                         {selectedCert.applicant_First_Name_EN}{" "}
@@ -448,7 +437,7 @@ const MedicalCertificateReport = () => {
 
                   <hr />
 
-                  {/* Diagnosis Section */}
+                  {/* Diagnosis Section - ADDED flexWrap for responsiveness */}
                   <div
                     className="cert-diagnosis"
                     style={{ marginTop: "20px" }}
@@ -456,22 +445,23 @@ const MedicalCertificateReport = () => {
                     <div
                       style={{
                         display: "flex",
+                        flexWrap: "wrap", // Added to make columns stack on mobile
                         justifyContent: "space-between",
-                        gap: "40px",
+                        gap: "20px", // Reduced gap to look better when wrapping
                       }}
                     >
-                      <div style={{ flex: 1 }}>
-                        <strong>Clinical Diagnosis:{" "}</strong>
+                      <div style={{ flex: "1 1 250px" }}> {/* Added flex-basis so it stacks nicely */}
+                        <strong>Clinical Diagnosis: </strong>
                         <p>{selectedCert.detail_Diagnosis}</p>
 
-                        <strong>Treatment Given:{" "}</strong>
+                        <strong>Treatment Given: </strong>
                         <p>{selectedCert.rx}</p>
                       </div>
-                      <div style={{ flex: 1 }}>
-                        <strong>Patient Condition:{" "}</strong>
+                      <div style={{ flex: "1 1 250px" }}> {/* Added flex-basis so it stacks nicely */}
+                        <strong>Patient Condition: </strong>
                         <p>{selectedCert.patient_Condition}</p>
 
-                        <strong>Recommendation of the health profesional:{" "}</strong>
+                        <strong>Recommendation of the health profesional: </strong>
                         <p>{selectedCert.health_Profetional_Recomendation}</p>
                       </div>
                     </div>
@@ -493,7 +483,6 @@ const MedicalCertificateReport = () => {
 
                     <p>
                       <strong>Attending Doctor:</strong>{"  "}
-                  
                       Dr. {selectedCert.fname_Doctor}{" "}
                       {selectedCert.lname_Doctor}
                     </p>

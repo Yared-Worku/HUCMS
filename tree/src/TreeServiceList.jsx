@@ -13,7 +13,7 @@ const ChevronIcon = ({ isOpen }) => (
 );
 
 const FolderIcon = ({ isOpen }) => (
-  <svg viewBox="0 0 24 24" width="22" height="22" fill={isOpen ? "url(#folderGradient)" : "none"} stroke={isOpen ? "#4f46e5" : "#64748b"} strokeWidth="2" style={{ marginRight: '12px', transition: 'all 0.3s ease' }}>
+  <svg viewBox="0 0 24 24" width="22" height="22" fill={isOpen ? "url(#folderGradient)" : "none"} stroke={isOpen ? "#4f46e5" : "#64748b"} strokeWidth="2" style={{ marginRight: '12px', flexShrink: 0, transition: 'all 0.3s ease' }}>
     <defs>
       <linearGradient id="folderGradient" x1="0%" y1="0%" x2="100%" y2="100%">
         <stop offset="0%" stopColor="#818cf8" stopOpacity="0.2" />
@@ -32,7 +32,7 @@ const ServiceIcon = () => (
 );
 
 const BuildingIcon = () => (
-  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '8px' }}>
+  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '8px', flexShrink: 0 }}>
     <path d="M3 21h18M5 21V7l8-4 8 4v14M8 21v-9a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v9" />
   </svg>
 );
@@ -132,18 +132,19 @@ const TreeServiceList = () => {
           <div 
             onClick={() => setVisibleDept(isExpanded ? null : svc.service_code)}
             className="service-header"
+            style={{ display: 'flex', flexDirection: 'column', gap: '10px' }} // Ensures vertical stacking of header & pill on mobile
           >
-            <div style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', flex: 1, flexWrap: 'wrap', gap: '15px' }}>
               {/* Icon Box */}
-              <div className="service-icon-box">
+              <div className="service-icon-box" style={{ flexShrink: 0 }}>
                 <ServiceIcon />
               </div>
 
-              <div>
-                <h4 className="service-title">
+              <div style={{ flex: '1 1 200px', minWidth: 0 }}>
+                <h4 className="service-title" style={{ margin: 0, wordWrap: 'break-word' }}>
                   {svc.description_en}
                 </h4>
-                <div className="service-subtitle">
+                <div className="service-subtitle" style={{ marginTop: '5px' }}>
                   {isExpanded ? 'Hide options' : 'Click to apply'}
                   {!isExpanded && <span style={{ marginLeft: '5px', fontSize: '10px' }}>▼</span>}
                 </div>
@@ -152,22 +153,24 @@ const TreeServiceList = () => {
 
             {/* Requirements Pill */}
             {svc.requirementsTOApply_en && (
-              <div className="requirements-pill">
-                <span style={{ marginRight: '4px' }}>📝</span>
-                <span style={{ color: '#0f172a', fontWeight: '800' }}>Requirements: </span>
-                {svc.requirementsTOApply_en}
+              <div className="requirements-pill" style={{ display: 'flex', alignItems: 'flex-start', flexWrap: 'wrap', wordBreak: 'break-word', padding: '8px 12px', background: '#f8fafc', borderRadius: '6px' }}>
+                <span style={{ marginRight: '6px', flexShrink: 0 }}>📝</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <span style={{ color: '#0f172a', fontWeight: '800' }}>Requirements: </span>
+                  {svc.requirementsTOApply_en}
+                </div>
               </div>
             )}
           </div>
 
           {/* Collapsible Content */}
           {isExpanded && (
-            <div className="collapsible-content">
+            <div className="collapsible-content" style={{ marginTop: '16px' }}>
               <p style={{ margin: '0 0 12px 0', fontSize: '0.8rem', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
                Select a provider to start
               </p>
                
-              <div className="provider-grid">
+              <div className="provider-grid" style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}> {/* Wrapped the providers for mobile */}
                 {(svc.consolidatedProviders && svc.consolidatedProviders.length > 0) ? (
                   svc.consolidatedProviders.map((provider, idx) => {
                     return (
@@ -175,6 +178,7 @@ const TreeServiceList = () => {
                         type='button'
                         key={idx}
                         className="provider-btn"
+                        style={{ flex: '1 1 auto', minWidth: '160px', display: 'flex', alignItems: 'center' }} // Scales buttons properly
                         onClick={(e) => {
                           e.stopPropagation();
                           window.location.href = `/myApplication/${svc.service_code}/${svc.task_code}/${provider.orgCode}/${svc.meta_data_forms_form_code}`;
@@ -183,12 +187,14 @@ const TreeServiceList = () => {
                         <span className="provider-icon-wrapper">
                            <BuildingIcon />
                         </span>
-                        {provider.name}
+                        <span style={{ wordWrap: 'break-word', textAlign: 'left' }}>
+                          {provider.name}
+                        </span>
                       </button>
                     );
                   })
                 ) : (
-                  <div className="no-providers">
+                  <div className="no-providers" style={{ width: '100%', wordBreak: 'break-word' }}>
                     ⚠️ No active service providers available at this time.
                   </div>
                 )}
@@ -201,7 +207,7 @@ const TreeServiceList = () => {
   };
 
   return (
-    <div className="tree-service-container">
+    <div className="tree-service-container" style={{ padding: '10px', maxWidth: '100%', overflowX: 'hidden' }}>
        
       <div className="section-header">
         <h3 className="section-title">
@@ -210,7 +216,7 @@ const TreeServiceList = () => {
       </div>
 
       {error && (
-        <div className="error-box">
+        <div className="error-box" style={{ wordBreak: 'break-word' }}>
           {error}
         </div>
       )}
@@ -227,20 +233,23 @@ const TreeServiceList = () => {
               <div
                 className={`folder-row ${pOpen ? 'open' : ''}`}
                 onClick={() => toggleParent(pcode)}
+                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px', gap: '10px', flexWrap: 'nowrap' }} // Keeps chevron on right
               >
-                <div style={{ display: 'flex', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: 0 }}>
                   <FolderIcon isOpen={pOpen} />
-                  <span className="folder-title">
+                  <span className="folder-title" style={{ wordBreak: 'break-word', whiteSpace: 'normal', flex: 1 }}>
                     {parent.description_en}
                   </span>
-                  {pOpen && <span className="badge-open">OPEN</span>}
+                  {pOpen && <span className="badge-open" style={{ flexShrink: 0, marginLeft: '8px' }}>OPEN</span>}
                 </div>
-                <ChevronIcon isOpen={pOpen} />
+                <div style={{ flexShrink: 0 }}>
+                  <ChevronIcon isOpen={pOpen} />
+                </div>
               </div>
 
               {/* Parent Body */}
               {pOpen && (
-                <div className="folder-body">
+                <div className="folder-body" style={{ padding: '10px' }}>
                    
                   {/* Direct Services */}
                   {services.length > 0 && (
@@ -260,25 +269,30 @@ const TreeServiceList = () => {
                           <div
                             onClick={() => toggleChild(ccode)}
                             className={`child-topic-row ${cOpen ? 'open' : ''}`}
+                            style={{ display: 'flex', alignItems: 'flex-start', flexWrap: 'wrap', gap: '10px' }} // Ensures badge and text stack if needed
                           >
-                            <span style={{ 
-                              marginRight: '10px', fontSize: '0.8rem', 
-                              transform: cOpen ? 'rotate(90deg)' : 'rotate(0deg)', 
-                              transition: 'transform 0.2s',
-                              color: '#94a3b8'
-                            }}>▶</span>
-                            {child.description_en}
-                            <span style={{ marginLeft: 'auto', fontSize: '0.75rem', background: '#f1f5f9', color: '#64748b', padding: '4px 10px', borderRadius: '12px' }}>
-                              {childSvcs.length} Service
+                            <div style={{ display: 'flex', alignItems: 'center', flex: '1 1 200px', minWidth: 0 }}>
+                              <span style={{ 
+                                marginRight: '10px', fontSize: '0.8rem', 
+                                transform: cOpen ? 'rotate(90deg)' : 'rotate(0deg)', 
+                                transition: 'transform 0.2s',
+                                color: '#94a3b8', flexShrink: 0
+                              }}>▶</span>
+                              <span style={{ wordBreak: 'break-word', whiteSpace: 'normal' }}>
+                                {child.description_en}
+                              </span>
+                            </div>
+                            <span style={{ marginLeft: 'auto', fontSize: '0.75rem', background: '#f1f5f9', color: '#64748b', padding: '4px 10px', borderRadius: '12px', flexShrink: 0 }}>
+                              {childSvcs.length} Service{childSvcs.length !== 1 && 's'}
                             </span>
                           </div>
 
                           {cOpen && (
-                            <div className="child-content-wrapper">
+                            <div className="child-content-wrapper" style={{ marginTop: '10px' }}>
                               {childSvcs.length > 0 ? (
                                 childSvcs.map(svc => renderServiceItem(svc, child))
                               ) : (
-                                <div style={{ padding: '16px', fontStyle: 'italic', color: '#94a3b8', fontSize: '0.9rem', background: '#fff', borderRadius: '8px', border: '1px dashed #e2e8f0' }}>
+                                <div style={{ padding: '16px', fontStyle: 'italic', color: '#94a3b8', fontSize: '0.9rem', background: '#fff', borderRadius: '8px', border: '1px dashed #e2e8f0', wordBreak: 'break-word' }}>
                                   No service under this topic.
                                 </div>
                               )}
