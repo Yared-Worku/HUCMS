@@ -211,7 +211,7 @@ const getRefer = async (code) => {
         tasks_task_code: task_code,
         value: JSON.stringify(data),
         UserId: userid,
-        ProcessDetailCode: application_detail_id,
+        ProcessDetailCode: ProcessDetailCode ,
       });
 
       if (res.data) {
@@ -540,7 +540,7 @@ const handleRefer = async () => {
       referalReason: referalreason,
       todocode: todocode,
       application_number: application_number,
-      processDetailCode: application_detail_id
+      processDetailCode: ProcessDetailCode 
     };
     const res = await axios.post("/ReferalData", payload);
     if (res.data?.refCode) {
@@ -604,7 +604,7 @@ const executeTaskAction = async (ruleCode, reason = "") => {
       todocode: todocode,
       organization_code: organization_code,
       userId: userid,
-      ProcessDetailCode: application_detail_id,
+      ProcessDetailCode: ProcessDetailCode,
       task_rules_code: ruleCode,
       rejection_reason: reason, 
     });
@@ -812,7 +812,10 @@ const getClickHandler = () => {
                onSave={handleSaveCHRefundData} pr_Code ={pr_Code} onpr_Code={(pr_Code) => setpr_Code(pr_Code)}/>
           }else if(code === "ABB5C239-17B0-4743-A9DE-36F5FB485D19"){
              return <Validation_Finance application_number={application_number} todocode={todocode} ProcessDetailCode ={application_detail_id}
-              taskcode = {task_code} onSaveComplete = {() => setIsCompleted(true)}/>
+              taskcode = {task_code} onSaveComplete={(newId) => {
+        setIsCompleted(true);
+        setprocessdetailcode(newId); 
+      }}/>
           }else{
             return (
               <Survey

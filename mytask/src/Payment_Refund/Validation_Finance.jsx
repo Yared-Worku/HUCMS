@@ -58,32 +58,38 @@ useEffect(() => {
   }
 };
 
-  const handleSave = async () => {
-    if (!selectedMethod) return;
+const handleSave = async () => {
+  if (!selectedMethod) return;
 
-    try {
-      setSaving(true);
-      setMessage("");
+  try {
+    setSaving(true);
+    setMessage("");
 
-      const payload = {
-        application_number: application_number,
-        method_code: selectedMethod.method_code,
-        todocode: todocode,
-        ProcessDetailCode: ProcessDetailCode,
-        tasks_task_code: taskcode
-      };
-      await axios.post("/submitPaymentProcess", payload);
-      setMessage("🎉 Payment process saved successfully!");
-      if (onSaveComplete) {
-        onSaveComplete();
-      }
+    const payload = {
+      application_number: application_number,
+      method_code: selectedMethod.method_code,
+      todocode: todocode,
+      ProcessDetailCode: ProcessDetailCode,
+      tasks_task_code: taskcode
+    };
 
-    } catch (error) {
-      setMessage("Failed to save selection.");
-    } finally {
-      setSaving(false);
+    const response = await axios.post("/submitPaymentProcess", payload);
+    const newDetailCode = response.data.processDetailCode; 
+    console.log("The saved code is:", newDetailCode);
+
+    setMessage("🎉 Payment process saved successfully!");
+
+    if (onSaveComplete) {
+      onSaveComplete(newDetailCode); 
     }
-  };
+
+  } catch (error) {
+    console.error("Save error:", error);
+    setMessage("Failed to save selection.");
+  } finally {
+    setSaving(false);
+  }
+};
 
   const getBankIcon = (name, isSelected) => {
     const lower = name.toLowerCase();
@@ -192,7 +198,7 @@ useEffect(() => {
     "Processing..."
      ) : (
     <>
-      {ProcessDetailCode ? "🔄 Update" : "💾 Save"}
+      {saving ?  "Processing..." : "💾 Save"}
     </>
   )}
     </button>

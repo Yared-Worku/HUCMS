@@ -7,7 +7,8 @@ import {
   Paper,
   Typography,
   TextField,
-  Divider
+  Divider,
+  MenuItem
 } from "@mui/material";
 
 const Medical_Certificate_Application = ({ processDetailCode, onsave, onFileLoad }) => {
@@ -117,13 +118,13 @@ const getCertificate = async (userid) => {
         <Typography sx={{ color: "#0b5c8e", fontWeight: 600 }}>
           Choose an application from the list below to proceed.
         </Typography>
-
-<TextField
+          <TextField
   select
   fullWidth
-  value={application_number}
+value={application_number || ""}
   onChange={handleSelectChange}
   SelectProps={{
+    displayEmpty: true,
     MenuProps: {
       PaperProps: {
         sx: {
@@ -145,14 +146,16 @@ const getCertificate = async (userid) => {
     },
   }}
 >
-  <option value="" disabled>-- Select --</option>
+  <MenuItem value="" disabled>
+    <em>-- Select --</em>
+  </MenuItem>
+  
   {applications.map((app) => (
-    <option key={app.application_number} value={app.application_number}>
+    <MenuItem key={app.application_number} value={app.application_number}>
       {app.application_number}
-    </option>
+    </MenuItem>
   ))}
 </TextField>
-
         <div style={{ marginTop: "20px" }}>
      <button
        type="button"

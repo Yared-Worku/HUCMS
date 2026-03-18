@@ -13,6 +13,7 @@ import {
   PauseCircleOutlineOutlined,
   AccessTimeOutlined
 } from '@mui/icons-material';
+import HistoryIcon from '@mui/icons-material/History';
 import { 
   PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, Label 
 } from 'recharts';
@@ -170,6 +171,17 @@ const handleQuickActionClick = async (action) => {
   const closeDialog = () => setDialogOpen(false);
   const showRoleColumn = dialogContent.data.some(row => row.roleID !== '4ED1B191-AD58-4EAD-B269-02576B4DD8D0'.toLowerCase());
   const totalValue = chartData.reduce((sum, item) => sum + item.value, 0);
+
+  const sortedAppts = [...apptData].sort((a, b) => {
+    return new Date(b.date) - new Date(a.date);
+  });
+  const isPastDate = (dateString) => {
+    if (!dateString) return false;
+    const targetDate = new Date(dateString);
+    const now = new Date();
+    now.setHours(0, 0, 0, 0); // Reset time to focus on the day
+    return targetDate < now;
+  };
   return (
     <Box sx={{ 
       width: '100vw', 
@@ -523,50 +535,57 @@ const handleQuickActionClick = async (action) => {
               <TableCell align="right" sx={{ fontWeight: 700, color: '#475569', fontSize: '0.75rem', textTransform: 'uppercase' }}>Appointment Date</TableCell>
             </TableRow>
           </TableHead>
-          <TableBody>
-            {apptData.map((row) => (
-              <TableRow 
-                key={row.id} 
-                sx={{ '&:hover': { bgcolor: '#f1f5f9' }, transition: 'background 0.2s' }}
-              >
-                <TableCell>
-                  <Typography variant="body2" sx={{ fontWeight: 700, color: '#1e293b' }}>
-                    {row.application_number}
-                  </Typography>
-    
-                </TableCell>
-                
-                <TableCell>
-                  <Stack direction="row" spacing={1.5} alignItems="center">
-                    <Avatar sx={{ width: 32, height: 32, fontSize: '0.8rem', bgcolor: '#f1f5f9', color: '#1e293b', border: '1px solid #e2e8f0' }}>
-                      {row.doctorName?.charAt(4)} 
-                    </Avatar>
-                    <Box>
-                      <Typography variant="body2" sx={{ fontWeight: 600, color: '#1e293b' }}>
-                        {row.doctorName}
-                      </Typography>
-                      
-                    </Box>
-                  </Stack>
-                </TableCell>
+        <TableBody>
+  {sortedAppts.map((row) => (
+    <TableRow 
+      key={row.id}
+      sx={{ '&:hover': { bgcolor: '#f1f5f9' }, transition: 'background 0.2s' }}
+    >
+      <TableCell>
+        <Typography variant="body2" sx={{ fontWeight: 700, color: '#1e293b' }}>
+          {row.application_number}
+        </Typography>
+      </TableCell>
+      
+      <TableCell>
+        <Stack direction="row" spacing={1.5} alignItems="center">
+          <Avatar sx={{ width: 32, height: 32, fontSize: '0.8rem', bgcolor: '#f1f5f9', color: '#1e293b', border: '1px solid #e2e8f0' }}>
+            {row.doctorName?.charAt(4)} 
+          </Avatar>
+          <Box>
+            <Typography variant="body2" sx={{ fontWeight: 600, color: '#1e293b' }}>
+              {row.doctorName}
+            </Typography>
+          </Box>
+        </Stack>
+      </TableCell>
 
-                <TableCell align="right">
-                  <Box sx={{ 
-                    display: 'inline-block', 
-                    px: 1.5, 
-                    py: 0.5, 
-                    borderRadius: 2, 
-                    bgcolor: '#f0f9ff', 
-                    border: '1px solid #e0f2fe' 
-                  }}>
-                    <Typography variant="body2" sx={{ fontWeight: 700, color: '#0369a1' }}>
-                      {formatDate(row.date)}
-                    </Typography>
-                  </Box>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
+      <TableCell align="right">
+        {(() => {
+          const passed = isPastDate(row.date);
+          return (
+            <Box sx={{ 
+              display: 'inline-flex', 
+              alignItems: 'center', 
+              gap: 0.5, 
+              px: 1.5, 
+              py: 0.5, 
+              borderRadius: 2, 
+              bgcolor: passed ? '#fef2f2' : '#f0fdf4', 
+              border: `1px solid ${passed ? '#fecaca' : '#dcfce7'}`,
+              color: passed ? '#b91c1c' : '#15803d'
+            }}>
+              {passed && <HistoryIcon sx={{ fontSize: 16 }} />}
+              <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                {formatDate(row.date)}
+              </Typography>
+            </Box>
+          );
+        })()}
+      </TableCell>
+    </TableRow>
+  ))}
+</TableBody>
         </Table>
       </TableContainer>
     ) : (

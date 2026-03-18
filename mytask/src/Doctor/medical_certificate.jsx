@@ -264,7 +264,7 @@ const getGetcertificateDetail = async () => {
             className="actionBtn saveBtn"
             onClick={handleSave}
           >
-            💾 Save
+            Submit
           </button>
         </div>
        
