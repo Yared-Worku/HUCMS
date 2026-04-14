@@ -2,7 +2,7 @@
   "name": "department",
   "version": "0.1.0",
   "private": true,
- "homepage": "/DesktopModules/MVC/Deparment_Assignment/Views/Item",
+ "homepage": "/DesktopModules/MVC/Department/Views/Item",
   "dependencies": {
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
