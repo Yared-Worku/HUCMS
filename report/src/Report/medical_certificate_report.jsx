@@ -42,7 +42,7 @@ const MedicalCertificateReport = () => {
   const handleClosePopup = () => {
     setSelectedCert(null);
   };
-
+  
   // Sorting Logic
   const requestSort = (key) => {
     let direction = "asc";
