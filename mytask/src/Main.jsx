@@ -589,9 +589,9 @@ const handleRefer = async () => {
 const handleActionSelect = async (action) => {
   setAnchorEl(null);
   // const REJECT_RULE_CODE = "6c9145ad-43e8-42a1-84ad-f17553735465"; 
-  if (action.task_rules_code?.toLowerCase() === "6c9145ad-43e8-42a1-84ad-f17553735465".toLowerCase() 
-    || action.task_rules_code?.toLowerCase() === "c309ecb9-02ca-4582-9455-0da40192ccb7".toLowerCase()
-    || action.task_rules_code?.toLowerCase() === "9c9c3d57-2bf9-426b-9172-c958f64cf0f3".toLowerCase()) {
+  if (action.task_rules_code?.toLowerCase() === "1AB45B98-618E-4BE6-B657-5E64AD63EC34".toLowerCase() 
+    || action.task_rules_code?.toLowerCase() === "9443E164-4DDC-474A-A202-9B4334D1CE96".toLowerCase()
+    || action.task_rules_code?.toLowerCase() === "2AFF46E0-5853-4135-B2E8-D6E93AD89355".toLowerCase()) {
     openCommonPopup("REJECTION_REASON", "Provide Rejection Reason", action);
   } else {
     await executeTaskAction(action.task_rules_code);
@@ -714,9 +714,9 @@ const handleAccordionChange = (panel) => (event, isExpanded) => {
     }
   };
 const getClickHandler = () => {
-  if (code === "F0FA6F1E-0BD4-41AC-A05D-BB44A8B79EA4") return handleReviewCh;
-  if (code === "E9760B40-AA42-4D42-A5F9-B6AB296D6C2B") return handleReviewSSD;
-  if (code === "A3166A71-E269-4B8C-88E3-7A703ECED02D") return handleReviewMD;
+  if (code === "0271F985-D31E-4F59-A4AC-A9930F151554") return handleReviewCh;
+  if (code === "18BB88F1-3569-4100-AB77-678EF8B193B6") return handleReviewSSD;
+  if (code === "8FEC6C27-5411-4C09-AE0A-6A00F821D20E") return handleReviewMD;
   return handleReview;
 };
 
@@ -797,20 +797,20 @@ const getClickHandler = () => {
 
       <Box sx={{ mt: 3, flex: 1 }}>
         {(() => {
-          if (code === "F178E9EA-D0DF-41B7-A24A-836ECD79505C") {
+          if (code === "60B590C4-4B2D-4DFA-A892-2A89EC4BC7C8") {
             return <Diagnosis application_number={application_number} Diagnosis={diagnosis} diagnosisCode={diagnosis_Code}
             onSave={handleSavediagnosis} />;
-          } else if(code === "5FF766C5-E596-4BF0-AF8F-BD015C03C103"){
+          } else if(code === "78F418EE-C3B5-4B20-BDA2-E2B050DD0375"){
             return <LabTest application_number={application_number} todocode={todocode} diagnosisCode={diagnosis_Code}/>
-          }else if(code === "5DABA599-80ED-42EA-B559-40443C02486A"){
+          }else if(code === "B3D3ED44-CBC9-4437-B9BE-7B2D9F757F35"){
             return <Dispanse application_number={application_number} todocode={todocode} />
-          } else if(code === "97045723-453F-471D-8190-B59A636855C8"){
+          } else if(code === "80EC8151-4E13-4A5D-862E-E4FBD37EFBEC"){
             return <Medical_Certificate userId={userid} application_number={application_number} todocode={todocode}/>
           }
-          else if(code === "F0FA6F1E-0BD4-41AC-A05D-BB44A8B79EA4"){
+          else if(code === "0271F985-D31E-4F59-A4AC-A9930F151554"){
               return <Payment_Refund_CH application_number={application_number} ProcessDetailCode ={application_detail_id}
                onSave={handleSaveCHRefundData} pr_Code ={pr_Code} onpr_Code={(pr_Code) => setpr_Code(pr_Code)}/>
-          }else if(code === "ABB5C239-17B0-4743-A9DE-36F5FB485D19"){
+          }else if(code === "162C2BA7-6DB5-4B61-BC07-633CA3DE3A88"){
              return <Validation_Finance application_number={application_number} todocode={todocode} ProcessDetailCode ={application_detail_id}
               taskcode = {task_code} onSaveComplete={(newId) => {
         setIsCompleted(true);
@@ -858,7 +858,7 @@ const getClickHandler = () => {
     {(() => {
       const codeUpper = code?.toUpperCase();
 
-      if (codeUpper === "F178E9EA-D0DF-41B7-A24A-836ECD79505C") {
+      if (codeUpper === "60B590C4-4B2D-4DFA-A892-2A89EC4BC7C8") {
         return (
           <>
             <Button
@@ -949,9 +949,9 @@ const getClickHandler = () => {
           </>
         );
       } else if (
-        code === "5FF766C5-E596-4BF0-AF8F-BD015C03C103" ||
-        code === "5DABA599-80ED-42EA-B559-40443C02486A" ||
-        code === "97045723-453F-471D-8190-B59A636855C8"
+        code === "B3D3ED44-CBC9-4437-B9BE-7B2D9F757F35" ||
+        code === "78F418EE-C3B5-4B20-BDA2-E2B050DD0375" ||
+        code === "80EC8151-4E13-4A5D-862E-E4FBD37EFBEC"
       ) {
         return (
           <Button
