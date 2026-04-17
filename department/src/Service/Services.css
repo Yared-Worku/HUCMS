@@ -847,3 +847,41 @@ h2 {
   padding: 6px 8px;      /* minimal vertical padding */
   line-height: 2;      /* reduces extra space inside cells */
 }
+
+/* Container for the whole page */
+.container {
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+  overflow-x: hidden; 
+}
+
+/* The Responsive Table Wrapper */
+.table-container {
+  width: 100%;
+  overflow-x: auto; 
+  -webkit-overflow-scrolling: touch; /* smooth scroll for iOS */
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+   box-shadow: 0 8px 40px rgba(5, 163, 55, 0.8);
+}
+
+/* Ensure columns have enough room to be readable during scroll */
+.table td, .table th {
+  min-width: 120px; 
+  padding: 12px 8px;
+}
+
+/* Prevent long emails/strings from breaking the layout */
+.break-word {
+  word-break: break-all; 
+  max-width: 150px;
+}
+
+/* Pagination responsiveness */
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  justify-content: center;
+}

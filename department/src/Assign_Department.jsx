@@ -22,7 +22,7 @@ const Assign_Department = () => {
       setError(null);
     } catch (err) {
       setUsers([]);
-      setError('Enternal server error');
+      setError('Internal server error');
     } finally {
       setLoading(false);
     }
@@ -92,6 +92,7 @@ const Assign_Department = () => {
               className="searchInput"
             />
           </div>
+
           {/* ---------- Modal ---------- */}
           {selectedUser && (
             <div className="modal-overlay">
@@ -134,61 +135,63 @@ const Assign_Department = () => {
             </div>
           )}
 
-          {/* ---------- Table ---------- */}
-          <table className="table" style={{ width: "100%" }}>
-            <thead className="table-header-green">
-              <tr>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Email</th>
-                <th>Department</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
+          {/* ---------- Table with Responsive Wrapper ---------- */}
+          <div className="table-container"> {/* ADDED FOR MOBILE RESPONSIVENESS */}
+            <table className="table" style={{ width: "100%" }}>
+              <thead className="table-header-green">
+                <tr>
+                  <th>First Name</th>
+                  <th>Last Name</th>
+                  <th>Email</th>
+                  <th>Department</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
 
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td colSpan={5} style={{ textAlign: 'center' }}>
-                    ⏳ Loading...
-                  </td>
-                </tr>
-              ) : error ? (
-                <tr>
-                  <td colSpan={5} style={{ textAlign: 'center', color: 'red' }}>
-                    {error}
-                  </td>
-                </tr>
-              ) : paginatedUsers.length === 0 ? (
-                <tr>
-                  <td colSpan={5} style={{ textAlign: 'center' }}>
-                    No data found.
-                  </td>
-                </tr>
-              ) : (
-                paginatedUsers.map((u, index) => (
-                  <tr key={index} className={index % 2 === 0 ? "rowEven" : "rowOdd"}>
-                    <td>{u.firstName}</td>
-                    <td>{u.lastName}</td>
-                    <td>{u.email}</td>
-                    <td>{departments.find(d => d.depCode === u.depCode)?.depName || '-'}</td>
-                    <td>
-                      <button
-                        type="button"
-                        className="actionBtn editBtn"
-                        onClick={() => {
-                          setSelectedUser(u);
-                          setDepCode(u.depCode || '');
-                        }}
-                      >
-                        Assign Department
-                      </button>
+              <tbody>
+                {loading ? (
+                  <tr>
+                    <td colSpan={5} style={{ textAlign: 'center' }}>
+                      ⏳ Loading...
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : error ? (
+                  <tr>
+                    <td colSpan={5} style={{ textAlign: 'center', color: 'red' }}>
+                      {error}
+                    </td>
+                  </tr>
+                ) : paginatedUsers.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} style={{ textAlign: 'center' }}>
+                      No data found.
+                    </td>
+                  </tr>
+                ) : (
+                  paginatedUsers.map((u, index) => (
+                    <tr key={index} className={index % 2 === 0 ? "rowEven" : "rowOdd"}>
+                      <td>{u.firstName}</td>
+                      <td>{u.lastName}</td>
+                      <td className="break-word">{u.email}</td> {/* ADDED CLASS */}
+                      <td>{departments.find(d => d.depCode === u.depCode)?.depName || '-'}</td>
+                      <td>
+                        <button
+                          type="button"
+                          className="actionBtn editBtn"
+                          onClick={() => {
+                            setSelectedUser(u);
+                            setDepCode(u.depCode || '');
+                          }}
+                        >
+                          Assign 
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
 
           {/* ---------- Pagination ---------- */}
           <div className="pagination">
