@@ -94,7 +94,7 @@ function Surveycomp({ formCode, onsave1, detailId }) {
 
     if (Object.keys(data).length === 0) {
       axios
-        .get(`http://yared.local/json/${encodeURIComponent(formCode)}.json`)
+        .get(`/json/${encodeURIComponent(formCode)}.json`)
         .then((res) => {
           loadSurvey(res.data);
         })

@@ -6,6 +6,14 @@ import reportWebVitals from './reportWebVitals';
 import axios from 'axios';
 
 axios.defaults.baseURL = window.API?.BaseUrl;
+axios.interceptors.request.use((config) => {
+  // If the request starts with '/json/', switch to the DNN URL
+  if (config.url.startsWith('/json/')) {
+    config.baseURL = window.API?.DnnUrl; 
+  }
+  return config;
+});
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>

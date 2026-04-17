@@ -95,7 +95,7 @@ function Surveycomp({ formCode, onsave1, detailId }) {
     if (Object.keys(data).length === 0) {
       // No saved data → fetch new form JSON
       axios
-        .get(`http://hucms/json/${encodeURIComponent(formCode)}.json`)
+        .get(`/json/${encodeURIComponent(formCode)}.json`)
         .then((res) => {
           console.log("🆕 Loaded new form:", res.data);
           loadSurvey(res.data);
