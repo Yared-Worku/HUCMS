@@ -38,7 +38,7 @@ import Validation_Finance from "./Payment_Refund/Validation_Finance";
 const Main = () => {
   const { application_number,service_code,task_code,organization_code,todocode,application_detail_id,meta_data_forms_form_code,} = useParams();
 
-  // const Username = "kira12";
+  // const Username = "dani12";
 const Username = window.__DNN_USER__?.username ?? "Guest";
 
   const navigate = useNavigate();
@@ -247,7 +247,10 @@ const handleSavediagnosis = async (data) => {
       process_detail_code: application_detail_id || null
     };
 
-    const res = await axios.post("/DiagnosisTaskData", payload);
+    // const res = await axios.post("/DiagnosisTaskData", payload);
+        const res = diagnosis_Code 
+      ? await axios.put("/DiagnosisTaskData", payload) 
+      : await axios.post("/DiagnosisTaskData", payload);
 
     if (res.data) {
       if (res.data.processDetailCode) {
@@ -1585,7 +1588,7 @@ const getClickHandler = () => {
       }}
       disabled={!vitalsign.trim() || !physicalexamination || !referalreason}
     >
-    💾 Save
+    💾 Submit
     </Button>
     </Box>
       )}
