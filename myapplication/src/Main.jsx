@@ -136,7 +136,7 @@ if (to_do_code) {
   const handleSave = async (data) => {
     setMessage("");
 
-    if (code === "8B4ADCF4-EC5F-4C66-979F-654889CEB0D0" && !documentFile) {
+    if (code === "B117C398-2E67-404D-9677-17185D288560" && !documentFile) {
       setMessage("⚠️ Please upload the required document before saving or proceeding.");
       return; 
     }
@@ -209,7 +209,7 @@ const fetchMessage = async (todo) => {
     }
   };
   const getStepContent = (step) => {
-    if (code === "8B4ADCF4-EC5F-4C66-979F-654889CEB0D0") {
+    if (code === "B117C398-2E67-404D-9677-17185D288560") {
       switch (step) {
         case 0:
           return <Payment_refund_application processDetailCode={application_detail_id} onsave={handleSave} onFileLoad={(file) => setDocumentFile(file)} />;
@@ -225,7 +225,7 @@ const fetchMessage = async (todo) => {
     } else {
       switch (step) {
         case 0:
-          if (code === "E0D68EE8-56E6-4262-A407-8999F92FCCDE") {
+          if (code === "82489E1E-3841-4A8E-809B-3D8D669471E5") {
             return <Medical_Certificate processDetailCode={application_detail_id} onsave={handleSave} />;
           } else {
             return <Survey formCode={meta_data_forms_form_code} onsave1={handleSave} detailId={application_detail_id} />;
@@ -240,7 +240,7 @@ const fetchMessage = async (todo) => {
     }
   };
 
-  const activeStepsArray = code === "8B4ADCF4-EC5F-4C66-979F-654889CEB0D0" ? stepspaymet : steps;
+  const activeStepsArray = code === "B117C398-2E67-404D-9677-17185D288560" ? stepspaymet : steps;
 
   return (
     <Box sx={{ width: "100%", p: 3 }}>
@@ -294,7 +294,7 @@ const fetchMessage = async (todo) => {
   }}
 >
 
-  {code === "8B4ADCF4-EC5F-4C66-979F-654889CEB0D0" && (
+  {code === "B117C398-2E67-404D-9677-17185D288560" && (
     <Box sx={{ flex: 1, maxWidth: '450px' }}>
       <Paper
         elevation={isDragging ? 4 : 1}
@@ -413,7 +413,7 @@ const fetchMessage = async (todo) => {
             onClick={() => setActiveStep((prev) => prev + 1)}
             disabled={
               !completedSteps[activeStep] || 
-              (code === "8B4ADCF4-EC5F-4C66-979F-654889CEB0D0" && activeStep === 0 && !documentFile)
+              (code === "B117C398-2E67-404D-9677-17185D288560" && activeStep === 0 && !documentFile)
             }
           >
             Next
