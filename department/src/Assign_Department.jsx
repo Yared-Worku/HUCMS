@@ -82,11 +82,11 @@ const Assign_Department = () => {
             margin: "0 auto"
           }}
         >
-          <h6 className="page-title">🏢 Users Department Assignment</h6>
+          <h6 className="page-title">🏢 Users Campus Assignment</h6>
           <div className="searchContainer">
             <input
               type="text"
-              placeholder="Search by name, email or department..."
+              placeholder="Search by name, email or campus..."
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
               className="searchInput"
@@ -107,7 +107,7 @@ const Assign_Department = () => {
 
                 <div className="service-registration-container">
                   <h6>
-                    Assign Department to {selectedUser.firstName} {selectedUser.lastName}
+                    Assign campus to {selectedUser.firstName} {selectedUser.lastName}
                   </h6>
 
                   <select
@@ -115,7 +115,7 @@ const Assign_Department = () => {
                     value={depCode}
                     onChange={e => setDepCode(e.target.value)}
                   >
-                    <option value="">Select Department</option>
+                    <option value="">Select Campus</option>
                     {departments.map(dep => (
                       <option key={dep.depCode} value={dep.depCode}>
                         {dep.depName}
@@ -143,7 +143,7 @@ const Assign_Department = () => {
                   <th>First Name</th>
                   <th>Last Name</th>
                   <th>Email</th>
-                  <th>Department</th>
+                  <th>Campus</th>
                   <th>Actions</th>
                 </tr>
               </thead>

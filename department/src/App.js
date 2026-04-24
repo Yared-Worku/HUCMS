@@ -31,7 +31,7 @@ function App() {
   return (
   <Router>
       <Routes> 
-           <Route path="/Department_Assignment" element={<Assign_Department />} />
+           <Route path="/Campus_Assignment" element={<Assign_Department />} />
              <Route path="/" element={<Assign_Department />} />
              </Routes>
            </Router>
