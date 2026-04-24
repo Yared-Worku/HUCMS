@@ -211,7 +211,7 @@ const getRefer = async (code) => {
         tasks_task_code: task_code,
         value: JSON.stringify(data),
         UserId: userid,
-        ProcessDetailCode: ProcessDetailCode ,
+        ProcessDetailCode: application_detail_id ,
       });
 
       if (res.data) {
