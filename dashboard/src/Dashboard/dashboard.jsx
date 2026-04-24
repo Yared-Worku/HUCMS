@@ -87,8 +87,8 @@ const formatDate = (dateString) => {
   });
 };
 
-    const Username = window.__DNN_USER__?.username ?? "Guest";
-  // const Username = "amani";
+    // const Username = window.__DNN_USER__?.username ?? "Guest";
+  const Username = "aman12";
 
   useEffect(() => {
     fetchuserid();
@@ -129,7 +129,7 @@ const fetchStudentdashboard = async (id, roleid) => {
     { name: 'In Progress', value: (stats.open || 0) + (stats.picked || 0), color: '#2196f3' }
   ];
   const chartData = rawChartData.filter(item => {
-    if (roleid === '4ED1B191-AD58-4EAD-B269-02576B4DD8D0'.toLowerCase() ) {
+    if (roleid === 'C2D34305-61DB-4540-B368-26E4F9564C62'.toLowerCase() ) {
     return item.name !== 'Open' && item.name !== 'Picked';
        }else{
        return item.name !== 'Suspended' && item.name !== 'In Progress';;
@@ -170,7 +170,7 @@ const handleQuickActionClick = async (action) => {
 };
 
   const closeDialog = () => setDialogOpen(false);
-  const showRoleColumn = dialogContent.data.some(row => row.roleID !== '4ED1B191-AD58-4EAD-B269-02576B4DD8D0'.toLowerCase());
+  const showRoleColumn = dialogContent.data.some(row => row.roleID !== 'C2D34305-61DB-4540-B368-26E4F9564C62'.toLowerCase());
   const totalValue = chartData.reduce((sum, item) => sum + item.value, 0);
 
   const sortedAppts = [...apptData].sort((a, b) => {
@@ -208,7 +208,7 @@ const handleQuickActionClick = async (action) => {
               icon={<AssignmentTurnedInOutlined />} 
             />
           </Grid>
-          {roleid === '4ED1B191-AD58-4EAD-B269-02576B4DD8D0'.toLowerCase() && (
+          {roleid === 'C2D34305-61DB-4540-B368-26E4F9564C62'.toLowerCase() && (
             <>
     <Grid item xs={12} sm={4} md={2.4}>
       <StatCard 
@@ -226,7 +226,7 @@ const handleQuickActionClick = async (action) => {
           </Grid>
           </>
           )}
-         {roleid !== '4ED1B191-AD58-4EAD-B269-02576B4DD8D0'.toLowerCase() && (
+         {roleid !== 'C2D34305-61DB-4540-B368-26E4F9564C62'.toLowerCase() && (
             <>
               <Grid item xs={12} sm={4} md={2.4}>
                 <StatCard title="OPEN APPLICATIONS" value={stats.open} color="#2196f3" icon={<FolderOpenOutlined />} />
@@ -323,7 +323,7 @@ const handleQuickActionClick = async (action) => {
       </Box>
             </Paper>
           </Grid>
-     {roleid === '4ED1B191-AD58-4EAD-B269-02576B4DD8D0'.toLowerCase() && (
+     {roleid === 'C2D34305-61DB-4540-B368-26E4F9564C62'.toLowerCase() && (
         <>
           {/* Quick Actions */}
           <Grid item xs={12} md={3}>
