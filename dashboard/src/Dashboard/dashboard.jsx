@@ -87,8 +87,8 @@ const formatDate = (dateString) => {
   });
 };
 
-    // const Username = window.__DNN_USER__?.username ?? "Guest";
-  const Username = "aman12";
+    const Username = window.__DNN_USER__?.username ?? "Guest";
+  // const Username = "aman12";
 
   useEffect(() => {
     fetchuserid();
@@ -158,6 +158,7 @@ const handleQuickActionClick = async (action) => {
       setApptData(mappedAppointments);
       setApptDialogOpen(true); 
     } catch (err) {
+      setApptDialogOpen(true); 
       console.error("Failed to fetch appointments:", err);
     }
   } else {
@@ -594,7 +595,7 @@ const handleQuickActionClick = async (action) => {
         <Avatar sx={{ width: 64, height: 64, mb: 2, bgcolor: '#f8fafc' }}>
           <FolderOpenOutlined sx={{ fontSize: 32, color: '#cbd5e1' }} />
         </Avatar>
-        <Typography sx={{ color: '#64748b', fontWeight: 500 }}>No upcoming appointments found.</Typography>
+        <Typography sx={{ color: '#64748b', fontWeight: 500 }}>Not appointed yet.</Typography>
       </Stack>
     )}
   </DialogContent>
