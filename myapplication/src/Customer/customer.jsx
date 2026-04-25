@@ -11,7 +11,7 @@ const initialCustomerState = {
   Applicant_Last_Name_EN: "",
   TIN: "",
   Gender: "",
-  SDP_ID: "",
+  // SDP_ID: "",
   ID_NO: "",
   Email: "",
   Age: "",
@@ -75,7 +75,7 @@ const Customer = ({ onsave2 }) => {
           Applicant_Last_Name_EN: cust.applicant_Last_Name_EN,
           TIN: cust.tin,
           Gender: cust.gender,
-          SDP_ID: cust.sdP_ID,
+          // SDP_ID: cust.sdP_ID,
           ID_NO: cust.iD_NO,
           Email: cust.email,
           Age: cust.age,
@@ -287,7 +287,7 @@ const Customer = ({ onsave2 }) => {
               className="form-control"
             />
           </div>
-       <div className="col-md-4 mb-3">
+       {/* <div className="col-md-4 mb-3">
             <label className="form-label">Department</label>
             <select
               name="SDP_ID"
@@ -303,7 +303,7 @@ const Customer = ({ onsave2 }) => {
                 </option>
               ))}
             </select>
-          </div>
+          </div> */}
           {/* File Uploads */}
           <div className="col-md-6 mb-3">
             <label className="form-label">Photo</label>
