@@ -467,6 +467,7 @@ const renderServiceItem = (svc, topic) => {
           <div className="campus-grid">
             {[...new Set(OrgDepCode.map(item => item.name_en))].map(name => (
               <button
+              type='button'
                 key={name}
                 className={`campus-card ${selectedCampus === name ? 'active' : ''}`}
                 onClick={() => {
@@ -493,6 +494,7 @@ const renderServiceItem = (svc, topic) => {
           <div className="dept-grid">
             {filteredDepts.map((dept) => (
               <button 
+              type='button'
                 key={dept.depCode} 
                 className={`modern-dept-item ${selectedDepCode === dept.depCode ? 'selected' : ''}`}
                 onClick={() => setSelectedDepCode(dept.depCode)}
