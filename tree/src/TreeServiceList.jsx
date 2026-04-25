@@ -44,6 +44,93 @@ const TreeServiceList = () => {
   const [visibleDept, setVisibleDept] = useState(null);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const [showCampusModal, setShowCampusModal] = useState(false);
+const [selectedCampus, setSelectedCampus] = useState('');
+const [filteredDepts, setFilteredDepts] = useState([]);
+const [selectedDepCode, setSelectedDepCode] = useState('');
+   const [userid, setUserid] = useState(null);
+   const [roleid, setRoleid] = useState(null);
+const [departments, setDepartments] = useState(null);
+const [OrgDepCode, setOrgDepCode] = useState([]);
+
+    const Username = window.__DNN_USER__?.username ?? "Guest";
+  // const Username = "aman12";
+
+  useEffect(() => {
+    fetchuserid();
+    fetchOrgDepCode();
+  }, []);
+
+  const fetchuserid = async () => {
+    try {
+      const res = await axios.get(`/GetUserID/${Username}`);
+      if (Array.isArray(res.data) && res.data.length > 0) {
+        const id = res.data[0].userid;
+        const roleid = res.data[0].roleid;
+        setRoleid(roleid);
+        setUserid(id);
+         fetchDepartments(id);
+      }
+    } catch (err) {
+      console.error("Failed to fetch userid:", err);
+    }
+  };
+    const fetchDepartments = async (userid) => {
+    try {
+      // debugger
+      const res = await axios.get(`/DepCode/${userid}`);
+      setDepartments(res.data);
+    } catch (err) {
+      setDepartments([]);
+    }
+  };
+const fetchOrgDepCode = async () => {
+  try {
+    const res = await axios.get('/OrgDepCode'); 
+    setOrgDepCode(res.data);
+  } catch (err) {
+    console.error("Fetch failed:", err);
+    setOrgDepCode([]);
+  }
+};
+
+useEffect(() => {
+  if (departments !== null && OrgDepCode.length > 0) {
+      
+    if (departments.length === 0) {
+      setShowCampusModal(true);
+    } else {
+      setShowCampusModal(false);
+    }
+    
+  }
+}, [departments, OrgDepCode]);
+const handleCampusChange = (e) => {
+  const campus = e.target.value;
+  setSelectedCampus(campus);
+  
+  // Filter the list to show departments belonging to the selected campus
+  const depts = OrgDepCode.filter(item => item.name_en === campus);
+  setFilteredDepts(depts);
+};
+const handleDepartmentAssignment = async () => {
+  if (!userid || !selectedDepCode) return;
+
+  try {
+    const payload = {
+      userid: userid,
+      depCode: selectedDepCode
+    };
+
+    await axios.post('/UserDeptAssignment', payload);
+     fetchDepartments(userid);
+    // alert("Department assigned successfully!");
+    setShowCampusModal(false);
+  } catch (err) {
+    console.error("Assignment failed:", err);
+    alert("Failed to assign department.");
+  }
+};
 
   useEffect(() => {
     Promise.all([
@@ -118,7 +205,7 @@ const TreeServiceList = () => {
     setOpenChildren(prev => ({ ...prev, [code]: !prev[code] }));
 
   // --- Render Single Service Card ---
-  const renderServiceItem = (svc, topic) => {
+const renderServiceItem = (svc, topic) => {
     const isExpanded = visibleDept === svc.service_code;
 
     return (
@@ -132,15 +219,16 @@ const TreeServiceList = () => {
           <div 
             onClick={() => setVisibleDept(isExpanded ? null : svc.service_code)}
             className="service-header"
-            style={{ display: 'flex', flexDirection: 'column', gap: '10px' }} // Ensures vertical stacking of header & pill on mobile
+            /* CHANGE: Added justify-content and align-items to push items apart */
+            style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '15px', flexWrap: 'wrap' }} 
           >
-            <div style={{ display: 'flex', alignItems: 'flex-start', flex: 1, flexWrap: 'wrap', gap: '15px' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', flex: 1, minWidth: '200px', gap: '15px' }}>
               {/* Icon Box */}
               <div className="service-icon-box" style={{ flexShrink: 0 }}>
                 <ServiceIcon />
               </div>
 
-              <div style={{ flex: '1 1 200px', minWidth: 0 }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
                 <h4 className="service-title" style={{ margin: 0, wordWrap: 'break-word' }}>
                   {svc.description_en}
                 </h4>
@@ -151,9 +239,18 @@ const TreeServiceList = () => {
               </div>
             </div>
 
-            {/* Requirements Pill */}
+            {/* Requirements Pill - MOVED TO RIGHT CORNER */}
             {svc.requirementsTOApply_en && (
-              <div className="requirements-pill" style={{ display: 'flex', alignItems: 'flex-start', flexWrap: 'wrap', wordBreak: 'break-word', padding: '8px 12px', background: '#f8fafc', borderRadius: '6px' }}>
+              <div className="requirements-pill" style={{ 
+                display: 'flex', 
+                alignItems: 'flex-start', 
+                wordBreak: 'break-word', 
+                padding: '8px 12px', 
+                background: '#f8fafc', 
+                borderRadius: '6px',
+                maxWidth: '300px', // Prevents it from taking too much space on wide screens
+                fontSize: '0.85rem' 
+              }}>
                 <span style={{ marginRight: '6px', flexShrink: 0 }}>📝</span>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <span style={{ color: '#0f172a', fontWeight: '800' }}>Requirements: </span>
@@ -170,35 +267,57 @@ const TreeServiceList = () => {
                Select a provider to start
               </p>
                
-              <div className="provider-grid" style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}> {/* Wrapped the providers for mobile */}
-                {(svc.consolidatedProviders && svc.consolidatedProviders.length > 0) ? (
-                  svc.consolidatedProviders.map((provider, idx) => {
-                    return (
-                      <button
-                        type='button'
-                        key={idx}
-                        className="provider-btn"
-                        style={{ flex: '1 1 auto', minWidth: '160px', display: 'flex', alignItems: 'center' }} // Scales buttons properly
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          window.location.href = `/myApplication/${svc.service_code}/${svc.task_code}/${provider.orgCode}/${svc.meta_data_forms_form_code}`;
-                        }}
-                      >
-                        <span className="provider-icon-wrapper">
-                           <BuildingIcon />
-                        </span>
-                        <span style={{ wordWrap: 'break-word', textAlign: 'left' }}>
-                          {provider.name}
-                        </span>
-                      </button>
-                    );
-                  })
-                ) : (
-                  <div className="no-providers" style={{ width: '100%', wordBreak: 'break-word' }}>
-                    ⚠️ No active service providers available at this time.
-                  </div>
-                )}
-              </div>
+<div className="provider-grid" style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+  {!userid ? (
+    /* 1. Case: User is not logged in */
+    <div className="login-notice" style={{ width: '100%', padding: '12px', background: '#fef2f2', color: '#991b1b', borderRadius: '6px', fontSize: '0.9rem', border: '1px solid #fee2e2' }}>
+      🔒 You have to login to see the available service providers with your campus.
+    </div>
+  ) : (
+    /* 2. Case: User is logged in, show filtered providers */
+    <>
+      {svc.consolidatedProviders && svc.consolidatedProviders.length > 0 ? (
+        svc.consolidatedProviders
+          .filter(provider => 
+            // Only show provider if its orgCode exists in the user's departments list
+            // We use optional chaining ?. in case departments is null
+            departments?.some(d => d.orgCode === provider.orgCode)
+          )
+          .map((provider, idx) => (
+            <button
+              type='button'
+              key={idx}
+              className="provider-btn"
+              style={{ flex: '1 1 auto', minWidth: '160px', display: 'flex', alignItems: 'center' }}
+              onClick={(e) => {
+                e.stopPropagation();
+                window.location.href = `/myApplication/${svc.service_code}/${svc.task_code}/${provider.orgCode}/${svc.meta_data_forms_form_code}`;
+              }}
+            >
+              <span className="provider-icon-wrapper">
+                <BuildingIcon />
+              </span>
+              <span style={{ wordWrap: 'break-word', textAlign: 'left' }}>
+                {provider.name}
+              </span>
+            </button>
+          ))
+      ) : (
+        <div className="no-providers" style={{ width: '100%', wordBreak: 'break-word' }}>
+          ⚠️ No active service providers available at this time.
+        </div>
+      )}
+
+      {/* Message if providers exist but none match the user's assigned OrgCode */}
+      {svc.consolidatedProviders?.length > 0 && 
+       !svc.consolidatedProviders.some(p => departments?.some(d => d.orgCode === p.orgCode)) && (
+        <div className="no-match" style={{ width: '100%', fontSize: '0.85rem', color: '#64748b', padding: '8px' }}>
+         ⚠️ You have to complete your department assignment information to see the available service providers with your campus.
+        </div>
+      )}
+    </>
+  )}
+</div>
             </div>
           )}
         </div>
@@ -314,6 +433,95 @@ const TreeServiceList = () => {
           );
         })}
       </div>
+      {/* Campus Selection Modal */}
+{showCampusModal && (
+  <div className="modern-modal-overlay">
+    <div className="modern-modal-content">
+      
+      {/* Header */}
+      <div className="modern-modal-header">
+        <div className="header-title-group">
+          <div className="header-icon">
+            <BuildingIcon />
+          </div>
+          <div>
+            <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#0f172a' }}>Department Assignment</h3>
+            <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b', marginTop: '4px' }}>
+              Complete your profile by selecting your campus and department.
+            </p>
+          </div>
+        </div>
+        <button onClick={() => setShowCampusModal(false)} className="modern-close-btn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      
+      <div className="modern-modal-body">
+        {/* Step 1: Campus Selection */}
+        <div className="selection-step">
+          <div className="step-label">
+            <span className="step-number">1</span> 
+            Choose your Campus
+          </div>
+          
+          <div className="campus-grid">
+            {[...new Set(OrgDepCode.map(item => item.name_en))].map(name => (
+              <button
+                key={name}
+                className={`campus-card ${selectedCampus === name ? 'active' : ''}`}
+                onClick={() => {
+                  handleCampusChange({ target: { value: name } }); // Keep your existing handler logic
+                  setSelectedDepCode(''); // Reset department on new campus
+                }}
+              >
+                <div className="campus-card-content">
+                  <span className="campus-icon">🏛️</span>
+                  <span className="campus-name">{name}</span>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Step 2: Department Selection (Animates in when Campus is selected) */}
+        <div className={`selection-step dept-step ${selectedCampus ? 'visible' : ''}`}>
+          <div className="step-label" style={{ marginTop: '24px' }}>
+            <span className="step-number">2</span> 
+            Select your Department
+          </div>
+          
+          <div className="dept-grid">
+            {filteredDepts.map((dept) => (
+              <button 
+                key={dept.depCode} 
+                className={`modern-dept-item ${selectedDepCode === dept.depCode ? 'selected' : ''}`}
+                onClick={() => setSelectedDepCode(dept.depCode)}
+              >
+                <div className="modern-radio">
+                  <div className="radio-dot"></div>
+                </div>
+                <span className="dept-name-text">{dept.depName}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+      
+      {/* Footer */}
+      <div className="modern-modal-footer">
+        <button  
+        type='button'
+          className="modern-confirm-btn" 
+          disabled={!selectedDepCode}
+          onClick={handleDepartmentAssignment}
+        >
+          <span>Confirm Assignment</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 };
