@@ -108,35 +108,49 @@ const Review = ({ formCode, processDetailCode, userId }) => {
     };
 
    const fetchAllData = async (userId) => {
-     try {
+  try {
+    // debugger
     const [certRes, refundRes] = await Promise.all([
-      axios.get(`/Getcertificate/${userId}`),
-      axios.get(`/getExistingRefund/${userId}`)
+      // Attach a catch directly to the individual calls to prevent Promise.all from crashing
+      axios.get(`/Getcertificate/${userId}`).catch(err => {
+        // console.warn("No certificate record found or API failed.");
+        return { data: [] }; // Fallback to empty data
+      }),
+      axios.get(`/getExistingRefund/${userId}`).catch(err => {
+        // console.warn("No refund record found or API failed.");
+        return { data: [] }; // Fallback to empty data
+      })
     ]);
+
+    // The rest of your logic stays exactly the same!
     const certificateData = Array.isArray(certRes.data) ? certRes.data : [];
     const refundData = Array.isArray(refundRes.data) ? refundRes.data : [];
+    
     let matchedItem = null;
-    //First try refund (priority)
+    
+    // First try refund (priority)
     if (processDetailCode) {
       matchedItem = refundData.find(
         (item) => item.detail_code === processDetailCode
       );
     }
-    //If not found in refund, try certificate
+    
+    // If not found in refund, try certificate
     if (!matchedItem && processDetailCode) {
       matchedItem = certificateData.find(
         (item) => item.detail_code === processDetailCode
       );
     }
+    
     // If matched, populate state
     if (matchedItem) {
       setApplicationNumber(matchedItem.application_number || "");
-    } 
-    else {
+    } else {
       setApplicationNumber("");
     }
 
   } catch (err) {
+    // This will now only trigger if something goes critically wrong with the execution
     console.error("❌ Failed loading certificate/refund data:", err);
     setApplicationNumber("");
   }
