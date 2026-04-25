@@ -165,7 +165,7 @@ const customerFieldOrder = [
   "Age",
   "Mobile_No",
   "ID_NO",     
-  "depname",
+  // "depname",
   "Photo",
   // "Signiture"
 ];
