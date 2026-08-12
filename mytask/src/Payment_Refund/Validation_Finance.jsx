@@ -110,7 +110,6 @@ const handleSave = async () => {
 
     return <Payment sx={style} />;
   };
-
   if (isLoading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", mt: 10 }}>
