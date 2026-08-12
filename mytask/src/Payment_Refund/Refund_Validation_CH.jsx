@@ -10,7 +10,6 @@ import {
   Button,
   Container
 } from "@mui/material";
-
 const Payment_Refund_CH = ({ application_number, ProcessDetailCode, onSave, pr_Code, onpr_Code }) => {
   // 🔹 Patient info from API
   const [patientName, setPatientName] = useState("");
