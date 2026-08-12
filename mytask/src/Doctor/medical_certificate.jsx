@@ -267,7 +267,6 @@ const getGetcertificateDetail = async () => {
             Submit
           </button>
         </div>
-       
       </Paper>
     </Box>
   );
