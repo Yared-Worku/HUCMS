@@ -86,7 +86,6 @@ function Surveycomp({ formCode, onsave1, detailId }) {
       });
 
       surveyModel.data = answers;
-
       setSurvey(surveyModel);
       setFormJson(jsonData);
       setLoading(false);
