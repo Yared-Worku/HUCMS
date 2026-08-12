@@ -32,7 +32,6 @@ const Diagnosis = ({ application_number, onSave, Diagnosis, diagnosisCode }) => 
     setDiagnosis(Diagnosis);
   }
 }, [Diagnosis]);
-
   // Fetch license / patient info
   const getLicense = async (appNo = application_number) => {
     try {
