@@ -208,7 +208,6 @@ const getRefund = async (ProcessDetailCode) => {
             {saving ? "⏳ Saving..." : buttonText}
           </button>
         </div>
-       
       </Paper>
     </Box>
   );
