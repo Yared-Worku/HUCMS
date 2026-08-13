@@ -241,5 +241,4 @@ const handleSave = async () => {
     </Box>
   );
 };
-
 export default LabTest;
