@@ -35,7 +35,7 @@ const Customer = ({ onsave2 }) => {
   // const Username = "amani";
   const Username = window.__DNN_USER__?.username ?? "Guest";
 
-  // 🔹 fetch userid
+  // fetch userid
   const fetchuserid = async () => {
     try {
       const res = await axios.get(`/GetUserID/${Username}`);
