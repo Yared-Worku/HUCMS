@@ -217,5 +217,4 @@ const Assign_Department = () => {
     </div>
   );
 };
-
 export default Assign_Department;
